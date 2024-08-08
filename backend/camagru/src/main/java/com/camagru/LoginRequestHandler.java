@@ -66,38 +66,15 @@ public class LoginRequestHandler implements HttpHandler {
             br.close();
             isr.close();
 
+            // Get JSON body
             JSONObject jsonBody = new JSONObject(sb.toString());
 
-            List<String> wrongFields = new ArrayList<>();
-            List<String> propertyFields = Arrays.asList("password");
-            // // Check for invalid fields
-            // for (String requiredFieldString : propertyFields) {
-            // try {
-            // String field = jsonBody.getString(requiredFieldString);
-            // if (field.isEmpty()) {
-            // wrongFields.add(requiredFieldString);
-            // }
-            // } catch (Exception e) {
-            // }
-            // }
-            // Check missing fields
-            for (String requiredFieldString : propertyFields) {
-                try {
-                    jsonBody.getString(requiredFieldString);
-                } catch (Exception e) {
-                    wrongFields.add(requiredFieldString);
-                }
-            }
-            // Special case: username or email
-            try {
-                jsonBody.getString("username");
-            } catch (Exception e) {
-                try {
-                    jsonBody.getString("email");
-                } catch (Exception e1) {
-                    wrongFields.add("username or email");
-                }
-            }
+            // Validate fields
+            List<PropertyField> propertyFields = Arrays.asList(
+                    new PropertyField("username", true),
+                    new PropertyField("password", true, RegexUtil.PASSWORD_REGEX));
+            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields);
+            List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
 
             if (!wrongFields.isEmpty()) {
                 String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
@@ -106,20 +83,7 @@ public class LoginRequestHandler implements HttpHandler {
             }
 
             // Extract fields
-            String username = null;
-            String email = null;
-
-            try {
-                username = jsonBody.getString("username");
-            } catch (Exception e) {
-                username = null;
-            }
-
-            try {
-                email = jsonBody.getString("email");
-            } catch (Exception e) {
-                email = null;
-            }
+            String username = jsonBody.getString("username");
 
             // Hashing password
             MessageDigest md = MessageDigest.getInstance("SHA-512");
@@ -127,12 +91,7 @@ public class LoginRequestHandler implements HttpHandler {
             String hashPasswordText = Base64.getEncoder().encodeToString(messageDigest);
 
             // Get user password from database
-            String query = null;
-            if (username != null) {
-                query = "select * from users where username='" + username + "'";
-            } else if (email != null) {
-                query = "select * from users where email='" + email + "'";
-            }
+            String query = "select * from users where username='" + username + "'" + " OR email='" + username + "'";
 
             try (Connection con = DriverManager.getConnection(dbUrl,
                     dbUsername, dbPassword);
@@ -140,15 +99,11 @@ public class LoginRequestHandler implements HttpHandler {
                 ;
 
                 // Get user from database
-                String userName = null;
-                String userEmail = null;
                 String userPassword = null;
 
                 ResultSet rs = stmt
                         .executeQuery(query);
                 if (rs.next()) {
-                    userName = rs.getString("username");
-                    userEmail = rs.getString("email");
                     userPassword = rs.getString("password");
                 } else {
                     String errorMessage = "User not found";
@@ -158,9 +113,6 @@ public class LoginRequestHandler implements HttpHandler {
 
                 // Validate password
                 if (!hashPasswordText.equals(userPassword)) {
-                    System.out.println(hashPasswordText);
-                    System.out.println(userPassword);
-
                     String errorMessage = "Invalid password";
                     System.err.println(errorMessage);
                     return new SimpleHttpResponse(createErrorResponse(errorMessage), 401);

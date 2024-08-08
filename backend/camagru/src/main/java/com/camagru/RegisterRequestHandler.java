@@ -66,33 +66,22 @@ public class RegisterRequestHandler implements HttpHandler {
             br.close();
             isr.close();
 
+            // Get JSON body
             JSONObject jsonBody = new JSONObject(sb.toString());
 
-            List<String> wrongFields = new ArrayList<>();
-            List<String> propertyFields = Arrays.asList("username", "email", "password");
-            // Check for invalid fields
-            for (String requiredFieldString : propertyFields) {
-                try {
-                    String field = jsonBody.getString(requiredFieldString);
-                    if (field.isEmpty()) {
-                        wrongFields.add(requiredFieldString);
-                    }
-                } catch (Exception e) {
+            // Validate fields
+            {
+                List<PropertyField> propertyFields = Arrays.asList(
+                        new PropertyField("email", true, RegexUtil.EMAIL_REGEX),
+                        new PropertyField("username", true, RegexUtil.USERNAME_REGEX),
+                        new PropertyField("password", true, RegexUtil.PASSWORD_REGEX));
+                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields);
+                List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
+                if (!wrongFields.isEmpty()) {
+                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                    System.err.println(errorMessage);
+                    return new SimpleHttpResponse(createErrorResponse(errorMessage), 400);
                 }
-            }
-            // Check missing fields
-            for (String requiredFieldString : propertyFields) {
-                try {
-                    jsonBody.getString(requiredFieldString);
-                } catch (Exception e) {
-                    wrongFields.add(requiredFieldString);
-                }
-            }
-
-            if (!wrongFields.isEmpty()) {
-                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                System.err.println(errorMessage);
-                return new SimpleHttpResponse(createErrorResponse(errorMessage), 400);
             }
 
             // Extract fields

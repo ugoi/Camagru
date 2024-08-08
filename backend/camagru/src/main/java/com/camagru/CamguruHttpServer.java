@@ -10,7 +10,7 @@ import java.util.Properties;
 
 import com.sun.net.httpserver.HttpServer;
 
-public class HttpServerExample {
+public class CamguruHttpServer {
     public static void main(String[] args) throws IOException {
         // Properties
         Properties appProps = ConfigUtil.getProperties();
