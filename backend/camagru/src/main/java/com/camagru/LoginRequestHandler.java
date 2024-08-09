@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -21,7 +20,6 @@ import org.json.JSONObject;
 public class LoginRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        // Database
         SimpleHttpResponse response;
 
         switch (exchange.getRequestMethod()) {
@@ -29,11 +27,16 @@ public class LoginRequestHandler implements HttpHandler {
                 response = handlePostRequest(exchange);
                 break;
             default:
-                response = new SimpleHttpResponse(createErrorResponse("Unsupported method"), 405); // Method not allowed
+                response = new SimpleHttpResponse(createErrorResponse("Unsupported method"), 405); // Method not
+                                                                                                   // allowed
                 break;
         }
 
         exchange.getResponseHeaders().set("Content-Type", "application/json");
+        if (response.responseHeaders != null) {
+            response.responseHeaders.keySet()
+                    .forEach(key -> exchange.getResponseHeaders().set(key, response.responseHeaders.getString(key)));
+        }
         exchange.sendResponseHeaders(response.statusCode, response.responseBody.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.responseBody.getBytes());
@@ -93,6 +96,7 @@ public class LoginRequestHandler implements HttpHandler {
             // Get user password from database
             String query = "select * from users where username='" + username + "'" + " OR email='" + username + "'";
 
+            String userName = null;
             try (Connection con = DriverManager.getConnection(dbUrl,
                     dbUsername, dbPassword);
                     Statement stmt = con.createStatement();) {
@@ -104,6 +108,7 @@ public class LoginRequestHandler implements HttpHandler {
                 ResultSet rs = stmt
                         .executeQuery(query);
                 if (rs.next()) {
+                    userName = rs.getString("username");
                     userPassword = rs.getString("password");
                 } else {
                     String errorMessage = "User not found";
@@ -121,11 +126,16 @@ public class LoginRequestHandler implements HttpHandler {
                 System.out.println("Successfully connected to database and added user");
             }
 
-            JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("message", "User successfully logged in");
-            jsonResponse.put("token", "exampleToken123");
+            JwtManager jwtManager = new JwtManager("secret");
+            String token = jwtManager.createToken(userName);
 
-            return new SimpleHttpResponse(jsonResponse.toString(), 201);
+            JSONObject jsonResBody = new JSONObject()
+                    .put("message", "User successfully logged in");
+
+            JSONObject jsonResHeaders = new JSONObject()
+                    .put("Set-Cookie", "token=" + token + "; HttpOnly");
+
+            return new SimpleHttpResponse(jsonResBody.toString(), 201, jsonResHeaders);
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
             System.err.println(errorMessage);
@@ -143,10 +153,17 @@ public class LoginRequestHandler implements HttpHandler {
     private static class SimpleHttpResponse {
         public final String responseBody;
         public final int statusCode;
+        public JSONObject responseHeaders = null;
 
         public SimpleHttpResponse(String responseBody, int statusCode) {
             this.responseBody = responseBody;
             this.statusCode = statusCode;
+        }
+
+        public SimpleHttpResponse(String responseBody, int statusCode, JSONObject responseHeaders) {
+            this.responseBody = responseBody;
+            this.statusCode = statusCode;
+            this.responseHeaders = responseHeaders;
         }
 
     }

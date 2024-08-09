@@ -1,7 +1,5 @@
 package com.camagru;
 
-import org.json.JSONException;
-
 public class PropertyField {
     public String key;
     public Boolean isMandatory;
@@ -23,7 +21,7 @@ public class PropertyField {
      * Validate a value against the mandatory flag and regex.
      *
      * @param value
-     *            A string value.
+     *              A string value.
      * @return A boolean value.
      */
     public Boolean validate(String value) {

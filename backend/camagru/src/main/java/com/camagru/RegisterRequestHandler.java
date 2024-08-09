@@ -21,7 +21,6 @@ import org.json.JSONObject;
 public class RegisterRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        // Database
         SimpleHttpResponse response;
 
         switch (exchange.getRequestMethod()) {
@@ -85,13 +84,9 @@ public class RegisterRequestHandler implements HttpHandler {
             }
 
             // Extract fields
-            String username = null;
-            String email = null;
-            String password = null;
-
-            username = jsonBody.getString("username");
-            email = jsonBody.getString("email");
-            password = jsonBody.getString("password");
+            String username = jsonBody.getString("username");
+            String email = jsonBody.getString("email");
+            String password = jsonBody.getString("password");
 
             // Hashing password
             MessageDigest md = MessageDigest.getInstance("SHA-512");
