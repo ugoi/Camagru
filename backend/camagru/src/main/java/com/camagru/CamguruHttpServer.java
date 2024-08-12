@@ -37,7 +37,7 @@ public class CamguruHttpServer {
         }
 
         // Http Server
-        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 8000), 0);
 
         server.createContext("/api/example", new ExampleRequestHandler());
         server.createContext("/api/register", new RegisterRequestHandler());

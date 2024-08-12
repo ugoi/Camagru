@@ -47,7 +47,7 @@ async function register(username, email, password) {
   };
 
   const response = await fetch(
-    "http://localhost:8000/api/register/",
+    "http://127.0.0.1:8000/api/register/",
     requestOptions
   );
 

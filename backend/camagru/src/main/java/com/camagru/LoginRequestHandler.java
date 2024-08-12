@@ -26,15 +26,23 @@ public class LoginRequestHandler implements HttpHandler {
             case "POST":
                 response = handlePostRequest(exchange);
                 break;
+            case "OPTIONS":
+                response = handleOptionsRequest(exchange);
+                break;
             default:
-                response = new SimpleHttpResponse(createErrorResponse("Unsupported method"), 405); // Method not
+                response = new SimpleHttpResponse(createErrorResponse("Unsupported method"), 405); // Method not //
                                                                                                    // allowed
                 break;
         }
 
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
         exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
+        if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+            exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Headers",
+                    "Content-Type, *");
+        }
         if (response.responseHeaders != null) {
             response.responseHeaders.keySet()
                     .forEach(key -> exchange.getResponseHeaders().set(key, response.responseHeaders.getString(key)));
@@ -43,6 +51,10 @@ public class LoginRequestHandler implements HttpHandler {
         OutputStream os = exchange.getResponseBody();
         os.write(response.responseBody.getBytes());
         os.close();
+    }
+
+    private SimpleHttpResponse handleOptionsRequest(HttpExchange exchange) {
+        return new SimpleHttpResponse("", 204); // No content
     }
 
     private SimpleHttpResponse handlePostRequest(HttpExchange exchange) {
@@ -136,7 +148,8 @@ public class LoginRequestHandler implements HttpHandler {
                     .put("message", "User successfully logged in");
 
             JSONObject jsonResHeaders = new JSONObject()
-                    .put("Set-Cookie", "token=" + token + "; HttpOnly");
+                    .put("Set-Cookie", "token=" + token
+                            + "; Max-Age=3600000; Path=/; Expires=Wed, 09 Jun 2025 10:18:14 GMT; SameSite=Lax");
 
             return new SimpleHttpResponse(jsonResBody.toString(), 201, jsonResHeaders);
         } catch (Exception e) {

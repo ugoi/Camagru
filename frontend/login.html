@@ -16,9 +16,20 @@
     <!-- [if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif] -->
-    <form>
+    <form onsubmit="handleLogin()">
       <div class="container">
         <h1>Login</h1>
+
+        <div
+          class="alert"
+          id="loginSuccess"
+          style="display: none; color: green"
+        >
+          <p>Login successful</p>
+        </div>
+        <div class="alert" id="loginError" style="display: none; color: red">
+          <p>Login failed</p>
+        </div>
 
         <label for="username">Username or Email</label>
         <input type="text" name="username" id="username" />
@@ -34,6 +45,6 @@
         </p>
       </div>
     </form>
-    <script src="" async defer></script>
+    <script src="login.js" async defer></script>
   </body>
 </html>
