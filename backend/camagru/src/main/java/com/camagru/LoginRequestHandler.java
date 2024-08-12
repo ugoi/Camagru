@@ -33,6 +33,8 @@ public class LoginRequestHandler implements HttpHandler {
         }
 
         exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
         if (response.responseHeaders != null) {
             response.responseHeaders.keySet()
                     .forEach(key -> exchange.getResponseHeaders().set(key, response.responseHeaders.getString(key)));
@@ -50,8 +52,9 @@ public class LoginRequestHandler implements HttpHandler {
             String dbUrl = appProps.getProperty("db.url");
             String dbUsername = appProps.getProperty("db.username");
             String dbPassword = appProps.getProperty("db.password");
+            String jwtSecret = appProps.getProperty("jwt.secret");
 
-            if (dbUrl == null || dbUsername == null || dbPassword == null) {
+            if (dbUrl == null || dbUsername == null || dbPassword == null || jwtSecret == null) {
                 String errorMessage = "Internal server error: Properties file 'app.properties' must contain 'db.url', 'db.username', and 'db.password'.";
                 System.err.println(errorMessage);
                 return new SimpleHttpResponse(createErrorResponse(errorMessage), 500);
@@ -126,7 +129,7 @@ public class LoginRequestHandler implements HttpHandler {
                 System.out.println("Successfully connected to database and added user");
             }
 
-            JwtManager jwtManager = new JwtManager("secret");
+            JwtManager jwtManager = new JwtManager(jwtSecret);
             String token = jwtManager.createToken(userName);
 
             JSONObject jsonResBody = new JSONObject()
