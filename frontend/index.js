@@ -3,16 +3,19 @@ function isUserLoggedIn() {
 }
 
 function onLoad() {
-  if (isUserLoggedIn()) {
-    window.location.href = "http://127.0.0.1:3000/index.html";
-  } else {
-    window.location.href = "http://127.0.0.1:3000/login.html";
-  }
+  // if (isUserLoggedIn()) {
+  //   console.log("User is logged in");
+  // } else {
+  //   console.log("User is not logged in");
+  // }
 }
 
 function handleLogout() {
   delete_cookie("username");
   delete_cookie("token");
+
+  // Redirect to login page
+  window.location.href = "/login.html";
 }
 
 function delete_cookie(name) {

@@ -39,9 +39,13 @@ public class CamguruHttpServer {
         // Http Server
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 8000), 0);
 
-        server.createContext("/api/example", new ExampleRequestHandler());
         server.createContext("/api/register", new RegisterRequestHandler());
         server.createContext("/api/login", new LoginRequestHandler());
+        server.createContext("/api/user/profile", new ProfileRequestHandler());
+        server.createContext("/api/user/profile/username", new ProfileUsernameRequestHandler());
+        server.createContext("/api/user/profile/email", new ProfileEmailRequestHandler());
+        server.createContext("/api/user/profile/password", new ProfilePasswordRequestHandler());
+
         server.setExecutor(null); // creates a default executor
         server.start();
         System.out.println("Server started on port 8000");

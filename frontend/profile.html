@@ -1,13 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]> <html class="no-js"> <!--<![endif]-->
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home - Simple Website</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Profile Page</title>
+    <meta name="description" content="User profile page" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  
   <body
+    onload="handleGetProfile()"
     style="
       font-family: Arial, sans-serif;
       margin: 0;
@@ -15,6 +21,16 @@
       background-color: #f4f4f4;
     "
   >
+    <!--[if lt IE 7]>
+      <p
+        class="browsehappy"
+        style="background-color: #ffcc00; padding: 10px; text-align: center"
+      >
+        You are using an <strong>outdated</strong> browser. Please
+        <a href="#" style="color: #0000ee">upgrade your browser</a> to improve
+        your experience.
+      </p>
+    <![endif]-->
     <header style="background-color: #333; color: white; padding: 10px 0">
       <nav
         style="
@@ -73,6 +89,7 @@
         </div>
       </nav>
     </header>
+
     <main
       style="
         max-width: 800px;
@@ -80,30 +97,36 @@
         padding: 20px;
         background-color: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        text-align: center;
       "
     >
-      <h1 style="color: #333">Welcome to CamGuru</h1>
-      <p style="color: #555">
-        Edit and upload your pictures. Connect with your friends just like
-        Instagram.
-      </p>
-      <div style="margin-top: 20px">
-        <button
-          onclick="window.location.href='upload.html'"
-          style="
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            cursor: pointer;
-            border-radius: 5px;
-          "
-        >
-          Upload Photo
-        </button>
+      <h1 style="text-align: center; color: #333">Profile</h1>
+
+      <section style="margin-bottom: 20px">
+        <h2>Username</h2>
+        <p id="username" style="font-size: 1.2em; color: #555"></p>
+      </section>
+
+      <section style="margin-bottom: 20px">
+        <h2>Email</h2>
+        <p id="email" style="font-size: 1.2em; color: #555"></p>
+      </section>
+
+      <section style="margin-bottom: 20px">
+        <h2>Password</h2>
+        <p id="password" style="font-size: 1.2em; color: #555">******</p>
+      </section>
+
+      <div style="text-align: center">
+        <p>
+          <a
+            href="edit_profile.html"
+            style="color: #007bff; text-decoration: none"
+            >Edit Profile</a
+          >
+        </p>
       </div>
     </main>
+
     <footer
       style="
         background-color: #333;
@@ -112,8 +135,9 @@
         padding: 10px 0;
       "
     >
-      <p>&copy; 2024 CamGuru</p>
+      <p>&copy; 2024 Simple Website</p>
     </footer>
-    <script src="index.js"></script>
+    <script src="profile.js" async defer></script>
+    <script src="index.js" async defer></script>
   </body>
 </html>

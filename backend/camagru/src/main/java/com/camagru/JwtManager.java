@@ -85,18 +85,21 @@ public class JwtManager {
      *
      * @param token
      *              A string which is the jwt token.
-     * @return A boolean which is true if the signature is verified, false
-     *         otherwise.
+     * 
+     * @throws IllegalArgumentException
+     *                                  If the signature is not verified.
      */
-    public Boolean verifySignature(String token) {
+    public void verifySignature(String token) {
         String[] chunks = token.split("\\.");
         String encodedHeader = chunks[0];
         String encodedPayload = chunks[1];
         String encodedSignature = chunks[2];
         String signature = sign(encodedHeader + "." + encodedPayload);
 
-        return signature.equals(encodedSignature);
-
+        // Throw exception if signature is not verified
+        if (!signature.equals(encodedSignature)) {
+            throw new IllegalArgumentException("Invalid signature");
+        }
     }
 
     /**

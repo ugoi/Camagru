@@ -25,11 +25,20 @@ public class JwtManagerTest {
             JwtManager jwtManager = new JwtManager("secret");
             String token = jwtManager.createToken("user007");
             String unverifiedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-            Boolean isVerified = jwtManager.verifySignature(token);
-            Boolean isVerified2 = jwtManager.verifySignature(unverifiedToken);
 
-            assertEquals(true, isVerified);
-            assertEquals(false, isVerified2);
+            try {
+                jwtManager.verifySignature(unverifiedToken);
+                fail("Should have thrown an exception");
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+
+            try {
+                jwtManager.verifySignature(token);
+
+            } catch (Exception e) {
+                fail("Should not have thrown any exception");
+            }
 
         } catch (Exception e) {
             fail("Should not have thrown any exception");
@@ -42,11 +51,19 @@ public class JwtManagerTest {
             JwtManager jwtManager = new JwtManager("your-256-bit-secret");
             String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
             String unverifiedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o";
-            Boolean isVerified = jwtManager.verifySignature(token);
-            Boolean isVerified2 = jwtManager.verifySignature(unverifiedToken);
+            try {
+                jwtManager.verifySignature(unverifiedToken);
+                fail("Should have thrown an exception");
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
 
-            assertEquals(true, isVerified);
-            assertEquals(false, isVerified2);
+            try {
+                jwtManager.verifySignature(token);
+
+            } catch (Exception e) {
+                fail("Should not have thrown any exception");
+            }
 
         } catch (Exception e) {
             fail("Should not have thrown any exception");

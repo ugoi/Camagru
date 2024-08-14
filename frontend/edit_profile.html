@@ -7,11 +7,13 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Register</title>
-    <meta name="description" content="User registration page" />
+    <title>Edit Profile</title>
+    <meta name="description" content="Edit user profile" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body
+    onload="handleLoadEditProfile()"
     style="
       font-family: Arial, sans-serif;
       margin: 0;
@@ -29,20 +31,80 @@
         your experience.
       </p>
     <![endif]-->
+
+    <header style="background-color: #333; color: white; padding: 10px 0">
+      <nav
+        style="
+          max-width: 1000px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <ul
+          style="
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 15px;
+          "
+        >
+          <li>
+            <a href="index.html" style="color: white; text-decoration: none"
+              >Home</a
+            >
+          </li>
+          <li>
+            <a href="profile.html" style="color: white; text-decoration: none"
+              >Profile</a
+            >
+          </li>
+        </ul>
+        <div>
+          <button
+            onclick="window.location.href='login.html'"
+            style="
+              background-color: #4caf50;
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              cursor: pointer;
+            "
+          >
+            Login
+          </button>
+          <button
+            onclick="handleLogout()"
+            style="
+              background-color: #f44336;
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              cursor: pointer;
+            "
+          >
+            Logout
+          </button>
+        </div>
+      </nav>
+    </header>
+
     <main
       style="
         max-width: 600px;
-        margin: 50px auto;
-        padding: 30px;
+        margin: 20px auto;
+        padding: 20px;
         background-color: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       "
     >
-      <form onsubmit="handleRegister()">
+      <form onsubmit="handleEditProfile()">
         <div class="container">
-          <h1 style="text-align: center; color: #333">Register</h1>
+          <h1 style="text-align: center; color: #333">Edit Profile</h1>
           <p style="text-align: center; color: #555">
-            Please fill in this form to create an account.
+            Please fill in this form to edit account details.
           </p>
 
           <div
@@ -54,7 +116,7 @@
               margin-bottom: 10px;
             "
           >
-            <p>Registration successful</p>
+            <p>Success</p>
           </div>
           <div
             id="registerError"
@@ -65,7 +127,7 @@
               margin-bottom: 10px;
             "
           >
-            <p>Registration failed</p>
+            <p>Fail</p>
           </div>
 
           <label
@@ -79,8 +141,7 @@
             id="username"
             style="
               width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
+              padding: 10px;
               margin-bottom: 10px;
               border: 1px solid #ccc;
               border-radius: 5px;
@@ -98,8 +159,7 @@
             id="email"
             style="
               width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
+              padding: 10px;
               margin-bottom: 10px;
               border: 1px solid #ccc;
               border-radius: 5px;
@@ -117,20 +177,13 @@
             id="password"
             style="
               width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
+              padding: 10px;
               margin-bottom: 20px;
               border: 1px solid #ccc;
               border-radius: 5px;
             "
           />
 
-          <p style="text-align: center; color: #555">
-            By creating an account you agree to our
-            <a href="#" style="color: #007bff; text-decoration: none"
-              >Terms & Privacy</a
-            >.
-          </p>
           <button
             type="submit"
             style="
@@ -143,22 +196,23 @@
               border-radius: 5px;
             "
           >
-            Register
+            Save
           </button>
-        </div>
-        <div
-          class="container signin"
-          style="text-align: center; margin-top: 20px"
-        >
-          <p style="color: #555">
-            Already have an account?
-            <a href="login.html" style="color: #007bff; text-decoration: none"
-              >Sign in</a
-            >.
-          </p>
         </div>
       </form>
     </main>
-    <script src="register.js" async defer></script>
+
+    <footer
+      style="
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+      "
+    >
+      <p>&copy; 2024 Simple Website</p>
+    </footer>
+    <script src="edit_profile.js" async defer></script>
+    <script src="index.js" async defer></script>
   </body>
 </html>
