@@ -1,17 +1,12 @@
 package com.camagru.request_handlers;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -20,76 +15,57 @@ import com.camagru.PropertiesManager;
 import com.camagru.PropertyField;
 import com.camagru.PropertyFieldsManager;
 import com.camagru.RegexUtil;
-import com.camagru.SimpleHttpResponse;
+import com.camagru.PasswordUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class RegisterRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        SimpleHttpResponse response;
 
-        switch (exchange.getRequestMethod()) {
+        Request req = new Request(exchange);
+        Response res = new Response(exchange);
+
+        switch (req.getMethod()) {
             case "POST":
-                response = handlePostRequest(exchange);
+                handlePostRequest(req, res);
                 break;
             case "OPTIONS":
-                response = handleOptionsRequest(exchange);
+                handleOptionsRequest(req, res);
                 break;
             default:
-                response = new SimpleHttpResponse(createErrorResponse("Unsupported method"), 405); // Method not allowed
+                handleDefaultRequest(req, res); // Method not allowed
                 break;
         }
-
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
-        if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
-            exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        }
-        exchange.sendResponseHeaders(response.statusCode, response.responseBody.length());
-        OutputStream os = exchange.getResponseBody();
-        os.write(response.responseBody.getBytes());
-        os.close();
     }
 
-    private SimpleHttpResponse handleOptionsRequest(HttpExchange exchange) {
-        return new SimpleHttpResponse("", 204); // No content
+    private void handleDefaultRequest(Request req, Response res) {
+        res.sendResponse(405, createErrorResponse("Unsupported method"));
     }
 
-    private SimpleHttpResponse handlePostRequest(HttpExchange exchange) {
+    private void handleOptionsRequest(Request req, Response res) {
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.sendResponse(204, ""); // No content
+    }
+
+    private void handlePostRequest(Request req, Response res) {
         try {
             // Properties
             PropertiesManager propertiesManager = new PropertiesManager();
+            JSONObject jsonBody = req.getBodyAsJson();
+            List<PropertyField> propertyFields = Arrays.asList(
+                    new PropertyField("email", true, RegexUtil.EMAIL_REGEX),
+                    new PropertyField("username", true, RegexUtil.USERNAME_REGEX),
+                    new PropertyField("password", true, RegexUtil.PASSWORD_REGEX));
+            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields);
+            List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
 
-            // Reading request body
-            InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), "utf-8");
-            BufferedReader br = new BufferedReader(isr);
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            br.close();
-            isr.close();
-
-            // Get JSON body
-            JSONObject jsonBody = new JSONObject(sb.toString());
-
-            // Validate fields
-            {
-                List<PropertyField> propertyFields = Arrays.asList(
-                        new PropertyField("email", true, RegexUtil.EMAIL_REGEX),
-                        new PropertyField("username", true, RegexUtil.USERNAME_REGEX),
-                        new PropertyField("password", true, RegexUtil.PASSWORD_REGEX));
-                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields);
-                List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
-                if (!wrongFields.isEmpty()) {
-                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
-                    return new SimpleHttpResponse(createErrorResponse(errorMessage), 400);
-                }
+            if (!wrongFields.isEmpty()) {
+                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                System.err.println(errorMessage);
+                res.sendResponse(400, createErrorResponse(errorMessage));
+                return;
             }
 
             // Extract fields
@@ -98,21 +74,17 @@ public class RegisterRequestHandler implements HttpHandler {
             String password = jsonBody.getString("password");
 
             // Hashing password
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
-            byte[] messageDigest = md.digest(password.getBytes());
-            String hashPasswordText = Base64.getEncoder().encodeToString(messageDigest);
+            String hashedPassword = PasswordUtil.hashPassword(password);
 
             // Add user to database
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement();) {
-                ;
+                 Statement stmt = con.createStatement()) {
 
                 List<String> existingFields = new ArrayList<>();
 
                 // Check if username, email already exists
-                ResultSet rs = stmt
-                        .executeQuery("select * from users where username='" + username + "' OR email='" + email + "'");
+                ResultSet rs = stmt.executeQuery("select * from users where username='" + username + "' OR email='" + email + "'");
                 while (rs.next()) {
                     if (rs.getString("username").equals(username)) {
                         existingFields.add("username");
@@ -125,11 +97,12 @@ public class RegisterRequestHandler implements HttpHandler {
                 if (!existingFields.isEmpty()) {
                     String errorMessage = "The following fields already exist: " + String.join(", ", existingFields);
                     System.err.println(errorMessage);
-                    return new SimpleHttpResponse(createErrorResponse(errorMessage), 409);
+                    res.sendResponse(409, createErrorResponse(errorMessage));
+                    return;
                 }
 
                 stmt.executeUpdate("INSERT INTO users(username, email, password, isEmailVerified)"
-                        + " VALUES('" + username + "', '" + email + "', '" + hashPasswordText + "', false" + ")");
+                        + " VALUES('" + username + "', '" + email + "', '" + hashedPassword + "', false)");
                 System.out.println("Successfully connected to database and added user");
             }
 
@@ -138,19 +111,16 @@ public class RegisterRequestHandler implements HttpHandler {
             jsonResponse.put("username", username);
             jsonResponse.put("email", email);
 
-            return new SimpleHttpResponse(jsonResponse.toString(), 201);
+            res.sendResponse(201, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
             System.err.println(errorMessage);
             e.printStackTrace();
-            return new SimpleHttpResponse(createErrorResponse(errorMessage), 500);
+            res.sendResponse(500, createErrorResponse(errorMessage));
         }
     }
 
     private String createErrorResponse(String errorMessage) {
-        JSONObject jsonResponse = new JSONObject();
-        jsonResponse.put("error", errorMessage);
-        return jsonResponse.toString();
+        return new JSONObject().put("error", errorMessage).toString();
     }
-
 }
