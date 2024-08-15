@@ -1,6 +1,8 @@
-package com.camagru;
+package com.camagru.request_handlers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.sql.Connection;
@@ -11,12 +13,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+
+import org.json.JSONObject;
+
+import com.camagru.PropertiesManager;
+import com.camagru.PropertyField;
+import com.camagru.PropertyFieldsManager;
+import com.camagru.RegexUtil;
+import com.camagru.SimpleHttpResponse;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.json.JSONObject;
 
 public class RegisterRequestHandler implements HttpHandler {
     @Override
@@ -55,17 +61,7 @@ public class RegisterRequestHandler implements HttpHandler {
     private SimpleHttpResponse handlePostRequest(HttpExchange exchange) {
         try {
             // Properties
-            Properties appProps = ConfigUtil.getProperties();
-            String dbUrl = appProps.getProperty("db.url");
-            String dbUsername = appProps.getProperty("db.username");
-            String dbPassword = appProps.getProperty("db.password");
-
-            if (dbUrl == null || dbUsername == null || dbPassword == null) {
-                String errorMessage = "Internal server error: Properties file 'app.properties' must contain 'db.url', 'db.username', and 'db.password'.";
-                System.err.println(errorMessage);
-                return new SimpleHttpResponse(createErrorResponse(errorMessage), 500);
-
-            }
+            PropertiesManager propertiesManager = new PropertiesManager();
 
             // Reading request body
             InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), "utf-8");
@@ -107,8 +103,8 @@ public class RegisterRequestHandler implements HttpHandler {
             String hashPasswordText = Base64.getEncoder().encodeToString(messageDigest);
 
             // Add user to database
-            try (Connection con = DriverManager.getConnection(dbUrl,
-                    dbUsername, dbPassword);
+            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement();) {
                 ;
 
@@ -157,14 +153,4 @@ public class RegisterRequestHandler implements HttpHandler {
         return jsonResponse.toString();
     }
 
-    private static class SimpleHttpResponse {
-        public final String responseBody;
-        public final int statusCode;
-
-        public SimpleHttpResponse(String responseBody, int statusCode) {
-            this.responseBody = responseBody;
-            this.statusCode = statusCode;
-        }
-
-    }
 }

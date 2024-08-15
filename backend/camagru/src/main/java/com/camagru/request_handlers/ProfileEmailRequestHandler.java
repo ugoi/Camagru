@@ -1,26 +1,36 @@
-package com.camagru;
+package com.camagru.request_handlers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Properties;
+import java.util.Arrays;
+import java.util.List;
 
+import org.json.JSONObject;
+
+import com.camagru.CookieUtil;
+import com.camagru.JwtManager;
+import com.camagru.PropertiesManager;
+import com.camagru.PropertyField;
+import com.camagru.PropertyFieldsManager;
+import com.camagru.RegexUtil;
+import com.camagru.SimpleHttpResponse;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.json.JSONObject;
 
-public class ProfileRequestHandler implements HttpHandler {
+public class ProfileEmailRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         SimpleHttpResponse response;
 
         switch (exchange.getRequestMethod()) {
-            case "GET":
-                response = handleGetRequest(exchange);
+            case "PUT":
+                response = handlePutRequest(exchange);
                 break;
             case "OPTIONS":
                 response = handleOptionsRequest(exchange);
@@ -34,7 +44,7 @@ public class ProfileRequestHandler implements HttpHandler {
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
         exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
-            exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
             exchange.getResponseHeaders().set("Access-Control-Allow-Headers",
                     "Content-Type, *");
         }
@@ -53,22 +63,11 @@ public class ProfileRequestHandler implements HttpHandler {
         return new SimpleHttpResponse("", 204);
     }
 
-    private SimpleHttpResponse handleGetRequest(HttpExchange exchange) {
+    private SimpleHttpResponse handlePutRequest(HttpExchange exchange) {
         try {
             // Properties
-            Properties appProps = ConfigUtil.getProperties();
-            String dbUrl = appProps.getProperty("db.url");
-            String dbUsername = appProps.getProperty("db.username");
-            String dbPassword = appProps.getProperty("db.password");
-            String jwtSecret = appProps.getProperty("jwt.secret");
+            PropertiesManager propertiesManager = new PropertiesManager();
             Headers requestHeaders = exchange.getRequestHeaders();
-
-            if (dbUrl == null || dbUsername == null || dbPassword == null || jwtSecret == null) {
-                String errorMessage = "Internal server error: Properties file 'app.properties' must contain 'db.url', 'db.username', and 'db.password'.";
-                System.err.println(errorMessage);
-                return new SimpleHttpResponse(createErrorResponse(errorMessage), 500);
-
-            }
 
             if (requestHeaders == null || requestHeaders.isEmpty()) {
                 return new SimpleHttpResponse(createErrorResponse("Request headers not supported"), 400);
@@ -78,47 +77,74 @@ public class ProfileRequestHandler implements HttpHandler {
                 System.out.println(key + ": " + values);
             });
 
+            // Reading request body
+            InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), "utf-8");
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            br.close();
+            isr.close();
+
+            // Get JSON body
+            JSONObject jsonBody = new JSONObject(sb.toString());
+
+            // Validate fields
+            {
+                List<PropertyField> propertyFields = Arrays.asList(
+                        new PropertyField("email", true, RegexUtil.EMAIL_REGEX));
+                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields);
+                List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
+                if (!wrongFields.isEmpty()) {
+                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                    System.err.println(errorMessage);
+                    return new SimpleHttpResponse(createErrorResponse(errorMessage), 400);
+                }
+            }
+
             String cookieHeder = requestHeaders.getFirst("Cookie");
 
+            System.out.println("Request Body");
+            System.out.println(jsonBody.toString());
+
+            // Extract fileds from JSON body
+            String requestEmail = jsonBody.getString("email");
+
             // GET COOKIE BY NAME
-
             String jwt = CookieUtil.getCookie(cookieHeder, "token");
-
-            JwtManager jwtManager = new JwtManager(jwtSecret);
+            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             jwtManager.verifySignature(jwt);
             JSONObject decoded = jwtManager.decodeToken(jwt);
 
-            String userid = decoded.getJSONObject("payload").getString("sub");
+            String sub = decoded.getJSONObject("payload").getString("sub");
 
             // Get user password from database
-            String query = "select * from users where user_id='" + userid + "'";
+            // String query = "select * from users where username='" + sub + "'";
+            String query = "update users set email='" + requestEmail + "' where user_id='" + sub + "'";
 
-            String userName = null;
-            String userEmail = null;
-            String userPassword = null;
-            try (Connection con = DriverManager.getConnection(dbUrl,
-                    dbUsername, dbPassword);
+            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement();) {
                 ;
 
-                ResultSet rs = stmt
-                        .executeQuery(query);
-                if (rs.next()) {
-                    userName = rs.getString("username");
-                    userEmail = rs.getString("email");
-                    userPassword = rs.getString("password");
+                int rs = stmt.executeUpdate(query);
+
+                if (rs != 0) {
+                    System.out.println("Successfully connected to database and updated user");
                 } else {
                     String errorMessage = "User not found";
                     System.err.println(errorMessage);
                     return new SimpleHttpResponse(createErrorResponse(errorMessage), 404);
                 }
 
-                System.out.println("Successfully connected to database and added user");
+                System.out.println("Successfully connected to database and updated email");
             }
 
             JSONObject jsonResponse = new JSONObject()
-                    .put("username", userName)
-                    .put("email", userEmail);
+                    .put("message", "Email updated successfully");
+
             return new SimpleHttpResponse(jsonResponse.toString(), 200);
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
@@ -128,23 +154,5 @@ public class ProfileRequestHandler implements HttpHandler {
 
     private String createErrorResponse(String errorMessage) {
         return new JSONObject().put("error", errorMessage).toString();
-    }
-
-    private static class SimpleHttpResponse {
-        public final String responseBody;
-        public final int statusCode;
-        public JSONObject responseHeaders = null;
-
-        public SimpleHttpResponse(String responseBody, int statusCode) {
-            this.responseBody = responseBody;
-            this.statusCode = statusCode;
-        }
-
-        public SimpleHttpResponse(String responseBody, int statusCode, JSONObject responseHeaders) {
-            this.responseBody = responseBody;
-            this.statusCode = statusCode;
-            this.responseHeaders = responseHeaders;
-        }
-
     }
 }

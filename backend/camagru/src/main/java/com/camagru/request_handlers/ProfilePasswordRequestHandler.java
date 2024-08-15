@@ -1,23 +1,31 @@
-package com.camagru;
+package com.camagru.request_handlers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
 
+import org.json.JSONObject;
+
+import com.camagru.CookieUtil;
+import com.camagru.JwtManager;
+import com.camagru.PropertiesManager;
+import com.camagru.PropertyField;
+import com.camagru.PropertyFieldsManager;
+import com.camagru.RegexUtil;
+import com.camagru.SimpleHttpResponse;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.json.JSONObject;
 
-public class ProfileUsernameRequestHandler implements HttpHandler {
+public class ProfilePasswordRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         SimpleHttpResponse response;
@@ -60,19 +68,9 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
     private SimpleHttpResponse handlePutRequest(HttpExchange exchange) {
         try {
             // Properties
-            Properties appProps = ConfigUtil.getProperties();
-            String dbUrl = appProps.getProperty("db.url");
-            String dbUsername = appProps.getProperty("db.username");
-            String dbPassword = appProps.getProperty("db.password");
-            String jwtSecret = appProps.getProperty("jwt.secret");
+            PropertiesManager propertiesManager = new PropertiesManager();
+
             Headers requestHeaders = exchange.getRequestHeaders();
-
-            if (dbUrl == null || dbUsername == null || dbPassword == null || jwtSecret == null) {
-                String errorMessage = "Internal server error: Properties file 'app.properties' must contain 'db.url', 'db.username', and 'db.password'.";
-                System.err.println(errorMessage);
-                return new SimpleHttpResponse(createErrorResponse(errorMessage), 500);
-
-            }
 
             if (requestHeaders == null || requestHeaders.isEmpty()) {
                 return new SimpleHttpResponse(createErrorResponse("Request headers not supported"), 400);
@@ -99,7 +97,7 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
             // Validate fields
             {
                 List<PropertyField> propertyFields = Arrays.asList(
-                        new PropertyField("username", true, RegexUtil.USERNAME_REGEX));
+                        new PropertyField("password", true, RegexUtil.PASSWORD_REGEX));
                 PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields);
                 List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
                 if (!wrongFields.isEmpty()) {
@@ -115,11 +113,19 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
             System.out.println(jsonBody.toString());
 
             // Extract fileds from JSON body
-            String reqestUsername = jsonBody.getString("username");
+
+            String reqestPassword = jsonBody.getString("password");
+
+            // Hash password
+
+            // Hashing password
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            byte[] messageDigest = md.digest(reqestPassword.getBytes());
+            String hashedPassword = Base64.getEncoder().encodeToString(messageDigest);
 
             // GET COOKIE BY NAME
             String jwt = CookieUtil.getCookie(cookieHeder, "token");
-            JwtManager jwtManager = new JwtManager(jwtSecret);
+            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             jwtManager.verifySignature(jwt);
             JSONObject decoded = jwtManager.decodeToken(jwt);
 
@@ -127,10 +133,10 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
 
             // Get user password from database
             // String query = "select * from users where username='" + sub + "'";
-            String query = "update users set username='" + reqestUsername + "' where user_id='" + sub + "'";
+            String query = "update users set password='" + hashedPassword + "' where user_id='" + sub + "'";
 
-            try (Connection con = DriverManager.getConnection(dbUrl,
-                    dbUsername, dbPassword);
+            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement();) {
                 ;
 
@@ -148,7 +154,7 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
             }
 
             JSONObject jsonResponse = new JSONObject()
-                    .put("message", "Username updated successfully");
+                    .put("message", "Password updated successfully");
 
             return new SimpleHttpResponse(jsonResponse.toString(), 200);
         } catch (Exception e) {
@@ -161,21 +167,4 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
         return new JSONObject().put("error", errorMessage).toString();
     }
 
-    private static class SimpleHttpResponse {
-        public final String responseBody;
-        public final int statusCode;
-        public JSONObject responseHeaders = null;
-
-        public SimpleHttpResponse(String responseBody, int statusCode) {
-            this.responseBody = responseBody;
-            this.statusCode = statusCode;
-        }
-
-        public SimpleHttpResponse(String responseBody, int statusCode, JSONObject responseHeaders) {
-            this.responseBody = responseBody;
-            this.statusCode = statusCode;
-            this.responseHeaders = responseHeaders;
-        }
-
-    }
 }

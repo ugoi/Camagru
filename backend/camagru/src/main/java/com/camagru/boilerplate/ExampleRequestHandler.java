@@ -1,7 +1,7 @@
 package com.camagru.boilerplate;
-
 import java.io.IOException;
 import java.io.OutputStream;
+import com.camagru.SimpleHttpResponse;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.json.JSONObject;
@@ -40,10 +40,6 @@ public class ExampleRequestHandler implements HttpHandler {
 
     private SimpleHttpResponse handlePostRequest(HttpExchange exchange) {
         try {
-            String requestBody = new String(exchange.getRequestBody().readAllBytes());
-            JSONObject jsonBody = new JSONObject(requestBody);
-            // Handle JSON body here
-            
             JSONObject jsonResponse = new JSONObject().put("message", "Request handled successfully");
             return new SimpleHttpResponse(jsonResponse.toString(), 200);
         } catch (Exception e) {
@@ -56,13 +52,4 @@ public class ExampleRequestHandler implements HttpHandler {
         return new JSONObject().put("error", errorMessage).toString();
     }
 
-    private static class SimpleHttpResponse {
-        public final String responseBody;
-        public final int statusCode;
-
-        public SimpleHttpResponse(String responseBody, int statusCode) {
-            this.responseBody = responseBody;
-            this.statusCode = statusCode;
-        }
-    }
 }

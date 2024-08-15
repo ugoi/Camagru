@@ -6,26 +6,24 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
+import com.camagru.exceptions.InvalidProperiesException;
+import com.camagru.request_handlers.LoginRequestHandler;
+import com.camagru.request_handlers.ProfileEmailRequestHandler;
+import com.camagru.request_handlers.ProfilePasswordRequestHandler;
+import com.camagru.request_handlers.ProfileRequestHandler;
+import com.camagru.request_handlers.ProfileUsernameRequestHandler;
+import com.camagru.request_handlers.RegisterRequestHandler;
 import com.sun.net.httpserver.HttpServer;
 
 public class CamguruHttpServer {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InvalidProperiesException {
         // Properties
-        Properties appProps = ConfigUtil.getProperties();
-        String url = appProps.getProperty("db.url");
-        String username = appProps.getProperty("db.username");
-        String password = appProps.getProperty("db.password");
-
-        if (url == null || username == null || password == null) {
-            throw new IllegalArgumentException(
-                    "Properties file 'app.properties' must contain 'db.url', 'db.username', and 'db.password'.");
-        }
+        PropertiesManager propertiesManager = new PropertiesManager();
 
         // Database: Create table if not exists
-        try (Connection con = DriverManager.getConnection(url,
-                username, password);
+        try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                 Statement stmt = con.createStatement();) {
 
             stmt.execute("CREATE TABLE IF NOT EXISTS users"

@@ -1,6 +1,8 @@
-package com.camagru;
+package com.camagru.request_handlers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.sql.Connection;
@@ -10,12 +12,17 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+
+import org.json.JSONObject;
+
+import com.camagru.JwtManager;
+import com.camagru.PropertiesManager;
+import com.camagru.PropertyField;
+import com.camagru.PropertyFieldsManager;
+import com.camagru.RegexUtil;
+import com.camagru.SimpleHttpResponse;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.json.JSONObject;
 
 public class LoginRequestHandler implements HttpHandler {
     @Override
@@ -39,7 +46,7 @@ public class LoginRequestHandler implements HttpHandler {
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
         exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
-            exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
             exchange.getResponseHeaders().set("Access-Control-Allow-Headers",
                     "Content-Type, *");
         }
@@ -60,18 +67,7 @@ public class LoginRequestHandler implements HttpHandler {
     private SimpleHttpResponse handlePostRequest(HttpExchange exchange) {
         try {
             // Properties
-            Properties appProps = ConfigUtil.getProperties();
-            String dbUrl = appProps.getProperty("db.url");
-            String dbUsername = appProps.getProperty("db.username");
-            String dbPassword = appProps.getProperty("db.password");
-            String jwtSecret = appProps.getProperty("jwt.secret");
-
-            if (dbUrl == null || dbUsername == null || dbPassword == null || jwtSecret == null) {
-                String errorMessage = "Internal server error: Properties file 'app.properties' must contain 'db.url', 'db.username', and 'db.password'.";
-                System.err.println(errorMessage);
-                return new SimpleHttpResponse(createErrorResponse(errorMessage), 500);
-
-            }
+            PropertiesManager propertiesManager = new PropertiesManager();
 
             // Reading request body
             InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), "utf-8");
@@ -111,10 +107,9 @@ public class LoginRequestHandler implements HttpHandler {
             // Get user password from database
             String query = "select * from users where username='" + username + "'" + " OR email='" + username + "'";
 
-            String userName = null;
             String userId = null;
-            try (Connection con = DriverManager.getConnection(dbUrl,
-                    dbUsername, dbPassword);
+            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement();) {
                 ;
 
@@ -125,7 +120,6 @@ public class LoginRequestHandler implements HttpHandler {
                         .executeQuery(query);
                 if (rs.next()) {
                     userId = rs.getString("user_id");
-                    userName = rs.getString("username");
                     userPassword = rs.getString("password");
                 } else {
                     String errorMessage = "User not found";
@@ -143,7 +137,7 @@ public class LoginRequestHandler implements HttpHandler {
                 System.out.println("Successfully connected to database and added user");
             }
 
-            JwtManager jwtManager = new JwtManager(jwtSecret);
+            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             String token = jwtManager.createToken(userId);
 
             JSONObject jsonResBody = new JSONObject()
@@ -166,23 +160,5 @@ public class LoginRequestHandler implements HttpHandler {
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("error", errorMessage);
         return jsonResponse.toString();
-    }
-
-    private static class SimpleHttpResponse {
-        public final String responseBody;
-        public final int statusCode;
-        public JSONObject responseHeaders = null;
-
-        public SimpleHttpResponse(String responseBody, int statusCode) {
-            this.responseBody = responseBody;
-            this.statusCode = statusCode;
-        }
-
-        public SimpleHttpResponse(String responseBody, int statusCode, JSONObject responseHeaders) {
-            this.responseBody = responseBody;
-            this.statusCode = statusCode;
-            this.responseHeaders = responseHeaders;
-        }
-
     }
 }

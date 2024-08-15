@@ -30,7 +30,7 @@ public class JwtManagerTest {
                 jwtManager.verifySignature(unverifiedToken);
                 fail("Should have thrown an exception");
             } catch (Exception e) {
-                // TODO: handle exception
+
             }
 
             try {
@@ -55,7 +55,7 @@ public class JwtManagerTest {
                 jwtManager.verifySignature(unverifiedToken);
                 fail("Should have thrown an exception");
             } catch (Exception e) {
-                // TODO: handle exception
+
             }
 
             try {
