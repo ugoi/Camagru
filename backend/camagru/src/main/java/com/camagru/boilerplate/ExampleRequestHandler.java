@@ -1,55 +1,55 @@
 package com.camagru.boilerplate;
+
 import java.io.IOException;
-import java.io.OutputStream;
-import com.camagru.SimpleHttpResponse;
+
+import org.json.JSONObject;
+
+import com.camagru.request_handlers.Request;
+import com.camagru.request_handlers.Response;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.json.JSONObject;
 
 public class ExampleRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        SimpleHttpResponse response;
 
-        switch (exchange.getRequestMethod()) {
+        Request req = new Request(exchange);
+        Response res = new Response(exchange);
+
+        switch (req.getMethod()) {
             case "POST":
-                response = handlePostRequest(exchange);
+                handlePostRequest(req, res);
                 break;
             case "OPTIONS":
-                response = handleOptionsRequest(exchange);
+                handleOptionsRequest(req, res);
                 break;
             default:
-                response = new SimpleHttpResponse(createErrorResponse("Unsupported method"), 405);
+                handleDefaultRequest(req, res);
                 break;
         }
-
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
-
-        exchange.sendResponseHeaders(response.statusCode, response.responseBody.length());
-        OutputStream os = exchange.getResponseBody();
-        os.write(response.responseBody.getBytes());
-        os.close();
     }
 
-    private SimpleHttpResponse handleOptionsRequest(HttpExchange exchange) {
-        return new SimpleHttpResponse("", 204);
+    private void handleDefaultRequest(Request req, Response res) {
+        res.sendResponse(405, createErrorResponse("Unsupported method"));
     }
 
-    private SimpleHttpResponse handlePostRequest(HttpExchange exchange) {
+    private void handleOptionsRequest(Request req, Response res) {
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.sendResponse(204, ""); // No content
+    }
+
+    private void handlePostRequest(Request req, Response res) {
         try {
             JSONObject jsonResponse = new JSONObject().put("message", "Request handled successfully");
-            return new SimpleHttpResponse(jsonResponse.toString(), 200);
+            res.sendResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
-            return new SimpleHttpResponse(createErrorResponse(errorMessage), 500);
+            res.sendResponse(500, createErrorResponse(errorMessage));
         }
     }
 
     private String createErrorResponse(String errorMessage) {
         return new JSONObject().put("error", errorMessage).toString();
     }
-
 }
