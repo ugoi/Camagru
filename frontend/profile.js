@@ -1,4 +1,10 @@
-async function handleGetProfile() {
+/**
+ * Type: View
+ * Handles the loading of the profile page
+ * @returns {void}
+ */
+export async function handleLoadProfile() {
+  console.log("handling get profile");
   var usernameElement = document.getElementById("username");
   var emailElement = document.getElementById("email");
 
@@ -16,9 +22,11 @@ async function handleGetProfile() {
 
 
 /**
+ * Type: Controller
+ * Sends a request to the server to get the user's profile
  * @returns {Profile}
  */
-async function getProfile() {
+export async function getProfile() {
   console.log("getting profile");
 
   //Make request to server

@@ -38,7 +38,7 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       "
     >
-      <form onsubmit="handleRegister()">
+      <form id="register-form">
         <div class="container">
           <h1 style="text-align: center; color: #333">Register</h1>
           <p style="text-align: center; color: #555">
@@ -159,6 +159,15 @@
         </div>
       </form>
     </main>
-    <script src="register.js" async defer></script>
+    <script type="module">
+      import { handleRegister } from "./register.js";
+
+      const loginForm = document.querySelector("#register-form");
+
+      // listening to click events
+      loginForm.addEventListener("submit", (event) => {
+        handleRegister(event);
+      });
+    </script>
   </body>
 </html>

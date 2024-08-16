@@ -1,0 +1,407 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "edit_profile.js",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "handleEditProfile",
+          "description": "Type: View\nHandles the edit profile form submission",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "handleLoadEditProfile",
+          "description": "Type: View\nHandles the loading of the edit profile page",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "handleEditProfile",
+          "declaration": {
+            "name": "handleEditProfile",
+            "module": "edit_profile.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "handleLoadEditProfile",
+          "declaration": {
+            "name": "handleLoadEditProfile",
+            "module": "edit_profile.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "login.js",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "handleLogin",
+          "parameters": [
+            {
+              "name": "event",
+              "type": {
+                "text": "Event"
+              }
+            }
+          ],
+          "description": "Type: View\nHandles the login form submission",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "logout",
+          "description": "Type: Model\nLogs out the user\nDelete cookies and redirect to login page",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "handleLogin",
+          "declaration": {
+            "name": "handleLogin",
+            "module": "login.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "logout",
+          "declaration": {
+            "name": "logout",
+            "module": "login.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "profile.js",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "handleLoadProfile",
+          "description": "Type: View\nHandles the loading of the profile page",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "getProfile",
+          "return": {
+            "type": {
+              "text": "Profile"
+            }
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "handleLoadProfile",
+          "declaration": {
+            "name": "handleLoadProfile",
+            "module": "profile.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "getProfile",
+          "declaration": {
+            "name": "getProfile",
+            "module": "profile.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "register.js",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "handleRegister",
+          "parameters": [
+            {
+              "name": "event",
+              "type": {
+                "text": "Event"
+              }
+            }
+          ],
+          "description": "Type: View\nHandles the registration of a new user",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "handleRegister",
+          "declaration": {
+            "name": "handleRegister",
+            "module": "register.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "web_components/CamagruFooter.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "CamagruFooter",
+          "cssProperties": [
+            {
+              "description": "Controls the color of foo",
+              "name": "--text-color"
+            },
+            {
+              "description": "Controls the color of bar",
+              "name": "--background-color"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "Styles the color of bar",
+              "name": "bar"
+            }
+          ],
+          "slots": [
+            {
+              "description": "You can put some elements here",
+              "name": "container"
+            }
+          ],
+          "members": [
+            {
+              "kind": "method",
+              "name": "handleLogout"
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "camagru-footer",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "camagru-footer",
+          "declaration": {
+            "name": "CamagruFooter",
+            "module": "web_components/CamagruFooter.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "web_components/CamagruHeader.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "CamagruHeader",
+          "cssProperties": [
+            {
+              "description": "Controls the color of foo",
+              "name": "--text-color"
+            },
+            {
+              "description": "Controls the color of bar",
+              "name": "--background-color"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "Styles the color of bar",
+              "name": "bar"
+            }
+          ],
+          "slots": [
+            {
+              "description": "You can put some elements here",
+              "name": "container"
+            }
+          ],
+          "members": [
+            {
+              "kind": "method",
+              "name": "handleLogout"
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "camagru-header",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "camagru-header",
+          "declaration": {
+            "name": "CamagruHeader",
+            "module": "web_components/CamagruHeader.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "web_components/MyElement.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "MyElement",
+          "cssProperties": [
+            {
+              "description": "Controls the color of foo",
+              "name": "--text-color"
+            },
+            {
+              "description": "Controls the color of bar",
+              "name": "--background-color"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "Styles the color of bar",
+              "name": "bar"
+            }
+          ],
+          "slots": [
+            {
+              "description": "You can put some elements here",
+              "name": "container"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "foo",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"foo\"",
+              "reflects": true,
+              "attribute": "foo"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "disabled state",
+              "default": "true"
+            },
+            {
+              "kind": "method",
+              "name": "fire"
+            },
+            {
+              "kind": "method",
+              "name": "render"
+            }
+          ],
+          "events": [
+            {
+              "name": "foo-changed",
+              "type": {
+                "text": "FooEvent"
+              },
+              "description": "foo-event - description"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "foo",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"foo\"",
+              "fieldName": "foo"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit-element"
+          },
+          "tagName": "my-element",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "someVariable",
+          "type": {
+            "text": "boolean"
+          },
+          "default": "true",
+          "description": "This will show up in the custom-elements.json too"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "someVariable",
+          "declaration": {
+            "name": "someVariable",
+            "module": "web_components/MyElement.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-element",
+          "declaration": {
+            "name": "MyElement",
+            "module": "web_components/MyElement.js"
+          }
+        }
+      ]
+    }
+  ]
+}

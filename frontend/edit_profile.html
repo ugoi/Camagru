@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body
-    onload="handleLoadEditProfile()"
     style="
       font-family: Arial, sans-serif;
       margin: 0;
@@ -32,64 +31,7 @@
       </p>
     <![endif]-->
 
-    <header style="background-color: #333; color: white; padding: 10px 0">
-      <nav
-        style="
-          max-width: 1000px;
-          margin: 0 auto;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
-        <ul
-          style="
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            gap: 15px;
-          "
-        >
-          <li>
-            <a href="index.html" style="color: white; text-decoration: none"
-              >Home</a
-            >
-          </li>
-          <li>
-            <a href="profile.html" style="color: white; text-decoration: none"
-              >Profile</a
-            >
-          </li>
-        </ul>
-        <div>
-          <button
-            onclick="window.location.href='login.html'"
-            style="
-              background-color: #4caf50;
-              color: white;
-              border: none;
-              padding: 10px 20px;
-              cursor: pointer;
-            "
-          >
-            Login
-          </button>
-          <button
-            onclick="handleLogout()"
-            style="
-              background-color: #f44336;
-              color: white;
-              border: none;
-              padding: 10px 20px;
-              cursor: pointer;
-            "
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
-    </header>
+    <camagru-header></camagru-header>
 
     <main
       style="
@@ -100,7 +42,7 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       "
     >
-      <form onsubmit="handleEditProfile()">
+      <form id="edit-form">
         <div class="container">
           <h1 style="text-align: center; color: #333">Edit Profile</h1>
           <p style="text-align: center; color: #555">
@@ -202,17 +144,31 @@
       </form>
     </main>
 
-    <footer
-      style="
-        background-color: #333;
-        color: white;
-        text-align: center;
-        padding: 10px 0;
-      "
-    >
-      <p>&copy; 2024 Simple Website</p>
-    </footer>
-    <script src="edit_profile.js" async defer></script>
-    <script src="index.js" async defer></script>
+    <camagru-footer></camagru-footer>
+
+    <script type="module" src="web_components/CamagruHeader.js"></script>
+    <script type="module" src="web_components/CamagruFooter.js"></script>
+    <script type="module">
+      import {
+        handleLoadEditProfile,
+        handleEditProfile,
+      } from "./edit_profile.js";
+
+      window.addEventListener(
+        "DOMContentLoaded",
+        (event) => {
+          console.log("load event");
+          handleLoadEditProfile();
+        },
+        false
+      );
+
+      const loginForm = document.querySelector("#edit-form");
+
+      // listening to click events
+      loginForm.addEventListener("submit", (event) => {
+        handleEditProfile(event);
+      });
+    </script>
   </body>
 </html>

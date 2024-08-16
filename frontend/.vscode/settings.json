@@ -1,0 +1,4 @@
+{
+  "html.customData": ["./dist/my-library.html-custom-data.json"],
+  "css.customData": ["./dist/my-library.css-custom-data.json"]
+}

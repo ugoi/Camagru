@@ -1,4 +1,11 @@
-async function handleEditProfile() {
+import { getProfile } from "./profile.js";
+
+/**
+ * Type: View
+ * Handles the edit profile form submission
+ * @returns {void}
+ */
+export async function handleEditProfile() {
   event.preventDefault();
   var username = document.getElementById("username").value;
   var email = document.getElementById("email").value;
@@ -14,13 +21,24 @@ async function handleEditProfile() {
   await handleLoadEditProfile();
 }
 
-async function handleLoadEditProfile() {
+/**
+ * Type: View
+ * Handles the loading of the edit profile page
+ * @returns {void}
+ */
+export async function handleLoadEditProfile() {
   var profile = await getProfile();
 
   document.getElementById("username").value = profile.username;
   document.getElementById("email").value = profile.email;
 }
 
+/**
+ * Type: Controller
+ * Sends a request to the server to update the username
+ * @param {string} username
+ * @returns {void}
+ */
 async function updateUsername(username) {
   console.log("updating username");
 
@@ -56,6 +74,12 @@ async function updateUsername(username) {
   }
 }
 
+/**
+ * Type: Controller
+ * Sends a request to the server to update the email
+ * @param {string} email
+ * @returns {void}
+ */
 async function updateEmail(email) {
   console.log("updating email");
 
@@ -91,6 +115,12 @@ async function updateEmail(email) {
   }
 }
 
+/**
+ * Type: Controller
+ * Sends a request to the server to update the password
+ * @param {string} password
+ * @returns {void}
+ */
 async function updatePassword(password) {
   console.log("updating password");
 
@@ -113,47 +143,6 @@ async function updatePassword(password) {
 
   const response = await fetch(
     "http://127.0.0.1:8000/api/user/profile/password",
-    requestOptions
-  );
-
-  const json = await response.json();
-  console.log(json);
-
-  if (response.status === 200) {
-    return json;
-  } else {
-    throw new Error(json.error);
-  }
-}
-
-/**
- * @typedef {Object} Profile
- * @property {string} username
- * @property {string} email
- * 
- * /**
-
-
-/**
- * @returns {Profile}
- */
-async function getProfile() {
-  console.log("getting profile");
-
-  //Make request to server
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-
-  const requestOptions = {
-    credentials: "include",
-    mode: "cors",
-    method: "GET",
-    headers: myHeaders,
-    redirect: "follow",
-  };
-
-  const response = await fetch(
-    "http://127.0.0.1:8000/api/user/profile",
     requestOptions
   );
 

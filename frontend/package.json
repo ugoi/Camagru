@@ -1,0 +1,23 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Camagru frontend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ugoi/Camagru.git"
+  },
+  "author": "Stefan Dukic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ugoi/Camagru/issues"
+  },
+  "homepage": "https://github.com/ugoi/Camagru#readme",
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.10.3",
+    "custom-element-vs-code-integration": "^1.4.1"
+  }
+}

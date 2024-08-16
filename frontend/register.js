@@ -1,4 +1,10 @@
-async function handleRegister() {
+/**
+ * Type: View
+ * Handles the registration of a new user
+ * @param {Event} event
+ * @returns {void}
+ */
+export async function handleRegister(event) {
   event.preventDefault();
   var username = document.getElementById("username").value;
   var email = document.getElementById("email").value;
@@ -21,6 +27,8 @@ async function handleRegister() {
 }
 
 /**
+ * Type: Controller
+ * Sends a request to the server to register a new user
  * @param {string} username
  * @param {string} email
  * @param {string} password

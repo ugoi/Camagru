@@ -1,4 +1,12 @@
-async function handleLogin() {
+/**
+ * Type: View
+ * Handles the login form submission
+ * @param {Event} event
+ * @returns {void}
+ */
+export async function handleLogin(event) {
+  console.log("Handling login form submission");
+
   event.preventDefault();
   var username = document.getElementById("username").value;
   var password = document.getElementById("password").value;
@@ -7,7 +15,7 @@ async function handleLogin() {
   var loginErrorElement = document.getElementById("loginError");
 
   try {
-    await login(username, password);
+    await sendLoginRequest(username, password);
     loginSuccessElement.textContent = "User logined successfully!!!";
     loginSuccessElement.style.display = "block";
     loginErrorElement.style.display = "none";
@@ -22,11 +30,36 @@ async function handleLogin() {
 }
 
 /**
+ *  Type: Model
+ *  Logs out the user
+ *  Delete cookies and redirect to login page
+ * @returns {void}
+ */
+export function logout() {
+  delete_cookie("username");
+  delete_cookie("token");
+
+  // Redirect to login page
+  window.location.href = "/login.html";
+}
+
+/**
+ * Type: Model
+ * Deletes a cookie by name
+ * @param {string} name
+ * @returns {void}
+ */
+function delete_cookie(name) {
+  document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+}
+
+/**
+ * Type: Controller
  * @param {string} username
  * @param {string} password
  * @returns {void}
  */
-async function login(username, password) {
+async function sendLoginRequest(username, password) {
   console.log("logining", username, password);
 
   //Make request to server

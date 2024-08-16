@@ -38,7 +38,7 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       "
     >
-      <form onsubmit="handleLogin()">
+      <form id="login-form">
         <div class="container">
           <h1 style="text-align: center; color: #333">Login</h1>
 
@@ -133,6 +133,16 @@
         </div>
       </form>
     </main>
-    <script src="login.js" async defer></script>
+
+    <script type="module">
+      import { handleLogin } from "./login.js";
+
+      const loginForm = document.querySelector("#login-form");
+
+      // listening to click events
+      loginForm.addEventListener("submit", (event) => {
+        handleLogin(event);
+      });
+    </script>
   </body>
 </html>
