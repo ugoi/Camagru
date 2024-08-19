@@ -3,6 +3,7 @@ package com.camagru.request_handlers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
@@ -72,11 +73,32 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
             jwtManager.verifySignature(jwt);
             JSONObject decoded = jwtManager.decodeToken(jwt);
             String sub = decoded.getJSONObject("payload").getString("sub");
+
             String query = "update users set username='" + requestUsername + "' where user_id='" + sub + "'";
 
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
+
+                // Check if username already exists
+                {
+                    String username = "";
+                    String userId = "";
+                    ResultSet rs = stmt
+                            .executeQuery("select * from users where username='" + requestUsername + "'");
+                    while (rs.next()) {
+                        if (rs.getString("username").equals(requestUsername)) {
+                            username = rs.getString("username");
+                            userId = rs.getString("user_id");
+                        }
+                    }
+                    if (!userId.equals(sub) && !username.isEmpty()) {
+                        String errorMessage = "Username already exists";
+                        System.err.println(errorMessage);
+                        res.sendResponse(409, createErrorResponse(errorMessage));
+                        return;
+                    }
+                }
 
                 int rs = stmt.executeUpdate(query);
                 if (rs != 0) {

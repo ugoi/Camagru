@@ -3,6 +3,7 @@ package com.camagru.request_handlers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
@@ -77,6 +78,26 @@ public class ProfileEmailRequestHandler implements HttpHandler {
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
+
+                // Check if username already exists
+                {
+                    String email = "";
+                    String userId = "";
+                    ResultSet rs = stmt
+                            .executeQuery("select * from users where email='" + requestEmail + "'");
+                    while (rs.next()) {
+                        if (rs.getString("email").equals(requestEmail)) {
+                            email = rs.getString("email");
+                            userId = rs.getString("user_id");
+                        }
+                    }
+                    if (!userId.equals(sub) && !email.isEmpty()) {
+                        String errorMessage = "Email already exists";
+                        System.err.println(errorMessage);
+                        res.sendResponse(409, createErrorResponse(errorMessage));
+                        return;
+                    }
+                }
 
                 int rs = stmt.executeUpdate(query);
                 if (rs != 0) {
