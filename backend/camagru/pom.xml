@@ -16,7 +16,6 @@
 
 
     <dependencies>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -37,6 +36,10 @@
             <version>20220320</version>
         </dependency>
 
-
+      <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-core</artifactId>
+        <version>1.22</version>
+      </dependency>
     </dependencies>
 </project>

@@ -13,7 +13,7 @@ import com.camagru.PropertiesManager;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-public class VideoUploadRequestHandler implements HttpHandler {
+public class VideoUploadPartRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 

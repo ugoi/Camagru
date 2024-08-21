@@ -30,6 +30,11 @@ public class Request {
         return exchange.getRequestHeaders().getFirst(key);
     }
 
+    public String getHeaderValue(String key) {
+        String header = getHeader(key);
+        return header.split(",")[0];
+    }
+
     public String getQueryParameter(String key) {
         return exchange.getRequestURI().getQuery().split(key + "=")[1].split("&")[0];
     }
