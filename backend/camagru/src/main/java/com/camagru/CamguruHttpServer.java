@@ -15,6 +15,7 @@ import com.camagru.request_handlers.ProfilePasswordRequestHandler;
 import com.camagru.request_handlers.ProfileRequestHandler;
 import com.camagru.request_handlers.ProfileUsernameRequestHandler;
 import com.camagru.request_handlers.RegisterRequestHandler;
+import com.camagru.request_handlers.ServeMediaRequestHandler;
 import com.camagru.request_handlers.VideoCompleteRequestHandler;
 import com.camagru.request_handlers.VideoDownloadPartRequestHandler;
 import com.camagru.request_handlers.VideoDownloadRequestHandler;
@@ -71,6 +72,7 @@ public class CamguruHttpServer {
         server.createContext("/api/videos/download-part", new VideoDownloadPartRequestHandler());
         server.createContext("/api/media", new MediaRequestHandler());
         // server.createContext("/api/media_publish", new MediaPublishRequestHandler());
+        server.createContext("/api/serve/media", new ServeMediaRequestHandler());
 
         server.setExecutor(null); // creates a default executor
         server.start();

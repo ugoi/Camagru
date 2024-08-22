@@ -36,13 +36,13 @@ public class VideoCompleteRequestHandler implements HttpHandler {
     }
 
     private void handleDefaultRequest(Request req, Response res) {
-        res.sendResponse(405, createErrorResponse("Unsupported method"));
+        res.sendJsonResponse(405, createErrorResponse("Unsupported method"));
     }
 
     private void handleOptionsRequest(Request req, Response res) {
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        res.sendResponse(204, ""); // No content
+        res.sendJsonResponse(204, ""); // No content
     }
 
     private void handlePostRequest(Request req, Response res) {
@@ -93,14 +93,14 @@ public class VideoCompleteRequestHandler implements HttpHandler {
             } else {
                 System.out.println("Failed to combine MP4 files. Exit code: " + exitCode);
                 JSONObject jsonResponse = new JSONObject().put("message", "Failed to combine MP4 files");
-                res.sendResponse(500, jsonResponse.toString());
+                res.sendJsonResponse(500, jsonResponse.toString());
             }
 
             JSONObject jsonResponse = new JSONObject().put("message", "Request handled successfully");
-            res.sendResponse(200, jsonResponse.toString());
+            res.sendJsonResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
-            res.sendResponse(500, createErrorResponse(errorMessage));
+            res.sendJsonResponse(500, createErrorResponse(errorMessage));
         }
     }
 

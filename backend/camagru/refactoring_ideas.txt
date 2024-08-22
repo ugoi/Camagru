@@ -1,1 +1,2 @@
-- Add automatic like for body also for query parameters and headers.
+- Add automatic validation like for body also for query parameters and headers.
+- Set default headers for all requests before user sets them.

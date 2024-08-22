@@ -40,13 +40,13 @@ public class ProfileEmailRequestHandler implements HttpHandler {
     }
 
     private void handleDefaultRequest(Request req, Response res) {
-        res.sendResponse(405, createErrorResponse("Unsupported method"));
+        res.sendJsonResponse(405, createErrorResponse("Unsupported method"));
     }
 
     private void handleOptionsRequest(Request req, Response res) {
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, *");
-        res.sendResponse(204, ""); // No content
+        res.sendJsonResponse(204, ""); // No content
     }
 
     private void handlePutRequest(Request req, Response res) {
@@ -62,7 +62,7 @@ public class ProfileEmailRequestHandler implements HttpHandler {
             if (!wrongFields.isEmpty()) {
                 String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
                 System.err.println(errorMessage);
-                res.sendResponse(400, createErrorResponse(errorMessage));
+                res.sendJsonResponse(400, createErrorResponse(errorMessage));
                 return;
             }
 
@@ -94,7 +94,7 @@ public class ProfileEmailRequestHandler implements HttpHandler {
                     if (!userId.equals(sub) && !email.isEmpty()) {
                         String errorMessage = "Email already exists";
                         System.err.println(errorMessage);
-                        res.sendResponse(409, createErrorResponse(errorMessage));
+                        res.sendJsonResponse(409, createErrorResponse(errorMessage));
                         return;
                     }
                 }
@@ -102,11 +102,11 @@ public class ProfileEmailRequestHandler implements HttpHandler {
                 int rs = stmt.executeUpdate(query);
                 if (rs != 0) {
                     System.out.println("Successfully connected to database and updated user");
-                    res.sendResponse(200, new JSONObject().put("message", "Email updated successfully").toString());
+                    res.sendJsonResponse(200, new JSONObject().put("message", "Email updated successfully").toString());
                 } else {
                     String errorMessage = "User not found";
                     System.err.println(errorMessage);
-                    res.sendResponse(404, createErrorResponse(errorMessage));
+                    res.sendJsonResponse(404, createErrorResponse(errorMessage));
                 }
 
             }
@@ -114,7 +114,7 @@ public class ProfileEmailRequestHandler implements HttpHandler {
             String errorMessage = "Internal server error: " + e.getMessage();
             System.err.println(errorMessage);
             e.printStackTrace();
-            res.sendResponse(500, createErrorResponse(errorMessage));
+            res.sendJsonResponse(500, createErrorResponse(errorMessage));
         }
     }
 

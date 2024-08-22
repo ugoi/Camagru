@@ -40,13 +40,13 @@ public class LoginRequestHandler implements HttpHandler {
     }
 
     private void handleDefaultRequest(Request req, Response res) {
-        res.sendResponse(405, createErrorResponse("Unsupported method"));
+        res.sendJsonResponse(405, createErrorResponse("Unsupported method"));
     }
 
     private void handleOptionsRequest(Request req, Response res) {
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, *");
-        res.sendResponse(204, ""); // No content
+        res.sendJsonResponse(204, ""); // No content
     }
 
     private void handlePostRequest(Request req, Response res) {
@@ -68,7 +68,7 @@ public class LoginRequestHandler implements HttpHandler {
                 String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
                 System.err.println(errorMessage);
 
-                res.sendResponse(400, createErrorResponse(errorMessage));
+                res.sendJsonResponse(400, createErrorResponse(errorMessage));
             }
 
             // Extract fields
@@ -93,7 +93,7 @@ public class LoginRequestHandler implements HttpHandler {
                 } else {
                     String errorMessage = "User not found";
                     System.err.println(errorMessage);
-                    res.sendResponse(404, createErrorResponse(errorMessage));
+                    res.sendJsonResponse(404, createErrorResponse(errorMessage));
                 }
                 try {
                     PasswordUtil.verifyPassword(jsonBody.getString("password"), userPassword);
@@ -101,7 +101,7 @@ public class LoginRequestHandler implements HttpHandler {
                     String errorMessage = "Invalid password";
                     System.err.println(errorMessage);
 
-                    res.sendResponse(401, createErrorResponse(errorMessage));
+                    res.sendJsonResponse(401, createErrorResponse(errorMessage));
                 }
                 System.out.println("Successfully connected to database and added user");
             }
@@ -111,14 +111,14 @@ public class LoginRequestHandler implements HttpHandler {
 
             res.setHeader("Set-Cookie", "token=" + token
                     + "; Max-Age=3600000; Path=/; Expires=Wed, 09 Jun 2025 10:18:14 GMT; SameSite=Lax");
-            res.sendResponse(201, new JSONObject()
+            res.sendJsonResponse(201, new JSONObject()
                     .put("message", "User successfully logged in").toString());
 
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
             System.err.println(errorMessage);
             e.printStackTrace();
-            res.sendResponse(500, createErrorResponse(errorMessage));
+            res.sendJsonResponse(500, createErrorResponse(errorMessage));
         }
     }
 

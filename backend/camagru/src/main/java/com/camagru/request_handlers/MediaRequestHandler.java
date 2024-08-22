@@ -42,13 +42,13 @@ public class MediaRequestHandler implements HttpHandler {
     }
 
     private void handleDefaultRequest(Request req, Response res) {
-        res.sendResponse(405, createErrorResponse("Unsupported method"));
+        res.sendJsonResponse(405, createErrorResponse("Unsupported method"));
     }
 
     private void handleOptionsRequest(Request req, Response res) {
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        res.sendResponse(204, ""); // No content
+        res.sendJsonResponse(204, ""); // No content
     }
 
     private void handlePostRequest(Request req, Response res) {
@@ -74,7 +74,7 @@ public class MediaRequestHandler implements HttpHandler {
                 videoFile = req.getBody();
             } catch (Exception e) {
                 String errorMessage = "Invalid video file";
-                res.sendResponse(400, createErrorResponse(errorMessage));
+                res.sendJsonResponse(400, createErrorResponse(errorMessage));
                 return;
             }
 
@@ -98,7 +98,7 @@ public class MediaRequestHandler implements HttpHandler {
 
             String mediaFileName;
             long containerId;
-            // Add user to database
+            // Add media to database
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
@@ -110,7 +110,7 @@ public class MediaRequestHandler implements HttpHandler {
                         Statement.RETURN_GENERATED_KEYS);
                 if (affectedColumns == 0) {
                     String errorMessage = "Failed to add media to database";
-                    res.sendResponse(500, createErrorResponse(errorMessage));
+                    res.sendJsonResponse(500, createErrorResponse(errorMessage));
                     return;
                 }
 
@@ -119,13 +119,14 @@ public class MediaRequestHandler implements HttpHandler {
                     containerId = keys.getLong(1);
                 }
 
-                mediaFileName = containerId + extension;
+                mediaFileName = sub + "_" + containerId + extension;
 
                 System.out.println("Successfully connected to database and added user");
             }
 
             // Save video file to disk
-            OutputStream out = new FileOutputStream(new File("uploads/container/" + mediaFileName));
+            new File("uploads/media/").mkdirs();
+            OutputStream out = new FileOutputStream(new File("uploads/media/" + mediaFileName));
             out.write(videoFile);
             out.close();
 
@@ -133,12 +134,12 @@ public class MediaRequestHandler implements HttpHandler {
             JSONObject jsonResponse = new JSONObject()
                     .put("containerId", containerId)
                     .put("downloadUrl",
-                            "http://localhost:8000/api/videos/media?containerId=" + containerId)
+                            "http://localhost:8000/api/media?containerId=" + containerId)
                     .put("publishUrl", "http://localhost:8000/api/media_publish?containerId=" + containerId);
-            res.sendResponse(200, jsonResponse.toString());
+            res.sendJsonResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
-            res.sendResponse(500, createErrorResponse(errorMessage));
+            res.sendJsonResponse(500, createErrorResponse(errorMessage));
         }
     }
 

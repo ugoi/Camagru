@@ -35,13 +35,13 @@ public class ProfileRequestHandler implements HttpHandler {
     }
 
     private void handleDefaultRequest(Request req, Response res) {
-        res.sendResponse(405, createErrorResponse("Unsupported method"));
+        res.sendJsonResponse(405, createErrorResponse("Unsupported method"));
     }
 
     private void handleOptionsRequest(Request req, Response res) {
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, *");
-        res.sendResponse(204, ""); // No content
+        res.sendJsonResponse(204, ""); // No content
     }
 
     private void handleGetRequest(Request req, Response res) {
@@ -51,7 +51,7 @@ public class ProfileRequestHandler implements HttpHandler {
             String cookieHeader = req.getHeader("Cookie");
 
             if (cookieHeader == null || cookieHeader.isEmpty()) {
-                res.sendResponse(400, createErrorResponse("Request headers not supported"));
+                res.sendJsonResponse(400, createErrorResponse("Request headers not supported"));
                 return;
             }
 
@@ -79,7 +79,7 @@ public class ProfileRequestHandler implements HttpHandler {
                 } else {
                     String errorMessage = "User not found";
                     System.err.println(errorMessage);
-                    res.sendResponse(404, createErrorResponse(errorMessage));
+                    res.sendJsonResponse(404, createErrorResponse(errorMessage));
                     return;
                 }
 
@@ -89,12 +89,12 @@ public class ProfileRequestHandler implements HttpHandler {
             JSONObject jsonResponse = new JSONObject()
                     .put("username", userName)
                     .put("email", userEmail);
-            res.sendResponse(200, jsonResponse.toString());
+            res.sendJsonResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
             System.err.println(errorMessage);
             e.printStackTrace();
-            res.sendResponse(500, createErrorResponse(errorMessage));
+            res.sendJsonResponse(500, createErrorResponse(errorMessage));
         }
     }
 
