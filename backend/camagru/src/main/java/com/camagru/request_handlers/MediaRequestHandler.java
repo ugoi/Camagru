@@ -119,7 +119,7 @@ public class MediaRequestHandler implements HttpHandler {
                     containerId = keys.getLong(1);
                 }
 
-                mediaFileName = sub + "_" + containerId + extension;
+                mediaFileName = sub + "_" + containerId + "_container" + extension;
 
                 System.out.println("Successfully connected to database and added user");
             }

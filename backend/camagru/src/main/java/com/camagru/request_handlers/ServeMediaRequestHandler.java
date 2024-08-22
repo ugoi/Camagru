@@ -5,10 +5,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
 import org.json.JSONObject;
 
@@ -63,47 +59,13 @@ public class ServeMediaRequestHandler implements HttpHandler {
 
             String contentId = req.getQueryParameter("contentId");
 
-            String userId;
-            // Add user to database
-            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement()) {
-
-                String queryMedia = "select * from media where media_id='" + contentId + "'";
-                String queryContainers = "select * from containers where container_id='" + contentId + "'";
-
-                ResultSet rsMedia = stmt
-                        .executeQuery(queryMedia);
-
-                if (rsMedia.next()) {
-                    userId = rsMedia.getString("user_id");
-                } else {
-                    ResultSet rsContainers = stmt
-                            .executeQuery(queryContainers);
-                    if (rsContainers.next()) {
-                        userId = rsContainers.getString("user_id");
-                    } else {
-                        String errorMessage = "Media not found";
-                        System.err.println(errorMessage);
-                        res.sendJsonResponse(404, createErrorResponse(errorMessage));
-                        return;
-                    }
-                }
-                System.out.println("Successfully connected to database and added user");
-            }
-
-            if (!sub.equals(userId)) {
-                String errorMessage = "Unauthorized";
-                System.err.println(errorMessage);
-                res.sendJsonResponse(401, createErrorResponse(errorMessage));
-                return;
-            }
-
             // Find out all log files
             String targetDirectory = "uploads/media/";
             File dir = new File(targetDirectory);
             FilenameFilter uploadIdFileFilter = (d, s) -> {
-                return s.startsWith(sub + "_" + contentId);
+                String[] parts = s.split("_|\\.");
+
+                return parts[1].equals(contentId);
             };
             String[] fileNames = dir.list(uploadIdFileFilter);
 
@@ -115,6 +77,18 @@ public class ServeMediaRequestHandler implements HttpHandler {
             }
 
             String fileName = fileNames[0];
+
+            // Extract sub from fileName
+            String[] parts = fileName.split("_|\\.");
+            String fileSub = parts[0];
+            String fileType = parts[2];
+
+            if (fileType.equals("container") && !sub.equals(fileSub)) {
+                String errorMessage = "Unauthorized";
+                System.err.println(errorMessage);
+                res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                return;
+            }
 
             // Get video file from disk
             byte[] videoFile = Files.readAllBytes(Paths.get(targetDirectory + fileName));
