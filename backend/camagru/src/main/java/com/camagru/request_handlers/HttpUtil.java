@@ -45,15 +45,19 @@ public class HttpUtil {
             // ObjectOutputStream output = new ObjectOutputStream(baos);
 
             while (nextPart) {
-                String header = multipartStream.readHeaders();
+                String header = multipartStream.readHeaders().trim();
                 // create some output stream
                 multipartStream.readBodyData(output);
                 byte[] multipartData = output.toByteArray();
+
+                // Print multipart data as string
+                String multipartDataString = new String(multipartData);
+                System.out.println(multipartDataString);
                 // process headers
                 try {
                     String headerValueRaw = HttpUtil.getHeader(header, "name");
 
-                    String headerValue = headerValueRaw.replaceAll("\"", "");
+                    String headerValue = headerValueRaw.replace("\"", "");
 
                     if (!headerValue.isBlank()) {
                         jsonParts.put(headerValue, multipartData);
