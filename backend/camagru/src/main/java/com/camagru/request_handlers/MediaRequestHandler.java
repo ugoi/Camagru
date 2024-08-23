@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashMap;
 
 import org.apache.tika.Tika;
 import org.json.JSONObject;
@@ -69,14 +70,8 @@ public class MediaRequestHandler implements HttpHandler {
                 containerDescription = "";
             }
 
-            byte[] videoFile;
-            try {
-                videoFile = req.getBody();
-            } catch (Exception e) {
-                String errorMessage = "Invalid video file";
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
-                return;
-            }
+            HashMap<String, byte[]> files = req.files();
+            byte[] videoFile = files.get("media");
 
             String extension;
             String mimeType;

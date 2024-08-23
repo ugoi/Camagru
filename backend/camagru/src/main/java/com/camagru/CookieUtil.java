@@ -1,12 +1,9 @@
 package com.camagru;
 
+import com.camagru.request_handlers.HttpUtil;
+
 public class CookieUtil {
-    public static String getCookie(String cookieHeader, String name) {
-        String cookieString = "; " + cookieHeader;
-        String[] parts = cookieString.split("; " + name + "=");
-        if (parts.length == 2) {
-            return parts[1].split(";")[0];
-        }
-        return null;
+    public static String getCookie(String headerKey, String valueKey) {
+        return HttpUtil.getHeader(headerKey, valueKey);
     }
 }

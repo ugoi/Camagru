@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
@@ -26,13 +27,14 @@ public class Request {
         return exchange.getRequestURI().getPath();
     }
 
-    public String getHeader(String key) {
-        return exchange.getRequestHeaders().getFirst(key);
+    public String getHeader(String headerKey) {
+        return exchange.getRequestHeaders().getFirst(headerKey);
     }
 
-    public String getHeaderValue(String key) {
-        String header = getHeader(key);
-        return header.split(",")[0];
+    public String getHeader(String headerKey, String valueKey) {
+        String header = getHeader(headerKey);
+        return HttpUtil.getHeader(header, valueKey);
+
     }
 
     public String getQueryParameter(String key) {
@@ -50,5 +52,15 @@ public class Request {
         try (InputStream inputStream = exchange.getRequestBody()) {
             return inputStream.readAllBytes();
         }
+    }
+
+    public HashMap<String, byte[]> files() throws IOException {
+        HashMap<String, byte[]> jsonParts = new HashMap<String, byte[]>();
+        try (InputStream inputStream = exchange.getRequestBody()) {
+            // Get boundary from headers
+            String boundaryString = getHeader("Content-Type", "boundary");
+            jsonParts = HttpUtil.files(inputStream, boundaryString.getBytes());
+        }
+        return jsonParts;
     }
 }

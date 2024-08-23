@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 
 import org.json.JSONObject;
 
@@ -61,8 +62,8 @@ public class VideoUploadPartRequestHandler implements HttpHandler {
 
             String videoFileName = sub + "_" + uploadId.toString() + "_" + partNumber + ".mp4";
 
-            // Get query parameters
-            byte[] videoFile = req.getBody();
+            HashMap<String, byte[]> files = req.files();
+            byte[] videoFile = files.get("media");
 
             // Save video file to disk
             OutputStream out = new FileOutputStream(new File("uploads/temp/" + videoFileName));
