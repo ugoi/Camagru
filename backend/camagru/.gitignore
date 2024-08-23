@@ -25,3 +25,6 @@ replay_pid*
 
 # Ignore all properties files
 *.properties
+
+# Ignore all files in the uploads directory
+uploads/*

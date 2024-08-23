@@ -50,9 +50,6 @@ public class HttpUtil {
                 multipartStream.readBodyData(output);
                 byte[] multipartData = output.toByteArray();
 
-                // Print multipart data as string
-                String multipartDataString = new String(multipartData);
-                System.out.println(multipartDataString);
                 // process headers
                 try {
                     String headerValueRaw = HttpUtil.getHeader(header, "name");
