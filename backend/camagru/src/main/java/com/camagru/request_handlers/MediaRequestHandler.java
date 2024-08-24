@@ -71,24 +71,15 @@ public class MediaRequestHandler implements HttpHandler {
             }
 
             HashMap<String, byte[]> files = req.files();
-            byte[] videoFile = files.get("media");
+            byte[] media = files.get("media");
+            byte[] overlayMedia = files.get("overlayMedia");
 
             String extension;
             String mimeType;
             Tika tika = new Tika();
-            try (ByteArrayInputStream input = new ByteArrayInputStream(videoFile)) {
+            try (ByteArrayInputStream input = new ByteArrayInputStream(media)) {
                 mimeType = tika.detect(input);
-                if (mimeType.equals("video/mp4")) {
-                    extension = ".mp4";
-                } else if (mimeType.equals("video/quicktime")) {
-                    extension = ".mov";
-                } else if (mimeType.equals("image/png")) {
-                    extension = ".png";
-                } else if (mimeType.equals("image/jpeg")) {
-                    extension = ".jpeg";
-                } else {
-                    throw new Exception("Invalid mime type");
-                }
+                extension = HttpUtil.getMimeTypeExtension(mimeType);
             }
 
             String mediaFileName;
@@ -120,10 +111,7 @@ public class MediaRequestHandler implements HttpHandler {
             }
 
             // Save video file to disk
-            new File("uploads/media/").mkdirs();
-            OutputStream out = new FileOutputStream(new File("uploads/media/" + mediaFileName));
-            out.write(videoFile);
-            out.close();
+            combineMedia(media, overlayMedia, "uploads/media/" + mediaFileName);
 
             // Save video file to disk
             JSONObject jsonResponse = new JSONObject()
@@ -140,5 +128,64 @@ public class MediaRequestHandler implements HttpHandler {
 
     private String createErrorResponse(String errorMessage) {
         return new JSONObject().put("error", errorMessage).toString();
+    }
+
+    private void combineMedia(byte[] media, byte[] overlayMedia, String outputFile) throws Exception {
+        // Get mime type and extension
+        String mediaMimeType;
+        String mediaExtension;
+        String overlayMimeType;
+        String overlayExtension;
+        {
+            Tika tika = new Tika();
+            try (ByteArrayInputStream input = new ByteArrayInputStream(media)) {
+                mediaMimeType = tika.detect(input);
+                mediaExtension = HttpUtil.getMimeTypeExtension(mediaMimeType);
+            }
+            try (ByteArrayInputStream input = new ByteArrayInputStream(overlayMedia)) {
+                overlayMimeType = tika.detect(input);
+                overlayExtension = HttpUtil.getMimeTypeExtension(overlayMimeType);
+            }
+        }
+
+        // Create file names and paths
+        String mediaUuid = java.util.UUID.randomUUID().toString();
+        String overlayUuid = java.util.UUID.randomUUID().toString();
+        String mediaFileName = mediaUuid + mediaExtension;
+        String overlayFileName = overlayUuid + overlayExtension;
+        String mediaPath = "uploads/temp/";
+
+        // Step 1: Save media and overlayMedia to disk
+        {
+            new File(mediaPath).mkdirs();
+            OutputStream outMedia = new FileOutputStream(new File(mediaPath + mediaFileName));
+            outMedia.write(media);
+            outMedia.close();
+            OutputStream outOverlayMedia = new FileOutputStream(new File(mediaPath + overlayFileName));
+            outOverlayMedia.write(overlayMedia);
+            outOverlayMedia.close();
+        }
+
+        // Step 2: Build the ffmpeg command to concatenate the files
+        String ffmpegCommand = String.format(
+                "ffmpeg -i %s -i %s -filter_complex \"[1]scale=100:-1[b];[0:v][b] overlay=x=(W-w)*0.5:y=(H-h)*0.5\" %s -y",
+                mediaPath + mediaFileName, mediaPath + overlayFileName, outputFile);
+
+        // Step 3: Execute the command
+        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", ffmpegCommand);
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+        int exitCode = process.waitFor();
+
+        // Step 4: Clean up in separate thread
+        new File(mediaPath + mediaFileName).delete();
+        new File(mediaPath + overlayFileName).delete();
+
+        if (exitCode == 0) {
+            System.out.println("MP4 files combined successfully into " + outputFile);
+        } else {
+            throw new Exception("Failed to combine MP4 files");
+        }
     }
 }

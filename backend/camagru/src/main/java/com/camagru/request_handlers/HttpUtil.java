@@ -37,18 +37,19 @@ public class HttpUtil {
     public static HashMap<String, byte[]> files(InputStream inputStream, byte[] boundary) {
         HashMap<String, byte[]> jsonParts = new HashMap<String, byte[]>();
         try {
-
             MultipartStream multipartStream = new MultipartStream(inputStream, boundary, 8192, null);
             boolean nextPart = multipartStream.skipPreamble();
             // OutputStream output;
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
             // ObjectOutputStream output = new ObjectOutputStream(baos);
 
             while (nextPart) {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
                 String header = multipartStream.readHeaders().trim();
                 // create some output stream
                 multipartStream.readBodyData(output);
                 byte[] multipartData = output.toByteArray();
+
+                output.close();
 
                 // process headers
                 try {
@@ -78,5 +79,29 @@ public class HttpUtil {
         }
 
         return jsonParts;
+    }
+
+    /**
+     * Converts a mime type to a file extension.
+     * For example, "video/mp4" will be converted to ".mp4".
+     * 
+     * @param mimeType The mime type
+     * @return The extension of the file
+     * @throws Exception
+     */
+    public static String getMimeTypeExtension(String mimeType) throws Exception {
+        String extension;
+        if (mimeType.equals("video/mp4")) {
+            extension = ".mp4";
+        } else if (mimeType.equals("video/quicktime")) {
+            extension = ".mov";
+        } else if (mimeType.equals("image/png")) {
+            extension = ".png";
+        } else if (mimeType.equals("image/jpeg")) {
+            extension = ".jpeg";
+        } else {
+            throw new Exception("Invalid mime type");
+        }
+        return extension;
     }
 }
