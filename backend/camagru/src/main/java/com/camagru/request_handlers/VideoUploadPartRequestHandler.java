@@ -4,13 +4,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.json.JSONObject;
 
 import com.camagru.CookieUtil;
 import com.camagru.JwtManager;
 import com.camagru.PropertiesManager;
+import com.camagru.PropertyField;
+import com.camagru.PropertyFieldsManager;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -54,8 +58,19 @@ public class VideoUploadPartRequestHandler implements HttpHandler {
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
             jwtManager.verifySignature(jwt);
-            JSONObject decodedJwt = jwtManager.decodeToken(jwt);
-            String sub = decodedJwt.getJSONObject("payload").getString("sub");
+            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+            // Validate input
+            List<String> wrongFields = new PropertyFieldsManager(
+                    Arrays.asList(new PropertyField("uploadId", true),
+                            new PropertyField("partNumber", true)),
+                    null)
+                    .validationResult(req);
+
+            if (!wrongFields.isEmpty()) {
+                res.sendJsonResponse(400,
+                        createErrorResponse("The following fields are invalid: " + String.join(", ", wrongFields)));
+                return;
+            }
             // Generate uuid for video
             String uploadId = req.getQueryParameter("uploadId");
             String partNumber = req.getQueryParameter("partNumber");

@@ -1,16 +1,17 @@
 package com.camagru.request_handlers;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 import org.json.JSONObject;
 
 import com.camagru.CookieUtil;
 import com.camagru.JwtManager;
 import com.camagru.PropertiesManager;
+import com.camagru.PropertyField;
+import com.camagru.PropertyFieldsManager;
+import com.camagru.services.MediaService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -53,53 +54,21 @@ public class ServeMediaRequestHandler implements HttpHandler {
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
             jwtManager.verifySignature(jwt);
-            JSONObject decodedJwt = jwtManager.decodeToken(jwt);
-            String sub = decodedJwt.getJSONObject("payload").getString("sub");
+            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
 
-            String contentId;
-            try {
-                contentId = req.getQueryParameter("id");
-            } catch (Exception e) {
-                String errorMessage = "Missing id";
-                System.err.println(errorMessage);
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
+            // Validate input
+            List<String> wrongFields = new PropertyFieldsManager(
+                    Arrays.asList(new PropertyField("id", true)), null)
+                    .validationResult(req);
+
+            if (!wrongFields.isEmpty()) {
+                res.sendJsonResponse(400,
+                        createErrorResponse("The following fields are invalid: " + String.join(", ", wrongFields)));
                 return;
             }
-
-            // Find out all log files
-            String targetDirectory = "uploads/media/";
-            File dir = new File(targetDirectory);
-            FilenameFilter uploadIdFileFilter = (d, s) -> {
-                String[] parts = s.split("_|\\.");
-
-                return parts[1].equals(contentId);
-            };
-            String[] fileNames = dir.list(uploadIdFileFilter);
-
-            if (fileNames == null || fileNames.length == 0) {
-                String errorMessage = "Media not found";
-                System.err.println(errorMessage);
-                res.sendJsonResponse(404, createErrorResponse(errorMessage));
-                return;
-            }
-
-            String fileName = fileNames[0];
-
-            // Extract sub from fileName
-            String[] parts = fileName.split("_|\\.");
-            String fileSub = parts[0];
-            String fileType = parts[2];
-
-            if (fileType.equals("container") && !sub.equals(fileSub)) {
-                String errorMessage = "Unauthorized";
-                System.err.println(errorMessage);
-                res.sendJsonResponse(401, createErrorResponse(errorMessage));
-                return;
-            }
-
-            // Get video file from disk
-            byte[] videoFile = Files.readAllBytes(Paths.get(targetDirectory + fileName));
-
+            String contentId = req.getQueryParameter("id");
+            MediaService.hasPermission(sub, contentId);
+            byte[] videoFile = MediaService.getMedia(contentId);
             res.sendResponse(200, videoFile);
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();

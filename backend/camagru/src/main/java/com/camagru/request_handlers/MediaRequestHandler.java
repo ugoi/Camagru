@@ -84,8 +84,7 @@ public class MediaRequestHandler implements HttpHandler {
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
             jwtManager.verifySignature(jwt);
-            JSONObject decodedJwt = jwtManager.decodeToken(jwt);
-            String sub = decodedJwt.getJSONObject("payload").getString("sub");
+            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
 
             String containerDescription = "";
             try {

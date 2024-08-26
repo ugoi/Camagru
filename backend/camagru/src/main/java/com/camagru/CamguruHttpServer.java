@@ -19,7 +19,6 @@ import com.camagru.request_handlers.RegisterRequestHandler;
 import com.camagru.request_handlers.ServeMediaRequestHandler;
 import com.camagru.request_handlers.VideoCompleteRequestHandler;
 import com.camagru.request_handlers.VideoDownloadPartRequestHandler;
-import com.camagru.request_handlers.VideoDownloadRequestHandler;
 import com.camagru.request_handlers.VideoInitiateUploadRequestHandler;
 import com.camagru.request_handlers.VideoUploadPartRequestHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -69,7 +68,6 @@ public class CamguruHttpServer {
         server.createContext("/api/videos/initiate-upload", new VideoInitiateUploadRequestHandler());
         server.createContext("/api/videos/upload", new VideoUploadPartRequestHandler());
         server.createContext("/api/videos/complete", new VideoCompleteRequestHandler());
-        server.createContext("/api/videos/download", new VideoDownloadRequestHandler());
         server.createContext("/api/videos/download-part", new VideoDownloadPartRequestHandler());
         server.createContext("/api/media", new MediaRequestHandler());
         server.createContext("/api/media_publish", new MediaPublishRequestHandler());

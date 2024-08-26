@@ -2,21 +2,23 @@ package com.camagru.request_handlers;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 
 import org.json.JSONObject;
 
 import com.camagru.CookieUtil;
 import com.camagru.JwtManager;
 import com.camagru.PropertiesManager;
+import com.camagru.PropertyField;
+import com.camagru.PropertyFieldsManager;
+import com.camagru.services.MediaService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -59,63 +61,26 @@ public class MediaPublishRequestHandler implements HttpHandler {
     private void handlePostRequest(Request req, Response res) {
         try {
 
-            // TODO: Refactor to AuthUtils
             // Extract jwt from cookie
             PropertiesManager propertiesManager = new PropertiesManager();
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
             jwtManager.verifySignature(jwt);
-            JSONObject decodedJwt = jwtManager.decodeToken(jwt);
-            String sub = decodedJwt.getJSONObject("payload").getString("sub");
+            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
 
-            String creationId;
-            try {
-                creationId = req.getQueryParameter("creation_id");
-            } catch (Exception e) {
-                String errorMessage = "Missing creation_id";
-                System.err.println(errorMessage);
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
+            // Validate input
+            List<String> wrongFields = new PropertyFieldsManager(
+                    Arrays.asList(new PropertyField("creation_id", true)), null)
+                    .validationResult(req);
+
+            if (!wrongFields.isEmpty()) {
+                res.sendJsonResponse(400,
+                        createErrorResponse("The following fields are invalid: " + String.join(", ", wrongFields)));
                 return;
             }
-
-            // TODO: Refactor out to get media in MediaService
-            // Find out all log files
-            String targetDirectory = "uploads/media/";
-            File dir = new File(targetDirectory);
-            FilenameFilter uploadIdFileFilter = (d, s) -> {
-                String[] parts = s.split("_|\\.");
-
-                return parts[1].equals(creationId);
-            };
-            String[] fileNames = dir.list(uploadIdFileFilter);
-
-            if (fileNames == null || fileNames.length == 0) {
-                String errorMessage = "Media not found";
-                System.err.println(errorMessage);
-                res.sendJsonResponse(404, createErrorResponse(errorMessage));
-                return;
-            }
-            String fileName = fileNames[0];
-
-            // TODO: Move to auth service in check permissions for file method
-            // Extract sub from fileName
-            String[] parts = fileName.split("_|\\.");
-            String fileSub = parts[0];
-            String fileType = parts[2];
-
-            if (fileType.equals("container") && !sub.equals(fileSub)) {
-                String errorMessage = "Unauthorized";
-                System.err.println(errorMessage);
-                res.sendJsonResponse(401, createErrorResponse(errorMessage));
-                return;
-            }
-
-            // TODO: Refactor out Get the media
-            // Get video file from disk
-            byte[] mediaFile = Files.readAllBytes(Paths.get(targetDirectory + fileName));
-
-            // Publish the file
-
+            String creationId = req.getQueryParameter("creation_id");
+            MediaService.hasPermission(sub, creationId);
+            byte[] mediaFile = MediaService.getMedia(creationId);
             // Add media to database
             String mediaFileName;
             long mediaId;

@@ -61,7 +61,7 @@ public class HttpUtil {
                         jsonParts.put(headerValue, multipartData);
                     }
                 } catch (Exception e) {
-                    // TODO: handle exception
+                    System.err.println(e);
                 }
                 nextPart = multipartStream.readBoundary();
             }
@@ -73,8 +73,7 @@ public class HttpUtil {
             try {
                 inputStream.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                System.err.println(e);
             }
         }
 

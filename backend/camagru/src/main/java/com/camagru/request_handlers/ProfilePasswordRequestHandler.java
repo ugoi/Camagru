@@ -75,8 +75,7 @@ public class ProfilePasswordRequestHandler implements HttpHandler {
             String jwt = CookieUtil.getCookie(cookieHeader, "token");
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             jwtManager.verifySignature(jwt);
-            JSONObject decoded = jwtManager.decodeToken(jwt);
-            String sub = decoded.getJSONObject("payload").getString("sub");
+            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
 
             String query = "update users set password='" + hashedPassword + "' where user_id='" + sub + "'";
 
