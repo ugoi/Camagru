@@ -9,7 +9,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.tika.Tika;
 import org.json.JSONObject;
@@ -17,6 +19,9 @@ import org.json.JSONObject;
 import com.camagru.CookieUtil;
 import com.camagru.JwtManager;
 import com.camagru.PropertiesManager;
+import com.camagru.PropertyField;
+import com.camagru.PropertyFieldsManager;
+import com.camagru.RegexUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -54,8 +59,27 @@ public class MediaRequestHandler implements HttpHandler {
 
     private void handlePostRequest(Request req, Response res) {
         try {
+            // Validate input
+            List<PropertyField> propertyFields = Arrays.asList(
+                    new PropertyField("scale_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX),
+                    new PropertyField("x_position_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX),
+                    new PropertyField("y_position_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX));
+            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
+            List<String> wrongFields = propertyFieldsManager.validationResult(req);
 
-            // Extract jwt from cookie
+            if (!wrongFields.isEmpty()) {
+                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                System.err.println(errorMessage);
+                res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                return;
+            }
+
+            // Get query parameters
+            double scaleFactor = Double.parseDouble(req.getQueryParameter("scale_factor", "0.5"));
+            double xPositionFactor = Double.parseDouble(req.getQueryParameter("x_position_factor", "0.5"));
+            double yPositionFactor = Double.parseDouble(req.getQueryParameter("y_position_factor", "0.5"));
+
+            // Properties
             PropertiesManager propertiesManager = new PropertiesManager();
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
             String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
@@ -110,8 +134,9 @@ public class MediaRequestHandler implements HttpHandler {
                 System.out.println("Successfully connected to database and added user");
             }
 
+            String uploadFilePath = "uploads/media/" + mediaFileName;
             // Save video file to disk
-            combineMedia(media, overlayMedia, "uploads/media/" + mediaFileName);
+            combineMedia(media, overlayMedia, uploadFilePath, scaleFactor, xPositionFactor, yPositionFactor);
 
             // Save video file to disk
             JSONObject jsonResponse = new JSONObject()
@@ -130,7 +155,19 @@ public class MediaRequestHandler implements HttpHandler {
         return new JSONObject().put("error", errorMessage).toString();
     }
 
-    private void combineMedia(byte[] media, byte[] overlayMedia, String outputFile) throws Exception {
+    private void combineMedia(byte[] media, byte[] overlayMedia, String outputFile, Double scaleFactor,
+            Double xPositionFactor, Double yPositionFactor) throws Exception {
+
+        if (scaleFactor == null) {
+            scaleFactor = 0.5;
+        }
+        if (xPositionFactor == null) {
+            xPositionFactor = 0.5;
+        }
+        if (yPositionFactor == null) {
+            yPositionFactor = 0.5;
+        }
+
         // Get mime type and extension
         String mediaMimeType;
         String mediaExtension;
@@ -167,9 +204,12 @@ public class MediaRequestHandler implements HttpHandler {
         }
 
         // Step 2: Build the ffmpeg command to concatenate the files
+        String mediaFilePath = mediaPath + mediaFileName;
+        String overlayFilePath = mediaPath + overlayFileName;
+
         String ffmpegCommand = String.format(
-                "ffmpeg -i %s -i %s -filter_complex \"[1]scale=100:-1[b];[0:v][b] overlay=x=(W-w)*0.5:y=(H-h)*0.5\" %s -y",
-                mediaPath + mediaFileName, mediaPath + overlayFileName, outputFile);
+                "ffmpeg -i %s -i %s -filter_complex \"[1]scale=iw*%f:-1[b];[0:v][b] overlay=x=(W-w)*%f:y=(H-h)*%f\" %s -y",
+                mediaFilePath, overlayFilePath, scaleFactor, xPositionFactor, yPositionFactor, outputFile);
 
         // Step 3: Execute the command
         ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", ffmpegCommand);

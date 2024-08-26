@@ -45,6 +45,19 @@ public class Request {
         return result;
     }
 
+    public String getQueryParameter(String key, String defaultValue) {
+        try {
+            String result = exchange.getRequestURI().getQuery().split(key + "=")[1].split("&")[0];
+            if (result == null || result.isEmpty()) {
+                return defaultValue;
+            }
+            return result;
+
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     public JSONObject getBodyAsJson() throws IOException {
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8));

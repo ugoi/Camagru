@@ -25,7 +25,12 @@ public class PropertyField {
      * @return A boolean value.
      */
     public Boolean validate(String value) {
-        if ((isMandatory && value == null) || regex != null && !value.matches(regex)) {
+
+        if (!isMandatory && value == null) {
+            return true;
+        }
+
+        if ((isMandatory && value == null) || (regex != null && !value.matches(regex))) {
             return false;
         } else {
             return true;
