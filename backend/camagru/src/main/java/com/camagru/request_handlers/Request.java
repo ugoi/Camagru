@@ -37,8 +37,12 @@ public class Request {
 
     }
 
-    public String getQueryParameter(String key) {
-        return exchange.getRequestURI().getQuery().split(key + "=")[1].split("&")[0];
+    public String getQueryParameter(String key) throws IllegalArgumentException {
+        String result = exchange.getRequestURI().getQuery().split(key + "=")[1].split("&")[0];
+        if (result == null || result.isEmpty()) {
+            throw new IllegalArgumentException("Query parameter " + key + " not found");
+        }
+        return result;
     }
 
     public JSONObject getBodyAsJson() throws IOException {

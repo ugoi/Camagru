@@ -117,8 +117,8 @@ public class MediaRequestHandler implements HttpHandler {
             JSONObject jsonResponse = new JSONObject()
                     .put("containerId", containerId)
                     .put("downloadUrl",
-                            "http://localhost:8000/api/media?containerId=" + containerId)
-                    .put("publishUrl", "http://localhost:8000/api/media_publish?containerId=" + containerId);
+                            "http://localhost:8000/api/media?id=" + containerId)
+                    .put("publishUrl", "http://localhost:8000/api/media_publish?id=" + containerId);
             res.sendJsonResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();

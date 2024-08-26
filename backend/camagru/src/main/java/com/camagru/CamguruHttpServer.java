@@ -9,6 +9,7 @@ import java.sql.Statement;
 
 import com.camagru.exceptions.InvalidProperiesException;
 import com.camagru.request_handlers.LoginRequestHandler;
+import com.camagru.request_handlers.MediaPublishRequestHandler;
 import com.camagru.request_handlers.MediaRequestHandler;
 import com.camagru.request_handlers.ProfileEmailRequestHandler;
 import com.camagru.request_handlers.ProfilePasswordRequestHandler;
@@ -71,7 +72,7 @@ public class CamguruHttpServer {
         server.createContext("/api/videos/download", new VideoDownloadRequestHandler());
         server.createContext("/api/videos/download-part", new VideoDownloadPartRequestHandler());
         server.createContext("/api/media", new MediaRequestHandler());
-        // server.createContext("/api/media_publish", new MediaPublishRequestHandler());
+        server.createContext("/api/media_publish", new MediaPublishRequestHandler());
         server.createContext("/api/serve/media", new ServeMediaRequestHandler());
 
         server.setExecutor(null); // creates a default executor

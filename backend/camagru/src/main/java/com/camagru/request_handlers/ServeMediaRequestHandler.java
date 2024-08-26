@@ -48,7 +48,6 @@ public class ServeMediaRequestHandler implements HttpHandler {
 
     private void handleGetRequest(Request req, Response res) {
         try {
-
             // Extract jwt from cookie
             PropertiesManager propertiesManager = new PropertiesManager();
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
@@ -57,7 +56,15 @@ public class ServeMediaRequestHandler implements HttpHandler {
             JSONObject decodedJwt = jwtManager.decodeToken(jwt);
             String sub = decodedJwt.getJSONObject("payload").getString("sub");
 
-            String contentId = req.getQueryParameter("contentId");
+            String contentId;
+            try {
+                contentId = req.getQueryParameter("id");
+            } catch (Exception e) {
+                String errorMessage = "Missing id";
+                System.err.println(errorMessage);
+                res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                return;
+            }
 
             // Find out all log files
             String targetDirectory = "uploads/media/";
