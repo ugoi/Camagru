@@ -25,16 +25,16 @@ public class PropertyFieldsManager {
     public List<String> getWrongFields(JSONObject jsonBody) {
         List<String> wrongFields = new ArrayList<>();
         // Get wrong fields
-        for (PropertyField queryFields : queryFields) {
+        for (PropertyField bodyField : bodyFields) {
             String field = null;
             try {
-                field = jsonBody.getString(queryFields.key);
+                field = jsonBody.getString(bodyField.key);
 
             } catch (Exception e) {
             }
 
-            if (!queryFields.validate(field)) {
-                wrongFields.add(queryFields.key);
+            if (!bodyField.validate(field)) {
+                wrongFields.add(bodyField.key);
             }
         }
         return wrongFields;

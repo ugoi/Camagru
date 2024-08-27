@@ -1,5 +1,5 @@
 /**
- * Type: View
+ * Type: Controller
  * Handles the login form submission
  * @param {Event} event
  * @returns {void}
@@ -54,7 +54,7 @@ function delete_cookie(name) {
 }
 
 /**
- * Type: Controller
+ * Type: Modell
  * @param {string} username
  * @param {string} password
  * @returns {void}

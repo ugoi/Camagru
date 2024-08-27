@@ -82,9 +82,17 @@ public class MediaRequestHandler implements HttpHandler {
             // Properties
             PropertiesManager propertiesManager = new PropertiesManager();
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
-            jwtManager.verifySignature(jwt);
-            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+            String sub;
+            try {
+                String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
+                jwtManager.verifySignature(jwt);
+                sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+            } catch (Exception e) {
+                String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
+                        + e.getMessage();
+                res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                return;
+            }
 
             String containerDescription = "";
             try {

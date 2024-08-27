@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title></title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="" />
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">
+        You are using an <strong>outdated</strong> browser. Please
+        <a href="#">upgrade your browser</a> to improve your experience.
+      </p>
+    <![endif]-->
+
+    <div>
+      <img id="image" style="width: 500px" />
+      <form
+        id="mediaForm"
+        action="http://localhost:8000/api/media"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <label for="file">Media</label>
+        <input type="file" name="media" accept="image/*, video/*" />
+      </form>
+
+      <form
+        id="overlayMediaForm"
+        action="http://localhost:8000/api/media"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <label for="file">Overlay</label>
+        <input type="file" name="overlayMedia" accept="image/*, video/*" />
+      </form>
+      <button id="submitButton">Submit</button>
+    </div>
+    <script type="module" src="upload_view.js"></script>
+    <script type="module">
+      // import { postMedia, getMedia } from "./upload.js";
+
+      // const mediaForm = document.getElementById("mediaForm");
+      // const overlayMeidaForm = document.getElementById("overlayMediaForm");
+      // const submitButton = document.getElementById("submitButton");
+
+      // const formData = new FormData(mediaForm);
+
+      // submitButton.addEventListener("click", async (event) => {
+      //   event.preventDefault();
+      //   const overlayMediaFormData = new FormData(overlayMeidaForm);
+      //   const mediaFormData = new FormData(mediaForm);
+
+      //   var overlayMediaFile = overlayMediaFormData.get("overlayMedia");
+      //   var mediaFile = mediaFormData.get("media");
+
+      //   formData.append("overlayMedia", overlayMediaFile);
+      //   formData.append("media", mediaFile);
+
+      //   postMedia(formData);
+
+      //   var response = getMedia();
+
+      //   var myBlob = await response.blob();
+
+      //   var objectURL = URL.createObjectURL(myBlob);
+      //   document.querySelector("#image").src = objectURL;
+      // });
+    </script>
+  </body>
+</html>
