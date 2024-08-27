@@ -25,7 +25,7 @@
         enctype="multipart/form-data"
       >
         <label for="file">Media</label>
-        <input type="file" name="media" accept="image/*, video/*" />
+        <input type="file" name="media" accept="image/*, video/*" id="fileInput" />
       </form>
 
       <form
@@ -40,35 +40,6 @@
       <button id="submitButton">Submit</button>
     </div>
     <script type="module" src="upload_view.js"></script>
-    <script type="module">
-      // import { postMedia, getMedia } from "./upload.js";
-
-      // const mediaForm = document.getElementById("mediaForm");
-      // const overlayMeidaForm = document.getElementById("overlayMediaForm");
-      // const submitButton = document.getElementById("submitButton");
-
-      // const formData = new FormData(mediaForm);
-
-      // submitButton.addEventListener("click", async (event) => {
-      //   event.preventDefault();
-      //   const overlayMediaFormData = new FormData(overlayMeidaForm);
-      //   const mediaFormData = new FormData(mediaForm);
-
-      //   var overlayMediaFile = overlayMediaFormData.get("overlayMedia");
-      //   var mediaFile = mediaFormData.get("media");
-
-      //   formData.append("overlayMedia", overlayMediaFile);
-      //   formData.append("media", mediaFile);
-
-      //   postMedia(formData);
-
-      //   var response = getMedia();
-
-      //   var myBlob = await response.blob();
-
-      //   var objectURL = URL.createObjectURL(myBlob);
-      //   document.querySelector("#image").src = objectURL;
-      // });
-    </script>
+    <script type="module"></script>
   </body>
 </html>
