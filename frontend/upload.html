@@ -18,14 +18,23 @@
 
     <div>
       <div id="cameraPreview">
-        <video autoplay="true" id="videoElement" style="width: 500px"></video>
+        <video id="videoElement" style="width: 500px" autoplay muted></video>
         <br />
         <button id="photoButton">Take photo</button>
-        <button id="videoButton">Start video</button>
+        <button id="videoButton">Start recording</button>
       </div>
       <canvas id="canvas" style="width: 500px; display: none"> </canvas>
       <div class="output">
-        <img id="image" style="width: 500px" />
+        <img id="image" style="width: 500px; display: none" />
+      </div>
+      <div class="outputVideo">
+        <video
+          id="outputVideo"
+          controls
+          loop
+          autoplay
+          style="width: 500px; display: none"
+        ></video>
       </div>
       <form
         id="mediaForm"
