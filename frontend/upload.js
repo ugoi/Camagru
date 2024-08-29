@@ -4,8 +4,6 @@
  * @returns {Response}
  */
 export async function postMedia(formData) {
-  console.log("postMedia");
-
   //Make request to server
   const myHeaders = new Headers();
 
@@ -38,8 +36,6 @@ export async function postMedia(formData) {
  * @returns {Response}
  */
 export async function getMedia(id) {
-  console.log("get media");
-
   //Make request to server
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");

@@ -105,6 +105,12 @@ public class MediaRequestHandler implements HttpHandler {
             byte[] media = files.get("media");
             byte[] overlayMedia = files.get("overlayMedia");
 
+            if (media == null || overlayMedia == null) {
+                String errorMessage = "Media and overlayMedia must be provided";
+                System.err.println(errorMessage);
+                res.sendJsonResponse(400, createErrorResponse(errorMessage));
+            }
+
             String extension;
             String mimeType;
             Tika tika = new Tika();
@@ -214,9 +220,18 @@ public class MediaRequestHandler implements HttpHandler {
         String mediaFilePath = mediaPath + mediaFileName;
         String overlayFilePath = mediaPath + overlayFileName;
 
+        // String ffmpegCommand = String.format(
+        // "ffmpeg -i %s -i %s -filter_complex \"[1]scale=iw*%f:-1[b];[0:v][b]
+        // overlay=x=(W-w)*%f:y=(H-h)*%f\" %s -y",
+        // mediaFilePath, overlayFilePath, scaleFactor, xPositionFactor,
+        // yPositionFactor, outputFile);
+
         String ffmpegCommand = String.format(
-                "ffmpeg -i %s -i %s -filter_complex \"[1]scale=iw*%f:-1[b];[0:v][b] overlay=x=(W-w)*%f:y=(H-h)*%f\" %s -y",
-                mediaFilePath, overlayFilePath, scaleFactor, xPositionFactor, yPositionFactor, outputFile);
+                "my_width=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 %s | awk -F',' '{print $1}'); "
+                        +
+                        "ffmpeg -i %s -i %s -filter_complex \"[1]scale=${my_width}*%f:-1[b];[0:v][b]overlay=x=(W-w)*%f:y=(H-h)*%f\" %s -y",
+                mediaFilePath, mediaFilePath, overlayFilePath, scaleFactor, xPositionFactor, yPositionFactor,
+                outputFile);
 
         // Step 3: Execute the command
         ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", ffmpegCommand);

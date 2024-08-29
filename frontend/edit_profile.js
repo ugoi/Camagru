@@ -11,8 +11,6 @@ export async function handleEditProfile() {
   var email = document.getElementById("email").value;
   var password = document.getElementById("password").value;
 
-  console.log(username);
-
   await updateUsername(username);
   await updateEmail(email);
 
@@ -40,7 +38,6 @@ export async function handleLoadEditProfile() {
  * @returns {void}
  */
 async function updateUsername(username) {
-  console.log("updating username");
 
   //Make request to server
   const myHeaders = new Headers();
@@ -65,7 +62,6 @@ async function updateUsername(username) {
   );
 
   const json = await response.json();
-  console.log(json);
 
   if (response.status === 200) {
     return json;
@@ -81,7 +77,6 @@ async function updateUsername(username) {
  * @returns {void}
  */
 async function updateEmail(email) {
-  console.log("updating email");
 
   //Make request to server
   const myHeaders = new Headers();
@@ -106,7 +101,6 @@ async function updateEmail(email) {
   );
 
   const json = await response.json();
-  console.log(json);
 
   if (response.status === 200) {
     return json;
@@ -122,7 +116,6 @@ async function updateEmail(email) {
  * @returns {void}
  */
 async function updatePassword(password) {
-  console.log("updating password");
 
   //Make request to server
   const myHeaders = new Headers();
@@ -147,7 +140,6 @@ async function updatePassword(password) {
   );
 
   const json = await response.json();
-  console.log(json);
 
   if (response.status === 200) {
     return json;

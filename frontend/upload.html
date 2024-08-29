@@ -17,17 +17,32 @@
     <![endif]-->
 
     <div>
-      <img id="image" style="width: 500px" />
+      <div id="cameraPreview">
+        <video autoplay="true" id="videoElement" style="width: 500px"></video>
+        <br />
+        <button id="photoButton">Take photo</button>
+        <button id="videoButton">Start video</button>
+      </div>
+      <canvas id="canvas" style="width: 500px; display: none"> </canvas>
+      <div class="output">
+        <img id="image" style="width: 500px" />
+      </div>
       <form
         id="mediaForm"
         action="http://localhost:8000/api/media"
         method="post"
         enctype="multipart/form-data"
       >
-        <label for="file">Media</label>
-        <input type="file" name="media" accept="image/*, video/*" id="fileInput" />
+        <!-- <label for="file">Media</label> -->
+        <input
+          type="file"
+          name="media"
+          accept="image/*, video/*"
+          id="fileInput"
+        />
       </form>
 
+      <p>Choose overlay</p>
       <form
         id="overlayMediaForm"
         action="http://localhost:8000/api/media"
@@ -38,6 +53,7 @@
         <input type="file" name="overlayMedia" accept="image/*, video/*" />
       </form>
       <button id="submitButton">Submit</button>
+      <button id="cancelButton">Cancel</button>
     </div>
     <script type="module" src="upload_view.js"></script>
     <script type="module"></script>
