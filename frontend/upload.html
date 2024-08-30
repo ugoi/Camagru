@@ -6,7 +6,7 @@
     <title></title>
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <!--[if lt IE 7]>
@@ -52,19 +52,30 @@
       </form>
 
       <p>Choose overlay</p>
+      <div id="logos">
+        <div
+          id="logos-slide"
+          style="white-space: nowrap; overflow-x: scroll; width: 400px"
+        >
+          <!-- <img src="assets/clownfish.png" class="carousel-img" />
+          <img src="assets/goat.png" class="carousel-img" />
+          <img src="assets/police-armor.png" class="carousel-img" />
+          <img src="assets/red-rocket.png" class="carousel-img" /> -->
+        </div>
+      </div>
       <form
         id="overlayMediaForm"
         action="http://localhost:8000/api/media"
         method="post"
         enctype="multipart/form-data"
       >
-        <label for="file">Overlay</label>
-        <input type="file" name="overlayMedia" accept="image/*, video/*" />
+        <label for="file">Or choose own overlay</label>
+        <input id="overlayFileInput" type="file" name="overlayMedia" accept="image/*, video/*" />
       </form>
       <button id="submitButton">Submit</button>
       <button id="cancelButton">Cancel</button>
     </div>
-    <script type="module" src="upload_view.js"></script>
+    <script type="module" src="upload_controller.js"></script>
     <script type="module"></script>
   </body>
 </html>
