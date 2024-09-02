@@ -9,11 +9,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.tika.Tika;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.camagru.CookieUtil;
@@ -35,6 +37,9 @@ public class MediaRequestHandler implements HttpHandler {
         Response res = new Response(exchange);
 
         switch (req.getMethod()) {
+            case "GET":
+                handleGetRequest(req, res);
+                break;
             case "POST":
                 handlePostRequest(req, res);
                 break;
@@ -55,6 +60,121 @@ public class MediaRequestHandler implements HttpHandler {
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type");
         res.sendJsonResponse(204, ""); // No content
+    }
+
+    private void handleGetRequest(Request req, Response res) {
+        try {
+            // Validate input
+            List<PropertyField> propertyFields = Arrays.asList(
+                    new PropertyField("after", false),
+                    new PropertyField("limit", false, RegexUtil.NUMBER_REGEX))
+
+            ;
+            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
+            List<String> wrongFields = propertyFieldsManager.validationResult(req);
+
+            if (!wrongFields.isEmpty()) {
+                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                System.err.println(errorMessage);
+                res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                return;
+            }
+
+            // Extract input
+            String lastPictureId = req.getQueryParameter("after", null);
+            String limit = req.getQueryParameter("limit", "30");
+
+            // Properties
+            PropertiesManager propertiesManager = new PropertiesManager();
+            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+            String sub;
+            try {
+                String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
+                jwtManager.verifySignature(jwt);
+                sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+            } catch (Exception e) {
+                String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
+                        + e.getMessage();
+                res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                return;
+            }
+
+            List<String> ids = new ArrayList<>();
+            // Add media to database
+            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                    Statement stmt = con.createStatement()) {
+
+                String query;
+                if (lastPictureId != null) {
+                    query = String.format(
+                            "SELECT * FROM media " +
+                                    "WHERE user_id='%s' " +
+                                    "AND media_date < (SELECT media_date FROM media WHERE media_id='%s') " +
+                                    "ORDER BY media_date DESC " +
+                                    "LIMIT %s",
+                            sub, lastPictureId, limit);
+                } else {
+                    query = String.format(
+                            "SELECT * FROM media " +
+                                    "WHERE user_id='%s' " +
+                                    "ORDER BY media_date DESC " +
+                                    "LIMIT %s",
+                            sub, limit);
+                }
+
+                ResultSet rs = stmt.executeQuery(query);
+
+                while (rs.next()) {
+                    String id = rs.getString("media_id");
+                    ids.add(id);
+                    System.out.println(id);
+
+                }
+                System.out.println("Successfully connected to database and added user");
+            }
+
+            // find first element
+            String first;
+            String last;
+            String next;
+            String previous;
+            try {
+                first = ids.get(0);
+                previous = "http://localhost:8000/api/media?after=" + first;
+            } catch (Exception e) {
+                first = null;
+                previous = null;
+            }
+            try {
+                last = ids.get(ids.size() - 1);
+                next = "http://localhost:8000/api/media?after=" + last;
+
+            } catch (Exception e) {
+                last = null;
+                next = null;
+            }
+
+            JSONObject responseBody = new JSONObject();
+            JSONArray responseBodyData = new JSONArray();
+            for (String id : ids) {
+                responseBodyData.put(new JSONObject().put("id", id));
+            }
+
+            responseBody.put("paging", new JSONObject()
+                    .put("after", last != null ? last : JSONObject.NULL)
+                    .put("before", first != null ? first : JSONObject.NULL)
+                    .put("next", next != null ? next : JSONObject.NULL)
+                    .put("previous", previous != null ? previous : JSONObject.NULL))
+                    .put("data", responseBodyData);
+
+            res.sendJsonResponse(200, responseBody.toString());
+
+        } catch (Exception e) {
+            String errorMessage = "Internal server error: " + e.getMessage();
+            res.sendJsonResponse(500, createErrorResponse(errorMessage));
+        }
+
     }
 
     private void handlePostRequest(Request req, Response res) {
@@ -109,6 +229,7 @@ public class MediaRequestHandler implements HttpHandler {
                 String errorMessage = "Media and overlayMedia must be provided";
                 System.err.println(errorMessage);
                 res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                return;
             }
 
             String extension;

@@ -1,5 +1,9 @@
-import { postMedia, getMedia } from "./upload.js";
-import { takepicture, startRecording, checkIsVideo } from "./upload_model.js";
+import {
+  checkIsVideo,
+  postMedia,
+  getServeMedia,
+  mediaService,
+} from "./upload_model.js";
 
 /**
  * @type {HTMLFormElement}
@@ -65,8 +69,6 @@ const formData = new FormData();
 
 var isRecording = false;
 
-let stopRecordingFunction;
-
 var overlayAssetPaths = [
   "assets/overlay/clownfish.png",
   "assets/overlay/goat.png",
@@ -74,21 +76,16 @@ var overlayAssetPaths = [
   "assets/overlay/red-rocket.png",
 ];
 
+// Add overlay assets to the carousel
 if (overlayAssetPaths && overlayAssetPaths.length > 0) {
   for (let index = 0; index < overlayAssetPaths.length; index++) {
-    console.log("loop start");
-
     let path = overlayAssetPaths[index];
-    console.log(path);
     let element = document.createElement("img");
     element.src = path;
     element.className = "carousel-img";
     document.getElementById("logos-slide").appendChild(element);
 
-    console.log(element.src);
-
     element.addEventListener("click", async (event) => {
-      console.log(`${path} clicked`);
       const result = await fetch(path);
       const blob = await result.blob();
       console.log(blob);
@@ -102,12 +99,21 @@ if (overlayAssetPaths && overlayAssetPaths.length > 0) {
   console.log("No overlay assets found");
 }
 
-// imgElement2.addEventListener("click", async (event) => {
-//   console.log("imgElement2 clicked");
-//   const result = await fetch(imgElement2.src);
-//   const blob = await result.blob();
-//   formData.append("overlayMedia", blob);
-// });
+//Start camera preview
+if (navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices
+    .getUserMedia({ video: true })
+    .then(function (stream) {
+      video.srcObject = stream;
+      video.play();
+    })
+    .catch(function (error) {
+      console.log("Something went wrong!");
+      console.log(error);
+    });
+}
+
+// Load user media
 
 //Event listeners
 fileInput.addEventListener("change", (event) => {
@@ -163,18 +169,6 @@ submitButton.addEventListener("click", async (event) => {
   console.log("overlayMediaFile", overlayMediaFile);
   console.log("mediaFile", mediaFile);
 
-  // if (overlayMediaFile.size != 0) {
-  //   console.log("appedning overlayMedia");
-
-  //   formData.append("overlayMedia", overlayMediaFile);
-  // }
-
-  // if (mediaFile.size != 0) {
-  //   console.log("appedning media");
-
-  //   formData.append("media", mediaFile);
-  // }
-
   // Display the key/value pairs
   console.log("Sart logging");
   for (var pair of formData.entries()) {
@@ -187,7 +181,7 @@ submitButton.addEventListener("click", async (event) => {
 
   var id = postJson.containerId;
 
-  var response = await getMedia(id);
+  var response = await getServeMedia(id);
 
   var mimeType = await response.headers.get("Content-type");
 
@@ -239,7 +233,7 @@ videoButton.addEventListener(
   "click",
   async (ev) => {
     if (isRecording == false) {
-      var result = startRecording(video.srcObject, 5000);
+      var result = mediaService.startRecording(video.srcObject, 5000);
       isRecording = true;
       videoButton.innerText = "Stop recording";
       var recordedChunks = await result;
@@ -256,9 +250,7 @@ videoButton.addEventListener(
       videoButton.innerText = "Start recording";
     } else {
       console.log("about to call stop3");
-      stopRecordingFunction();
-      // stopRecording(video.srcObject);
-
+      mediaService.stopRecording();
       isRecording = false;
       videoButton.innerText = "Start recording";
     }
@@ -270,7 +262,7 @@ videoButton.addEventListener(
 photoButton.addEventListener(
   "click",
   async (ev) => {
-    const blob = await takepicture(video.srcObject);
+    const blob = await mediaService.takepicture(video.srcObject);
     var objectURL = URL.createObjectURL(blob);
 
     photo.setAttribute("src", objectURL);
@@ -281,17 +273,3 @@ photoButton.addEventListener(
   },
   false
 );
-
-//Start camera preview
-if (navigator.mediaDevices.getUserMedia) {
-  navigator.mediaDevices
-    .getUserMedia({ video: true })
-    .then(function (stream) {
-      video.srcObject = stream;
-      video.play();
-    })
-    .catch(function (error) {
-      console.log("Something went wrong!");
-      console.log(error);
-    });
-}

@@ -9,72 +9,99 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <!--[if lt IE 7]>
-      <p class="browsehappy">
-        You are using an <strong>outdated</strong> browser. Please
-        <a href="#">upgrade your browser</a> to improve your experience.
-      </p>
-    <![endif]-->
+    <div style="display: flex; justify-content: center">
+      <div>
+        <div id="cameraPreview" style="border: solid">
+          <video id="videoElement" style="width: 500px" autoplay muted></video>
+          <br />
+          <button id="photoButton">Take photo</button>
+          <button id="videoButton">Start recording</button>
+          <form
+            id="mediaForm"
+            action="http://localhost:8000/api/media"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <input
+              type="file"
+              name="media"
+              accept="image/*, video/*"
+              id="fileInput"
+            />
+          </form>
+        </div>
+        <canvas id="canvas" style="width: 500px; display: none"> </canvas>
+        <div class="output">
+          <img id="image" style="width: 500px; display: none" />
+        </div>
+        <div class="outputVideo">
+          <video
+            id="outputVideo"
+            controls
+            loop
+            autoplay
+            style="width: 500px; display: none"
+          ></video>
+        </div>
 
-    <div>
-      <div id="cameraPreview">
-        <video id="videoElement" style="width: 500px" autoplay muted></video>
-        <br />
-        <button id="photoButton">Take photo</button>
-        <button id="videoButton">Start recording</button>
-      </div>
-      <canvas id="canvas" style="width: 500px; display: none"> </canvas>
-      <div class="output">
-        <img id="image" style="width: 500px; display: none" />
-      </div>
-      <div class="outputVideo">
-        <video
-          id="outputVideo"
-          controls
-          loop
-          autoplay
-          style="width: 500px; display: none"
-        ></video>
-      </div>
-      <form
-        id="mediaForm"
-        action="http://localhost:8000/api/media"
-        method="post"
-        enctype="multipart/form-data"
-      >
-        <!-- <label for="file">Media</label> -->
-        <input
-          type="file"
-          name="media"
-          accept="image/*, video/*"
-          id="fileInput"
-        />
-      </form>
-
-      <p>Choose overlay</p>
-      <div id="logos">
-        <div
-          id="logos-slide"
-          style="white-space: nowrap; overflow-x: scroll; width: 400px"
+        <p>Choose overlay</p>
+        <div id="logos">
+          <div
+            id="logos-slide"
+            style="white-space: nowrap; overflow-x: scroll; width: 400px"
+          ></div>
+        </div>
+        <form
+          id="overlayMediaForm"
+          action="http://localhost:8000/api/media"
+          method="post"
+          enctype="multipart/form-data"
         >
-          <!-- <img src="assets/clownfish.png" class="carousel-img" />
-          <img src="assets/goat.png" class="carousel-img" />
-          <img src="assets/police-armor.png" class="carousel-img" />
-          <img src="assets/red-rocket.png" class="carousel-img" /> -->
+          <label for="file">Or choose own overlay</label>
+          <input
+            id="overlayFileInput"
+            type="file"
+            name="overlayMedia"
+            accept="image/*, video/*"
+          />
+        </form>
+        <button id="submitButton">Submit</button>
+        <button id="cancelButton">Cancel</button>
+      </div>
+
+      <div
+        style="
+          background-color: aqua;
+          text-align: center;
+          padding: 0 20px 0 20px;
+        "
+      >
+        <h2>My media</h2>
+
+        <div
+          style="
+            overflow-y: scroll;
+            background-color: aqua;
+            text-align: center;
+            height: 600px;
+            align-items: center;
+          "
+          class="hide-scrollbar"
+        >
+          <div style="padding-bottom: 10px">
+            <img src="https://picsum.photos/200" class="captured-img" />
+            <button>Delete</button>
+          </div>
+          <img src="https://picsum.photos/200" alt="" class="captured-img" />
+          <img src="https://picsum.photos/200" alt="" class="captured-img" />
+          <img src="https://picsum.photos/200" alt="" class="captured-img" />
+          <img src="https://picsum.photos/200" alt="" class="captured-img" />
+          <img src="https://picsum.photos/200" alt="" class="captured-img" />
+          <img src="https://picsum.photos/200" alt="" class="captured-img" />
         </div>
       </div>
-      <form
-        id="overlayMediaForm"
-        action="http://localhost:8000/api/media"
-        method="post"
-        enctype="multipart/form-data"
-      >
-        <label for="file">Or choose own overlay</label>
-        <input id="overlayFileInput" type="file" name="overlayMedia" accept="image/*, video/*" />
-      </form>
-      <button id="submitButton">Submit</button>
-      <button id="cancelButton">Cancel</button>
     </div>
+
     <script type="module" src="upload_controller.js"></script>
     <script type="module"></script>
   </body>
