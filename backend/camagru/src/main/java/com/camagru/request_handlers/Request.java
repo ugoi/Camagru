@@ -48,7 +48,7 @@ public class Request {
     public String getQueryParameter(String key, String defaultValue) {
         try {
             String result = exchange.getRequestURI().getQuery().split(key + "=")[1].split("&")[0];
-            if (result == null || result.isEmpty()) {
+            if (result == null || result.isEmpty() || result.equals("undefined")) {
                 return defaultValue;
             }
             return result;

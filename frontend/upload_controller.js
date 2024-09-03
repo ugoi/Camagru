@@ -3,6 +3,7 @@ import {
   postMedia,
   getServeMedia,
   mediaService,
+  getServeUserMedia,
 } from "./upload_model.js";
 
 /**
@@ -114,6 +115,44 @@ if (navigator.mediaDevices.getUserMedia) {
 }
 
 // Load user media
+window.addEventListener("DOMContentLoaded", async (event) => {
+  // Add a wait for debugging purposes
+  console.log("Waiting for 1 second");
+
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  console.log("Done waiting");
+
+  (async () => {
+    console.log("Getting user media");
+
+    var myMedia = document.getElementById("myMedia");
+
+    console.log("myMedia", myMedia);
+
+    const blobs = await getServeUserMedia();
+
+    console.log("blobs", blobs);
+
+    if (blobs && blobs.length > 0) {
+      for (let index = 0; index < blobs.length; index++) {
+        const blob = blobs[index];
+        const objectURL = URL.createObjectURL(blob);
+        const isVideo = checkIsVideo(blob);
+
+        if (isVideo) {
+          outputVideo.src = objectURL;
+          outputVideo.style.display = "";
+        } else {
+          var myImage = document.createElement("img");
+          myImage.src = objectURL;
+          myImage.className = "captured-img";
+          myMedia.appendChild(myImage);
+        }
+      }
+    }
+  })();
+});
 
 //Event listeners
 fileInput.addEventListener("change", (event) => {

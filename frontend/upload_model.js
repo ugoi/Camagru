@@ -127,8 +127,29 @@ export async function postMedia(formData) {
 }
 
 /**
+ * @param {String} after
+ * @returns {Promise<Blob[]>}
+ * */
+export async function getServeUserMedia(after) {
+  var userMedia = await getUserMedia(after, 10);
+  var json = await userMedia.json();
+  var data = json.data;
+
+  /**
+   * @type {Promise<Blob>[]}
+   */
+  var servedMedia = data.map((media) => {
+    return getServeMedia(media.id).then((response) => {
+      return response.blob();
+    });
+  });
+
+  return Promise.all(servedMedia);
+}
+
+/**
  * @param {String} id
- * @returns {Response}
+ * @returns {Promise<Response>}
  */
 export async function getServeMedia(id) {
   //Make request to server
@@ -155,9 +176,33 @@ export async function getServeMedia(id) {
   }
 }
 
+/**
+ * @param {String} after
+ * @param {number} limit
+ * @returns {Promise<Response>}
+ */
+export async function getUserMedia(after, limit) {
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
 
-export async function gerMedia(params) {
-  
+  const requestOptions = {
+    credentials: "include",
+    mode: "cors",
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/media?after=${after}&limit=${limit}`,
+    requestOptions
+  );
+
+  if (response.status === 200) {
+    return response;
+  } else {
+    throw new Error(json.error);
+  }
 }
 
 //#endregion
