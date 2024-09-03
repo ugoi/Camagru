@@ -111,6 +111,7 @@ public class MediaRequestHandler implements HttpHandler {
                             "SELECT * FROM media " +
                                     "WHERE user_id='%s' " +
                                     "AND media_date < (SELECT media_date FROM media WHERE media_id='%s') " +
+                                    "AND media_type='media' " +
                                     "ORDER BY media_date DESC " +
                                     "LIMIT %s",
                             sub, lastPictureId, limit);
@@ -118,6 +119,7 @@ public class MediaRequestHandler implements HttpHandler {
                     query = String.format(
                             "SELECT * FROM media " +
                                     "WHERE user_id='%s' " +
+                                    "AND media_type='media' " +
                                     "ORDER BY media_date DESC " +
                                     "LIMIT %s",
                             sub, limit);

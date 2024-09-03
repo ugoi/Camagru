@@ -116,22 +116,11 @@ public class MediaPublishRequestHandler implements HttpHandler {
                         "UPDATE media SET media_type='media' WHERE media_id='" + creationId
                                 + "' AND media_type='container'");
 
-                // int affectedColumns = stmt.executeUpdate(
-                // "INSERT INTO media(user_id, mime_type, media_description, media_date)"
-                // + " VALUES('" + userId + "', '" + mimeType + "', '" + containerDescription +
-                // "', '"
-                // + java.time.LocalDateTime.now() + "')",
-                // Statement.RETURN_GENERATED_KEYS);
                 if (affectedColumns == 0) {
                     String errorMessage = "Failed to add media to database";
                     res.sendJsonResponse(500, createErrorResponse(errorMessage));
                     return;
                 }
-
-                // try (ResultSet keys = stmt.getGeneratedKeys()) {
-                // keys.next();
-                // mediaId = keys.getLong(1);
-                // }
 
                 String extension = HttpUtil.getMimeTypeExtension(mimeType);
 
