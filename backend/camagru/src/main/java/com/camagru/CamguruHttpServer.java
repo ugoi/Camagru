@@ -41,14 +41,8 @@ public class CamguruHttpServer {
             // Create media table
             stmt.execute("CREATE TABLE IF NOT EXISTS media"
                     + "(media_id int PRIMARY KEY AUTO_INCREMENT, user_id int, mime_type varchar(30),"
-                    + "media_description varchar(255),"
+                    + "media_description varchar(255), media_type varchar(30),"
                     + "media_date datetime, FOREIGN KEY (user_id) REFERENCES users(user_id))");
-
-            // Create containers table
-            stmt.execute("CREATE TABLE IF NOT EXISTS containers"
-                    + "(container_id int PRIMARY KEY AUTO_INCREMENT, user_id int, mime_type varchar(30),"
-                    + "container_description varchar(255),"
-                    + "container_date datetime, FOREIGN KEY (user_id) REFERENCES users(user_id))");
 
             System.out.println("Successfully connected to database and created table if it doesn't exist");
         } catch (SQLException e) {

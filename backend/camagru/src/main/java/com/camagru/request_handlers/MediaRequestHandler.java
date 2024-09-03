@@ -248,8 +248,8 @@ public class MediaRequestHandler implements HttpHandler {
                     Statement stmt = con.createStatement()) {
 
                 int affectedColumns = stmt.executeUpdate(
-                        "INSERT INTO containers(user_id, mime_type, container_description, container_date)"
-                                + " VALUES('" + sub + "', '" + mimeType + "', '" + containerDescription + "', '"
+                        "INSERT INTO media(user_id, mime_type, media_description, media_type, media_date)"
+                                + " VALUES('" + sub + "', '" + mimeType + "', '" + containerDescription + "', '" + "container" + "', '"
                                 + java.time.LocalDateTime.now() + "')",
                         Statement.RETURN_GENERATED_KEYS);
                 if (affectedColumns == 0) {

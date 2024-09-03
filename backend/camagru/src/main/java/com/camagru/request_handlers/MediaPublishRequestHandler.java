@@ -79,43 +79,59 @@ public class MediaPublishRequestHandler implements HttpHandler {
                 return;
             }
             String creationId = req.getQueryParameter("creation_id");
-            MediaService.hasPermission(sub, creationId);
-            byte[] mediaFile = MediaService.getMedia(creationId);
             // Add media to database
             String mediaFileName;
-            long mediaId;
+            long mediaId = 0;
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
 
-                // Get media from database
-                // Check if username, email already exists
                 ResultSet rs = stmt
                         .executeQuery(
-                                "select * from containers where container_id='" + creationId + "'");
+                                "select * from media where media_id='" + creationId + "'"
+                                        + " AND media_type='container'");
                 String userId = null, mimeType = null, containerDescription = null;
                 while (rs.next()) {
+                    mediaId = rs.getLong("media_id");
                     userId = rs.getString("user_id");
                     mimeType = rs.getString("mime_type");
-                    containerDescription = rs.getString("container_description");
-
+                    containerDescription = rs.getString("media_description");
                 }
 
+                if (mediaId == 0) {
+                    String errorMessage = "Media not found";
+                    res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                    return;
+                }
+
+                if (!userId.equals(sub)) {
+                    String errorMessage = "Unauthorized";
+                    res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                    return;
+                }
+
+                // UPDATE THE MEDIAS MEDIA TYPE FROM CONTAINER TO MEDIA
+
                 int affectedColumns = stmt.executeUpdate(
-                        "INSERT INTO media(user_id, mime_type, media_description, media_date)"
-                                + " VALUES('" + userId + "', '" + mimeType + "', '" + containerDescription + "', '"
-                                + java.time.LocalDateTime.now() + "')",
-                        Statement.RETURN_GENERATED_KEYS);
+                        "UPDATE media SET media_type='media' WHERE media_id='" + creationId
+                                + "' AND media_type='container'");
+
+                // int affectedColumns = stmt.executeUpdate(
+                // "INSERT INTO media(user_id, mime_type, media_description, media_date)"
+                // + " VALUES('" + userId + "', '" + mimeType + "', '" + containerDescription +
+                // "', '"
+                // + java.time.LocalDateTime.now() + "')",
+                // Statement.RETURN_GENERATED_KEYS);
                 if (affectedColumns == 0) {
                     String errorMessage = "Failed to add media to database";
                     res.sendJsonResponse(500, createErrorResponse(errorMessage));
                     return;
                 }
 
-                try (ResultSet keys = stmt.getGeneratedKeys()) {
-                    keys.next();
-                    mediaId = keys.getLong(1);
-                }
+                // try (ResultSet keys = stmt.getGeneratedKeys()) {
+                // keys.next();
+                // mediaId = keys.getLong(1);
+                // }
 
                 String extension = HttpUtil.getMimeTypeExtension(mimeType);
 
@@ -125,8 +141,10 @@ public class MediaPublishRequestHandler implements HttpHandler {
             }
 
             String mediaPath = "uploads/media/";
-            new File(mediaPath).mkdirs();
+            MediaService.hasPermission(sub, creationId);
+            byte[] mediaFile = MediaService.getMedia(creationId);
             OutputStream outMedia = new FileOutputStream(new File(mediaPath + mediaFileName));
+            new File(mediaPath).mkdirs();
             outMedia.write(mediaFile);
             outMedia.close();
 
