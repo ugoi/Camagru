@@ -7,12 +7,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.tika.Tika;
 import org.json.JSONArray;
@@ -24,6 +26,7 @@ import com.camagru.PropertiesManager;
 import com.camagru.PropertyField;
 import com.camagru.PropertyFieldsManager;
 import com.camagru.RegexUtil;
+import com.camagru.services.MediaService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -31,7 +34,7 @@ public class MediaRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        System.out.println("Content upload request received");
+        System.out.println("Media request received");
 
         Request req = new Request(exchange);
         Response res = new Response(exchange);
@@ -42,6 +45,9 @@ public class MediaRequestHandler implements HttpHandler {
                 break;
             case "POST":
                 handlePostRequest(req, res);
+                break;
+            case "DELETE":
+                handleDeleteRequest(req, res);
                 break;
             case "OPTIONS":
                 handleOptionsRequest(req, res);
@@ -62,6 +68,11 @@ public class MediaRequestHandler implements HttpHandler {
         res.sendJsonResponse(204, ""); // No content
     }
 
+    private String createErrorResponse(String errorMessage) {
+        return new JSONObject().put("error", errorMessage).toString();
+    }
+
+    // Main methods
     private void handleGetRequest(Request req, Response res) {
         try {
             // Validate input
@@ -110,7 +121,7 @@ public class MediaRequestHandler implements HttpHandler {
                     query = String.format(
                             "SELECT * FROM media " +
                                     "WHERE user_id='%s' " +
-                                    "AND media_date < (SELECT media_date FROM media WHERE media_id='%s') " +
+                                    "AND media_date < (SELECT media_date FROM media WHERE media_uri='%s') " +
                                     "AND media_type='media' " +
                                     "ORDER BY media_date DESC " +
                                     "LIMIT %s",
@@ -128,7 +139,7 @@ public class MediaRequestHandler implements HttpHandler {
                 ResultSet rs = stmt.executeQuery(query);
 
                 while (rs.next()) {
-                    String id = rs.getString("media_id");
+                    String id = rs.getString("media_uri");
                     ids.add(id);
                     System.out.println(id);
 
@@ -243,15 +254,18 @@ public class MediaRequestHandler implements HttpHandler {
             }
 
             String mediaFileName;
-            long containerId;
+            String mediaUri = UUID.randomUUID().toString();
+            String containerUri = UUID.randomUUID().toString();
+
             // Add media to database
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
 
                 int affectedColumns = stmt.executeUpdate(
-                        "INSERT INTO media(user_id, mime_type, media_description, media_type, media_date)"
-                                + " VALUES('" + sub + "', '" + mimeType + "', '" + containerDescription + "', '" + "container" + "', '"
+                        "INSERT INTO media(user_id, mime_type, media_description, media_type, media_uri, container_uri, media_date)"
+                                + " VALUES('" + sub + "', '" + mimeType + "', '" + containerDescription + "', '"
+                                + "container" + "', '" + mediaUri + "', '" + containerUri + "', '"
                                 + java.time.LocalDateTime.now() + "')",
                         Statement.RETURN_GENERATED_KEYS);
                 if (affectedColumns == 0) {
@@ -260,12 +274,7 @@ public class MediaRequestHandler implements HttpHandler {
                     return;
                 }
 
-                try (ResultSet keys = stmt.getGeneratedKeys()) {
-                    keys.next();
-                    containerId = keys.getLong(1);
-                }
-
-                mediaFileName = sub + "_" + containerId + "_container" + extension;
+                mediaFileName = sub + "_" + containerUri + "_container" + extension;
 
                 System.out.println("Successfully connected to database and added user");
             }
@@ -276,10 +285,10 @@ public class MediaRequestHandler implements HttpHandler {
 
             // Save video file to disk
             JSONObject jsonResponse = new JSONObject()
-                    .put("containerId", containerId)
+                    .put("containerId", containerUri)
                     .put("downloadUrl",
-                            "http://localhost:8000/api/media?id=" + containerId)
-                    .put("publishUrl", "http://localhost:8000/api/media_publish?id=" + containerId);
+                            "http://localhost:8000/api/media?id=" + containerUri)
+                    .put("publishUrl", "http://localhost:8000/api/media_publish?id=" + containerUri);
             res.sendJsonResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
@@ -287,10 +296,79 @@ public class MediaRequestHandler implements HttpHandler {
         }
     }
 
-    private String createErrorResponse(String errorMessage) {
-        return new JSONObject().put("error", errorMessage).toString();
+    private void handleDeleteRequest(Request req, Response res) {
+        try {
+            // Validate input
+            List<PropertyField> propertyFields = Arrays.asList(
+                    new PropertyField("id", true));
+            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
+            List<String> wrongFields = propertyFieldsManager.validationResult(req);
+
+            if (!wrongFields.isEmpty()) {
+                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                System.err.println(errorMessage);
+                res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                return;
+            }
+
+            // Get query parameters
+            String id = req.getQueryParameter("id");
+
+            // Properties
+            PropertiesManager propertiesManager = new PropertiesManager();
+            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+            String sub;
+            try {
+                String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
+                jwtManager.verifySignature(jwt);
+                sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+            } catch (Exception e) {
+                String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
+                        + e.getMessage();
+                res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                return;
+            }
+
+            // Delete media from database
+            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                    Statement stmt = con.createStatement()) {
+
+                String preparedStmt = "DELETE FROM media WHERE (media_uri=? OR container_uri=?) AND user_id=?";
+
+                PreparedStatement myStmt;
+                myStmt = con.prepareStatement(preparedStmt);
+                myStmt.setString(1, id);
+                myStmt.setString(2, id);
+                myStmt.setString(3, sub);
+
+                int affectedColumns = myStmt.executeUpdate();
+
+                // int affectedColumns = stmt.executeUpdate(
+                // "DELETE FROM media WHERE (media_uri='" + id + "' AND user_id='" + sub + "'");
+                if (affectedColumns == 0) {
+                    String errorMessage = "Failed to delete media from database";
+                    res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                    return;
+                }
+
+                System.out.println("Successfully connected to database and deleted media");
+            }
+
+            // Delete media file from disk
+            MediaService.deleteMedia(id);
+
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("message", "Media deleted successfully");
+
+            res.sendJsonResponse(200, jsonResponse.toString());
+        } catch (Exception e) {
+            String errorMessage = "Internal server error: " + e.getMessage();
+            res.sendJsonResponse(500, createErrorResponse(errorMessage));
+        }
     }
 
+    // Utils
     private void combineMedia(byte[] media, byte[] overlayMedia, String outputFile, Double scaleFactor,
             Double xPositionFactor, Double yPositionFactor) throws Exception {
 

@@ -95,6 +95,33 @@ class MediaService {
 export var mediaService = new MediaService();
 
 //#region API Wrapper
+
+export async function deleteMedia(id) {
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  const requestOptions = {
+    credentials: "include",
+    mode: "cors",
+    method: "DELETE",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/media?id=${id}`,
+    requestOptions
+  );
+
+  if (response.status === 200) {
+    console.log(response);
+
+    return response;
+  } else {
+    throw new Error(response.error);
+  }
+}
+
 /**
  * @param {FormData} formData
  * @returns {Response}
@@ -117,6 +144,30 @@ export async function postMedia(formData) {
     requestOptions
   );
 
+  if (response.status === 200) {
+    console.log(response);
+
+    return response;
+  } else {
+    throw new Error(response.error);
+  }
+}
+
+export async function publishMedia(id) {
+  const myHeaders = new Headers();
+
+  const requestOptions = {
+    credentials: "include",
+    mode: "cors",
+    method: "POST",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/media_publish?creation_id=${id}`,
+    requestOptions
+  );
   if (response.status === 200) {
     console.log(response);
 

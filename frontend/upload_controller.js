@@ -4,6 +4,7 @@ import {
   getServeMedia,
   mediaService,
   getServeUserMedia,
+  publishMedia,
 } from "./upload_model.js";
 
 /**
@@ -70,6 +71,10 @@ const formData = new FormData();
 
 var isRecording = false;
 
+var containerId = null;
+
+var publishButton = document.getElementById("publishButton");
+
 var overlayAssetPaths = [
   "assets/overlay/clownfish.png",
   "assets/overlay/goat.png",
@@ -114,44 +119,71 @@ if (navigator.mediaDevices.getUserMedia) {
     });
 }
 
+async function loadUserMedia() {
+  console.log("Getting user media");
+
+  var myMedia = document.getElementById("myMedia");
+
+  console.log("myMedia", myMedia);
+
+  const blobs = await getServeUserMedia();
+
+  console.log("blobs", blobs);
+
+  if (blobs && blobs.length > 0) {
+    // Remove the previous images
+    myMedia.innerHTML = "";
+    for (let index = 0; index < blobs.length; index++) {
+      const blob = blobs[index];
+      const objectURL = URL.createObjectURL(blob);
+      const isVideo = checkIsVideo(blob);
+
+      if (isVideo) {
+        //TODO: Extract this to a function
+        var divWrapper = document.createElement("div");
+        var outputVideo = document.createElement("video");
+        var deleteButton = document.createElement("button");
+        divWrapper.style.paddingBottom = "10px";
+        outputVideo.src = objectURL;
+        outputVideo.controls = true;
+        outputVideo.className = "captured-video";
+        deleteButton.innerText = "Delete";
+        deleteButton.id = "deleteButton";
+        deleteButton.addEventListener("click", async (event) => {
+          
+        });
+
+        divWrapper.appendChild(outputVideo);
+        divWrapper.appendChild(deleteButton);
+
+        myMedia.appendChild(divWrapper);
+      } else {
+        var divWrapper = document.createElement("div");
+        var myImage = document.createElement("img");
+        var deleteButton = document.createElement("button");
+        divWrapper.style.paddingBottom = "10px";
+        myImage.src = objectURL;
+        myImage.className = "captured-img";
+        deleteButton.innerText = "Delete";
+        deleteButton.id = "deleteButton";
+
+        divWrapper.appendChild(myImage);
+        divWrapper.appendChild(deleteButton);
+
+        myMedia.appendChild(divWrapper);
+      }
+    }
+  }
+}
+
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
   // Add a wait for debugging purposes
   console.log("Waiting for 1 second");
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
   console.log("Done waiting");
 
-  (async () => {
-    console.log("Getting user media");
-
-    var myMedia = document.getElementById("myMedia");
-
-    console.log("myMedia", myMedia);
-
-    const blobs = await getServeUserMedia();
-
-    console.log("blobs", blobs);
-
-    if (blobs && blobs.length > 0) {
-      for (let index = 0; index < blobs.length; index++) {
-        const blob = blobs[index];
-        const objectURL = URL.createObjectURL(blob);
-        const isVideo = checkIsVideo(blob);
-
-        if (isVideo) {
-          outputVideo.src = objectURL;
-          outputVideo.style.display = "";
-        } else {
-          var myImage = document.createElement("img");
-          myImage.src = objectURL;
-          myImage.className = "captured-img";
-          myMedia.appendChild(myImage);
-        }
-      }
-    }
-  })();
+  loadUserMedia();
 });
 
 //Event listeners
@@ -191,6 +223,23 @@ overlayFileInput.addEventListener("change", (event) => {
   }
 });
 
+publishButton.addEventListener("click", async (event) => {
+  event.preventDefault();
+  if (containerId != null) {
+    var response = await publishMedia(containerId);
+    if (response.status === 200) {
+      console.log("Media published");
+      //TODO: Extract this to a function like setContainerID()
+      containerId = null;
+      publishButton.style.display = "none";
+      //
+      loadUserMedia();
+    } else {
+      console.log("Failed to publish media");
+    }
+  }
+});
+
 submitButton.addEventListener("click", async (event) => {
   event.preventDefault();
   cameraPreview.style.display = "display";
@@ -220,6 +269,11 @@ submitButton.addEventListener("click", async (event) => {
 
   var id = postJson.containerId;
 
+  //TODO: Extract this to a function like setContainerID()
+  containerId = id;
+  publishButton.style.display = "";
+  //
+
   var response = await getServeMedia(id);
 
   var mimeType = await response.headers.get("Content-type");
@@ -242,6 +296,10 @@ cancelButton.addEventListener("click", (event) => {
   /**
    * @type {HTMLInputElement}
    */
+
+  //TODO: Extract this to a function like setContainerID()
+  containerId = null;
+
   var fileInput = document.getElementById("fileInput");
   fileInput.value = "";
 

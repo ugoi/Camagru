@@ -81,24 +81,23 @@ public class MediaPublishRequestHandler implements HttpHandler {
             String creationId = req.getQueryParameter("creation_id");
             // Add media to database
             String mediaFileName;
-            long mediaId = 0;
+            String mediaId = null;
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
 
                 ResultSet rs = stmt
                         .executeQuery(
-                                "select * from media where media_id='" + creationId + "'"
+                                "select * from media where container_uri='" + creationId + "'"
                                         + " AND media_type='container'");
-                String userId = null, mimeType = null, containerDescription = null;
+                String userId = null, mimeType = null;
                 while (rs.next()) {
-                    mediaId = rs.getLong("media_id");
+                    mediaId = rs.getString("media_uri");
                     userId = rs.getString("user_id");
                     mimeType = rs.getString("mime_type");
-                    containerDescription = rs.getString("media_description");
                 }
 
-                if (mediaId == 0) {
+                if (mediaId == null) {
                     String errorMessage = "Media not found";
                     res.sendJsonResponse(404, createErrorResponse(errorMessage));
                     return;
@@ -113,7 +112,7 @@ public class MediaPublishRequestHandler implements HttpHandler {
                 // UPDATE THE MEDIAS MEDIA TYPE FROM CONTAINER TO MEDIA
 
                 int affectedColumns = stmt.executeUpdate(
-                        "UPDATE media SET media_type='media' WHERE media_id='" + creationId
+                        "UPDATE media SET media_type='media' WHERE container_uri='" + creationId
                                 + "' AND media_type='container'");
 
                 if (affectedColumns == 0) {
@@ -139,7 +138,7 @@ public class MediaPublishRequestHandler implements HttpHandler {
 
             res.sendJsonResponse(200,
                     new JSONObject()
-                            .put("media_id", mediaId)
+                            .put("media_uri", mediaId)
                             .put("downloadUrl",
                                     "http://localhost:8000/api/media?id=" + mediaId)
                             .toString());

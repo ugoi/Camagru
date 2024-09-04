@@ -53,4 +53,12 @@ public class MediaService {
         // Get video file from disk
         return fileName;
     }
+
+    public static void deleteMedia(String id) throws IOException, IllegalArgumentException {
+        // Find out all log files
+        String fileName = getMediaFileName(id);
+
+        // Get video file from disk
+        Files.delete(Paths.get(MEDIA_DIRECTORY + fileName));
+    }
 }
