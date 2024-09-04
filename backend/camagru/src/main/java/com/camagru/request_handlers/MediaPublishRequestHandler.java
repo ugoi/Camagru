@@ -140,7 +140,7 @@ public class MediaPublishRequestHandler implements HttpHandler {
                     new JSONObject()
                             .put("media_uri", mediaId)
                             .put("downloadUrl",
-                                    "http://localhost:8000/api/media?id=" + mediaId)
+                                    "http://127.0.0.1:8000/api/serve/media?id=" + mediaId)
                             .toString());
 
         } catch (Exception e) {

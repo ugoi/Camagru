@@ -63,7 +63,7 @@ public class MediaRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type");
         res.sendJsonResponse(204, ""); // No content
     }
@@ -117,7 +117,8 @@ public class MediaRequestHandler implements HttpHandler {
                     Statement stmt = con.createStatement()) {
 
                 String query;
-                if (lastPictureId != null) {
+                if (lastPictureId != null && !lastPictureId.isEmpty() && !lastPictureId.equals("null")
+                        && !lastPictureId.equals("undefined")) {
                     query = String.format(
                             "SELECT * FROM media " +
                                     "WHERE user_id='%s' " +
@@ -154,14 +155,14 @@ public class MediaRequestHandler implements HttpHandler {
             String previous;
             try {
                 first = ids.get(0);
-                previous = "http://localhost:8000/api/media?after=" + first;
+                previous = "http://127.0.0.1:8000/api/media?after=" + first;
             } catch (Exception e) {
                 first = null;
                 previous = null;
             }
             try {
                 last = ids.get(ids.size() - 1);
-                next = "http://localhost:8000/api/media?after=" + last;
+                next = "http://127.0.0.1:8000/api/media?after=" + last;
 
             } catch (Exception e) {
                 last = null;
@@ -171,7 +172,10 @@ public class MediaRequestHandler implements HttpHandler {
             JSONObject responseBody = new JSONObject();
             JSONArray responseBodyData = new JSONArray();
             for (String id : ids) {
-                responseBodyData.put(new JSONObject().put("id", id));
+                JSONObject contnet = new JSONObject();
+                contnet.put("id", id);
+                contnet.put("downloadUrl", "http://127.0.0.1:8000/api/serve/media?id=" + id);
+                responseBodyData.put(contnet);
             }
 
             responseBody.put("paging", new JSONObject()
@@ -287,8 +291,8 @@ public class MediaRequestHandler implements HttpHandler {
             JSONObject jsonResponse = new JSONObject()
                     .put("containerId", containerUri)
                     .put("downloadUrl",
-                            "http://localhost:8000/api/media?id=" + containerUri)
-                    .put("publishUrl", "http://localhost:8000/api/media_publish?id=" + containerUri);
+                            "http://127.0.0.1:8000/api/serve/media?id=" + containerUri)
+                    .put("publishUrl", "http://127.0.0.1:8000/api/media_publish?id=" + containerUri);
             res.sendJsonResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();

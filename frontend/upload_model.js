@@ -177,26 +177,26 @@ export async function publishMedia(id) {
   }
 }
 
-/**
- * @param {String} after
- * @returns {Promise<Blob[]>}
- * */
-export async function getServeUserMedia(after) {
-  var userMedia = await getUserMedia(after, 10);
-  var json = await userMedia.json();
-  var data = json.data;
+// /**
+//  * @param {String} after
+//  * @returns {Promise<Blob[]>}
+//  * */
+// export async function getServeUserMedia(after) {
+//   var userMedia = await getUserMedia(after, 10);
+//   var json = await userMedia.json();
+//   var data = json.data;
 
-  /**
-   * @type {Promise<Blob>[]}
-   */
-  var servedMedia = data.map((media) => {
-    return getServeMedia(media.id).then((response) => {
-      return response.blob();
-    });
-  });
+//   /**
+//    * @type {Promise<Blob>[]}
+//    */
+//   var servedMedia = data.map((media) => {
+//     return getServeMedia(media.id).then((response) => {
+//       return response.blob();
+//     });
+//   });
 
-  return Promise.all(servedMedia);
-}
+//   return Promise.all(servedMedia);
+// }
 
 /**
  * @param {String} id
@@ -337,5 +337,39 @@ export function checkIsVideo(blob) {
     isVideo = false;
   }
   return isVideo;
+}
+
+export async function checkFileType(url) {
+  console.log("Checking file type for URL:", url);
+
+  try {
+    //Make request to server
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const requestOptions = {
+      credentials: "include",
+      mode: "cors",
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    const response = await fetch(url, requestOptions);
+
+    if (response.status === 200) {
+      const contentType = response.headers.get("Content-Type");
+      if (contentType.includes("video")) {
+        return "video";
+      } else {
+        return "image";
+      }
+    } else {
+      throw new Error(json.error);
+    }
+  } catch (error) {
+    console.error("Error fetching resource:", error);
+    return "unknown";
+  }
 }
 //#endregion

@@ -3,8 +3,10 @@ import {
   postMedia,
   getServeMedia,
   mediaService,
-  getServeUserMedia,
   publishMedia,
+  getUserMedia,
+  checkFileType,
+  deleteMedia,
 } from "./upload_model.js";
 
 /**
@@ -75,6 +77,17 @@ var containerId = null;
 
 var publishButton = document.getElementById("publishButton");
 
+/**
+ * @typedef {Object} ImageObject
+ * @property {number} id - The unique identifier for the image.
+ * @property {string} downloadUrl - The URL to download the image.
+ */
+
+/**
+ * @type {Array<ImageObject>}
+ */
+var userMedia = [];
+
 var overlayAssetPaths = [
   "assets/overlay/clownfish.png",
   "assets/overlay/goat.png",
@@ -126,17 +139,33 @@ async function loadUserMedia() {
 
   console.log("myMedia", myMedia);
 
-  const blobs = await getServeUserMedia();
+  const result = await getUserMedia(null, 10);
 
-  console.log("blobs", blobs);
+  console.log("result", result);
 
-  if (blobs && blobs.length > 0) {
+  const json = await result.json();
+
+  console.log("json", json);
+
+  const data = json.data;
+
+  userMedia = data;
+
+  if (data && data.length > 0) {
     // Remove the previous images
     myMedia.innerHTML = "";
-    for (let index = 0; index < blobs.length; index++) {
-      const blob = blobs[index];
-      const objectURL = URL.createObjectURL(blob);
-      const isVideo = checkIsVideo(blob);
+    for (let index = 0; index < data.length; index++) {
+      let mediaElement = data[index];
+
+      const downloadUrl = mediaElement.downloadUrl;
+      const fileType = await checkFileType(downloadUrl);
+
+      console.log("fileType", fileType);
+
+      const isVideo = fileType === "video";
+
+      const objectURL = downloadUrl;
+      // const isVideo = checkIsVideo(blob);
 
       if (isVideo) {
         //TODO: Extract this to a function
@@ -150,7 +179,8 @@ async function loadUserMedia() {
         deleteButton.innerText = "Delete";
         deleteButton.id = "deleteButton";
         deleteButton.addEventListener("click", async (event) => {
-          
+          await deleteMedia(mediaElement.id);
+          loadUserMedia();
         });
 
         divWrapper.appendChild(outputVideo);
@@ -166,6 +196,10 @@ async function loadUserMedia() {
         myImage.className = "captured-img";
         deleteButton.innerText = "Delete";
         deleteButton.id = "deleteButton";
+        deleteButton.addEventListener("click", async (event) => {
+          await deleteMedia(mediaElement.id);
+          loadUserMedia();
+        });
 
         divWrapper.appendChild(myImage);
         divWrapper.appendChild(deleteButton);
@@ -175,6 +209,61 @@ async function loadUserMedia() {
     }
   }
 }
+
+// async function loadUserMedia() {
+//   console.log("Getting user media");
+
+//   var myMedia = document.getElementById("myMedia");
+
+//   console.log("myMedia", myMedia);
+
+//   const blobs = await getServeUserMedia();
+
+//   console.log("blobs", blobs);
+
+//   if (blobs && blobs.length > 0) {
+//     // Remove the previous images
+//     myMedia.innerHTML = "";
+//     for (let index = 0; index < blobs.length; index++) {
+//       const blob = blobs[index];
+//       const objectURL = URL.createObjectURL(blob);
+//       const isVideo = checkIsVideo(blob);
+
+//       if (isVideo) {
+//         //TODO: Extract this to a function
+//         var divWrapper = document.createElement("div");
+//         var outputVideo = document.createElement("video");
+//         var deleteButton = document.createElement("button");
+//         divWrapper.style.paddingBottom = "10px";
+//         outputVideo.src = objectURL;
+//         outputVideo.controls = true;
+//         outputVideo.className = "captured-video";
+//         deleteButton.innerText = "Delete";
+//         deleteButton.id = "deleteButton";
+//         deleteButton.addEventListener("click", async (event) => {});
+
+//         divWrapper.appendChild(outputVideo);
+//         divWrapper.appendChild(deleteButton);
+
+//         myMedia.appendChild(divWrapper);
+//       } else {
+//         var divWrapper = document.createElement("div");
+//         var myImage = document.createElement("img");
+//         var deleteButton = document.createElement("button");
+//         divWrapper.style.paddingBottom = "10px";
+//         myImage.src = objectURL;
+//         myImage.className = "captured-img";
+//         deleteButton.innerText = "Delete";
+//         deleteButton.id = "deleteButton";
+
+//         divWrapper.appendChild(myImage);
+//         divWrapper.appendChild(deleteButton);
+
+//         myMedia.appendChild(divWrapper);
+//       }
+//     }
+//   }
+// }
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {

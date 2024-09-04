@@ -92,9 +92,9 @@ public class VideoUploadPartRequestHandler implements HttpHandler {
                     .put("message", "Video uploaded successfully")
                     .put("status", "processing")
                     .put("downloadUrl",
-                            "http://localhost:8000/api/videos/download-chunk?uploadId=" + uploadId + "&partNumber="
+                            "http://127.0.0.1:8000/api/videos/download-chunk?uploadId=" + uploadId + "&partNumber="
                                     + partNumber)
-                    .put("completeUrl", "http://localhost:8000/api/videos/complete?uploadId=" + uploadId);
+                    .put("completeUrl", "http://127.0.0.1:8000/api/videos/complete?uploadId=" + uploadId);
             res.sendJsonResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
