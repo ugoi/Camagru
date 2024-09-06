@@ -177,27 +177,6 @@ export async function publishMedia(id) {
   }
 }
 
-// /**
-//  * @param {String} after
-//  * @returns {Promise<Blob[]>}
-//  * */
-// export async function getServeUserMedia(after) {
-//   var userMedia = await getUserMedia(after, 10);
-//   var json = await userMedia.json();
-//   var data = json.data;
-
-//   /**
-//    * @type {Promise<Blob>[]}
-//    */
-//   var servedMedia = data.map((media) => {
-//     return getServeMedia(media.id).then((response) => {
-//       return response.blob();
-//     });
-//   });
-
-//   return Promise.all(servedMedia);
-// }
-
 /**
  * @param {String} id
  * @returns {Promise<Response>}

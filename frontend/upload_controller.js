@@ -252,11 +252,6 @@ async function loadNextUserMedia() {
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
-  // Add a wait for debugging purposes
-  console.log("Waiting for 1 second");
-
-  console.log("Done waiting");
-
   reloadUserMedia();
 });
 
