@@ -3,7 +3,10 @@ package com.camagru.request_handlers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,13 +72,56 @@ public class ProfilePasswordRequestHandler implements HttpHandler {
             String cookieHeader = req.getHeader("Cookie");
             String requestPassword = jsonBody.getString("password");
 
+            // Check if token exists and is valid for password and then set tokenUserId.
+            String token = req.getQueryParameter("token", null);
+            String tokenUserId = null;
+            if (token != null) {
+                try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                        Statement stmt = con.createStatement()) {
+
+                    // If email exists, generate a reset password token and store it in the database
+                    String preparedStmt = "SELECT * FROM tokens WHERE token = ?";
+                    PreparedStatement myStmt;
+                    myStmt = con.prepareStatement(preparedStmt);
+                    myStmt.setString(1, token);
+                    ResultSet rs = myStmt.executeQuery();
+
+                    String userId = null;
+                    String type = "";
+                    Timestamp expiryDate = null;
+                    Boolean used = false;
+                    while (rs.next()) {
+                        userId = rs.getString("user_id");
+                        type = rs.getString("type");
+                        expiryDate = rs.getTimestamp("expiry_date");
+                        used = rs.getBoolean("used");
+                    }
+                    Boolean isExpired = false;
+                    if (expiryDate != null) {
+                        Timestamp currentDate = new Timestamp(System.currentTimeMillis());
+                        isExpired = expiryDate.before(currentDate);
+                    }
+
+                    if (!used && type.equals("password_reset") && !isExpired) {
+                        tokenUserId = userId;
+                    }
+                }
+            }
+
             // Hashing password
             String hashedPassword = PasswordUtil.hashPassword(requestPassword);
 
-            String jwt = CookieUtil.getCookie(cookieHeader, "token");
-            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            jwtManager.verifySignature(jwt);
-            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+            // If valid token was provided, skip jwt verification and use tokenUserId
+            String sub = null;
+            if (tokenUserId == null) {
+                String jwt = CookieUtil.getCookie(cookieHeader, "token");
+                JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+                jwtManager.verifySignature(jwt);
+                sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+            } else {
+                sub = tokenUserId;
+            }
 
             String query = "update users set password='" + hashedPassword + "' where user_id='" + sub + "'";
 

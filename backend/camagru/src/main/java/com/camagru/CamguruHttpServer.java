@@ -9,6 +9,7 @@ import java.sql.Statement;
 
 import com.camagru.exceptions.InvalidProperiesException;
 import com.camagru.request_handlers.FeedRequestHandler;
+import com.camagru.request_handlers.ForgotPasswordRequestHandler;
 import com.camagru.request_handlers.LoginRequestHandler;
 import com.camagru.request_handlers.MediaPublishRequestHandler;
 import com.camagru.request_handlers.MediaRequestHandler;
@@ -45,6 +46,11 @@ public class CamguruHttpServer {
                     + "media_description varchar(255), media_type varchar(30), media_uri varchar(36), container_uri varchar(36),"
                     + "media_date datetime, FOREIGN KEY (user_id) REFERENCES users(user_id))");
 
+            // Create tokens
+            stmt.execute("CREATE TABLE IF NOT EXISTS tokens"
+                    + "(token_id int PRIMARY KEY AUTO_INCREMENT, user_id int, token varchar(36),"
+                    + "type varchar(30), expiry_date datetime, used boolean not null default 0, FOREIGN KEY (user_id) REFERENCES users(user_id))");
+
             System.out.println("Successfully connected to database and created table if it doesn't exist");
         } catch (SQLException e) {
             System.err.println("Error connecting to database in CamguruHttpServer");
@@ -68,6 +74,7 @@ public class CamguruHttpServer {
         server.createContext("/api/media_publish", new MediaPublishRequestHandler());
         server.createContext("/api/serve/media", new ServeMediaRequestHandler());
         server.createContext("/api/feed", new FeedRequestHandler());
+        server.createContext("/api/forgot-password", new ForgotPasswordRequestHandler());
 
         server.setExecutor(null); // creates a default executor
         server.start();
