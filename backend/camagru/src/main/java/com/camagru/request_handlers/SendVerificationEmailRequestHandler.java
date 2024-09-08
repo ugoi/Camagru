@@ -165,7 +165,7 @@ public class SendVerificationEmailRequestHandler implements HttpHandler {
           """;
 
       // Send email with reset password link
-      String resetLink = "http://127.0.0.1:5500/email-validation?token=" + token;
+      String resetLink = "http://127.0.0.1:5500/email-validation/?token=" + token;
       String formattedEmail = String.format(emailTemplate, resetLink);
       service.send(username, email, "Verify Email", formattedEmail);
     } catch (Exception e) {

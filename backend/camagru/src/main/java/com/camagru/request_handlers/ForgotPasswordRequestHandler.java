@@ -81,7 +81,7 @@ public class ForgotPasswordRequestHandler implements HttpHandler {
         Statement stmt = con.createStatement()) {
 
       // Check if email exists in the database
-      String preparedStmt = "SELECT user_id FROM users WHERE email = ?";
+      String preparedStmt = "SELECT * FROM users WHERE email = ?";
       PreparedStatement myStmt;
       myStmt = con.prepareStatement(preparedStmt);
       myStmt.setString(1, email);
@@ -165,7 +165,7 @@ public class ForgotPasswordRequestHandler implements HttpHandler {
           """;
 
       // Send email with reset password link
-      String resetLink = "http://127.0.0.1:5500/password-reset?token=" + token;
+      String resetLink = "http://127.0.0.1:5500/password-reset/?token=" + token;
       String formattedEmail = String.format(emailTemplate, resetLink);
       service.send(username, email, "Reset Password", formattedEmail);
     } catch (Exception e) {
