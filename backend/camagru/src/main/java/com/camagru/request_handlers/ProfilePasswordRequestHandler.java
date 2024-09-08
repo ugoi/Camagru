@@ -105,7 +105,17 @@ public class ProfilePasswordRequestHandler implements HttpHandler {
 
                     if (!used && type.equals("password_reset") && !isExpired) {
                         tokenUserId = userId;
+                        String invalidateTokenQuery = "update tokens set used=true where token='" + token + "'";
+                        int rs2 = stmt.executeUpdate(invalidateTokenQuery);
+                        if (rs2 != 0) {
+                            System.out.println("Successfully connected to database and invalidated token");
+                        } else {
+                            String errorMessage = "Token not found";
+                            System.err.println(errorMessage);
+                            res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                        }
                     }
+
                 }
             }
 

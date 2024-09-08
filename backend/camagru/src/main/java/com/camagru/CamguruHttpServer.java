@@ -18,7 +18,9 @@ import com.camagru.request_handlers.ProfilePasswordRequestHandler;
 import com.camagru.request_handlers.ProfileRequestHandler;
 import com.camagru.request_handlers.ProfileUsernameRequestHandler;
 import com.camagru.request_handlers.RegisterRequestHandler;
+import com.camagru.request_handlers.SendVerificationEmailRequestHandler;
 import com.camagru.request_handlers.ServeMediaRequestHandler;
+import com.camagru.request_handlers.VerifyEmailRequestHandler;
 import com.camagru.request_handlers.VideoCompleteRequestHandler;
 import com.camagru.request_handlers.VideoDownloadPartRequestHandler;
 import com.camagru.request_handlers.VideoInitiateUploadRequestHandler;
@@ -75,6 +77,8 @@ public class CamguruHttpServer {
         server.createContext("/api/serve/media", new ServeMediaRequestHandler());
         server.createContext("/api/feed", new FeedRequestHandler());
         server.createContext("/api/forgot-password", new ForgotPasswordRequestHandler());
+        server.createContext("/api/send-verification-email", new SendVerificationEmailRequestHandler());
+        server.createContext("/api/verify-email", new VerifyEmailRequestHandler());
 
         server.setExecutor(null); // creates a default executor
         server.start();

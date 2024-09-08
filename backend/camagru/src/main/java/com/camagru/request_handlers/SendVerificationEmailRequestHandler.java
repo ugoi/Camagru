@@ -17,7 +17,7 @@ import com.camagru.services.EmailService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-public class ForgotPasswordRequestHandler implements HttpHandler {
+public class SendVerificationEmailRequestHandler implements HttpHandler {
   @Override
   public void handle(HttpExchange exchange) throws IOException {
 
@@ -81,7 +81,7 @@ public class ForgotPasswordRequestHandler implements HttpHandler {
         Statement stmt = con.createStatement()) {
 
       // Check if email exists in the database
-      String preparedStmt = "SELECT user_id FROM users WHERE email = ?";
+      String preparedStmt = "SELECT * FROM users WHERE email = ?";
       PreparedStatement myStmt;
       myStmt = con.prepareStatement(preparedStmt);
       myStmt.setString(1, email);
@@ -102,7 +102,7 @@ public class ForgotPasswordRequestHandler implements HttpHandler {
       myStmt = con.prepareStatement(preparedStmt);
       myStmt.setString(1, userId);
       myStmt.setString(2, token);
-      myStmt.setString(3, "password_reset");
+      myStmt.setString(3, "email_validation");
       myStmt.setTimestamp(4, expiryDate);
       myStmt.setBoolean(5, false);
       myStmt.executeUpdate();
@@ -150,11 +150,11 @@ public class ForgotPasswordRequestHandler implements HttpHandler {
           <body>
             <div class='container'>
               <p>Hello,</p>
-              <p>We received a request to reset your password. Please click the button below to reset it:</p>
+              <p>Thank you for registering with Camagru! Please click the button below to verify your email address:</p>
               <p>
-                <a href='%s' class='btn'>Reset Password</a>
+                <a href='%s' class='btn'>Verify Email</a>
               </p>
-              <p>If you did not request this change, you can safely ignore this email.</p>
+              <p>If you did not sign up for this account, you can safely ignore this email.</p>
               <p>Thank you, <br> The Camagru Team</p>
               <div class='footer'>
                 <p>If you have any issues, contact our support team at support@camagru.xyz.</p>
@@ -165,9 +165,9 @@ public class ForgotPasswordRequestHandler implements HttpHandler {
           """;
 
       // Send email with reset password link
-      String resetLink = "http://127.0.0.1:5500/password-reset?token=" + token;
+      String resetLink = "http://127.0.0.1:5500/email-validation?token=" + token;
       String formattedEmail = String.format(emailTemplate, resetLink);
-      service.send(username, email, "Reset Password", formattedEmail);
+      service.send(username, email, "Verify Email", formattedEmail);
     } catch (Exception e) {
       String errorMessage = "Failed to send email: " + e.getMessage();
       res.sendJsonResponse(500, createErrorResponse(errorMessage));

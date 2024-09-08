@@ -17,6 +17,9 @@ public class PropertiesManager {
     private String dbUsername;
     private String dbPassword;
     private String jwtSecret;
+    private String brevoApiKey;
+    private String brevoSenderEmail;
+    private String brevoSenderName;
 
     /**
      * Constructor for the PropertiesManager class.
@@ -56,6 +59,9 @@ public class PropertiesManager {
         dbUsername = appProps.getProperty("db.username");
         dbPassword = appProps.getProperty("db.password");
         jwtSecret = appProps.getProperty("jwt.secret");
+        brevoApiKey = appProps.getProperty("brevo.api.key");
+        brevoSenderEmail = appProps.getProperty("brevo.sender.email");
+        brevoSenderName = appProps.getProperty("brevo.sender.name");
 
         if (dbUrl == null || dbUsername == null || dbPassword == null || jwtSecret == null) {
             throw new InvalidProperiesException("Properties file 'app.properties' is missing required properties",
@@ -78,6 +84,18 @@ public class PropertiesManager {
 
     public String getJwtSecret() {
         return jwtSecret;
+    }
+
+    public String getBrevoApiKey() {
+        return brevoApiKey;
+    }
+
+    public String getBrevoSenderEmail() {
+        return brevoSenderEmail;
+    }
+
+    public String getBrevoSenderName() {
+        return brevoSenderName;
     }
 
     /**
