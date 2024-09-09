@@ -13,7 +13,7 @@ import java.util.UUID;
 import org.json.JSONObject;
 
 import com.camagru.PropertiesManager;
-import com.camagru.services.EmailService;
+import com.camagru.services.SendVerificationEmailService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -114,60 +114,7 @@ public class SendVerificationEmailRequestHandler implements HttpHandler {
     }
 
     try {
-      EmailService service = EmailService.create();
-      String emailTemplate = """
-          <html>
-          <head>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                color: #333;
-                line-height: 1.6;
-              }
-              .container {
-                padding: 20px;
-                background-color: #f4f4f4;
-                border-radius: 10px;
-                max-width: 600px;
-                margin: 0 auto;
-              }
-              .btn {
-                display: inline-block;
-                padding: 10px 20px;
-                font-size: 16px;
-                color: #fff;
-                background-color: #007bff;
-                text-decoration: none;
-                border-radius: 5px;
-              }
-              .footer {
-                margin-top: 20px;
-                font-size: 12px;
-                color: #777;
-              }
-            </style>
-          </head>
-          <body>
-            <div class='container'>
-              <p>Hello,</p>
-              <p>Thank you for registering with Camagru! Please click the button below to verify your email address:</p>
-              <p>
-                <a href='%s' class='btn'>Verify Email</a>
-              </p>
-              <p>If you did not sign up for this account, you can safely ignore this email.</p>
-              <p>Thank you, <br> The Camagru Team</p>
-              <div class='footer'>
-                <p>If you have any issues, contact our support team at support@camagru.xyz.</p>
-              </div>
-            </div>
-          </body>
-          </html>
-          """;
-
-      // Send email with reset password link
-      String resetLink = "http://127.0.0.1:5500/email-validation/?token=" + token;
-      String formattedEmail = String.format(emailTemplate, resetLink);
-      service.send(username, email, "Verify Email", formattedEmail);
+      SendVerificationEmailService.sendForVerifyingEmail(email);
     } catch (Exception e) {
       String errorMessage = "Failed to send email: " + e.getMessage();
       res.sendJsonResponse(500, createErrorResponse(errorMessage));

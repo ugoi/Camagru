@@ -16,6 +16,7 @@ import com.camagru.PropertiesManager;
 import com.camagru.PropertyField;
 import com.camagru.PropertyFieldsManager;
 import com.camagru.RegexUtil;
+import com.camagru.services.SendVerificationEmailService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -105,6 +106,16 @@ public class RegisterRequestHandler implements HttpHandler {
                 stmt.executeUpdate("INSERT INTO users(username, email, password, isEmailVerified)"
                         + " VALUES('" + username + "', '" + email + "', '" + hashedPassword + "', false)");
                 System.out.println("Successfully connected to database and added user");
+            }
+
+            // Send verification email
+            try {
+                SendVerificationEmailService.sendForVerifyingEmail(email);
+            } catch (Exception e) {
+                String errorMessage = "Failed to send email: " + e.getMessage();
+                res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                e.printStackTrace();
+                return;
             }
 
             JSONObject jsonResponse = new JSONObject();

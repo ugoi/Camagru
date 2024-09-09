@@ -95,18 +95,37 @@ public class VerifyEmailRequestHandler implements HttpHandler {
             isExpired = expiryDate.before(currentDate);
           }
 
-          if (!used && type.equals("email_validation") && !isExpired) {
-            tokenUserId = userId;
-            String invalidateTokenQuery = "update tokens set used=true where token='" + token + "'";
-            int rs2 = stmt.executeUpdate(invalidateTokenQuery);
-            if (rs2 != 0) {
-              System.out.println("Successfully connected to database and invalidated token");
-            } else {
-              String errorMessage = "Token not found";
-              System.err.println(errorMessage);
-              res.sendJsonResponse(404, createErrorResponse(errorMessage));
-              return;
-            }
+          if (used) {
+            String errorMessage = "{error: Token already used}";
+            System.err.println(errorMessage);
+            res.sendJsonResponse(400, createErrorResponse(errorMessage));
+            return;
+          }
+
+          if (isExpired) {
+            String errorMessage = "{error: Token expired}";
+            System.err.println(errorMessage);
+            res.sendJsonResponse(400, createErrorResponse(errorMessage));
+            return;
+          }
+
+          if (!type.equals("email_validation")) {
+            String errorMessage = "{error: Invalid token type}";
+            System.err.println(errorMessage);
+            res.sendJsonResponse(400, createErrorResponse(errorMessage));
+            return;
+          }
+
+          tokenUserId = userId;
+          String invalidateTokenQuery = "update tokens set used=true where token='" + token + "'";
+          int rs2 = stmt.executeUpdate(invalidateTokenQuery);
+          if (rs2 != 0) {
+            System.out.println("Successfully connected to database and invalidated token");
+          } else {
+            String errorMessage = "Token not found";
+            System.err.println(errorMessage);
+            res.sendJsonResponse(404, createErrorResponse(errorMessage));
+            return;
           }
 
         }
