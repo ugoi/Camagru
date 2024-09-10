@@ -3,12 +3,14 @@ import { checkFileType } from "../upload/upload-model.js";
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
-  reloadFeed();
+  await reloadFeed();
 });
 
-document.getElementById("loadMoreButton").addEventListener("click", (event) => {
-  loadNextFeed();
-});
+document
+  .getElementById("loadMoreButton")
+  .addEventListener("click", async (event) => {
+    await loadNextFeed();
+  });
 
 var after = null;
 
@@ -34,6 +36,8 @@ async function loadNextFeed() {
   const data = json.data;
   after = json.paging.after;
 
+  console.log("Json", json);
+
   console.log("After: ", after);
 
   if (after == null) {
@@ -55,13 +59,26 @@ async function loadNextFeed() {
       } else {
         var outputMedia = document.createElement("img");
       }
-      const divWrapper = document.createElement("div");
-      divWrapper.style.paddingBottom = "10px";
-      divWrapper.id = mediaElement.id;
       outputMedia.src = objectURL;
       outputMedia.controls = true;
       outputMedia.className = "captured-media";
+
+      const videoInteractions = document.createElement("div");
+      videoInteractions.innerHTML = `
+    <div>
+      <button>Like</button>
+      <form action="/action_page.php">
+        <input type="text" id="lname" name="lname" value="Add a comment..." />
+        <input type="submit" value="Submit" />
+      </form>
+    </div>
+      `;
+
+      const divWrapper = document.createElement("div");
+      divWrapper.style.paddingBottom = "10px";
+      divWrapper.id = mediaElement.id;
       divWrapper.appendChild(outputMedia);
+      divWrapper.appendChild(videoInteractions);
       myMedia.appendChild(divWrapper);
     }
   }

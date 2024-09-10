@@ -52,8 +52,15 @@ public class ServeMediaRequestHandler implements HttpHandler {
             // Extract jwt from cookie
             PropertiesManager propertiesManager = new PropertiesManager();
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
-            jwtManager.verifySignature(jwt);
+
+            String jwt = "";
+            try {
+                jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
+                jwtManager.verifySignature(jwt);
+            } catch (Exception e) {
+                res.sendJsonResponse(401, createErrorResponse("Unauthorized"));
+                return;
+            }
             String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
 
             // Validate input

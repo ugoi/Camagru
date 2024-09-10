@@ -344,7 +344,7 @@ export async function checkFileType(url) {
         return "image";
       }
     } else {
-      throw new Error(json.error);
+      throw new Error(response.statusText);
     }
   } catch (error) {
     console.error("Error fetching resource:", error);
