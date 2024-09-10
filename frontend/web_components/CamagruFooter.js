@@ -1,4 +1,4 @@
-import { logout } from "../login.js";
+import { logout } from "../login/login.js";
 
 const template = document.createElement("template");
 template.innerHTML = `    <footer

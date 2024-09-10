@@ -1,4 +1,4 @@
-import { getProfile } from "./profile.js";
+import { getProfile } from "../profile/profile.js";
 
 /**
  * Type: View

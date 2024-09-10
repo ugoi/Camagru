@@ -7,7 +7,7 @@ import {
   getUserMedia,
   checkFileType,
   deleteMedia,
-} from "./upload_model.js";
+} from "../upload-model.js";
 
 /**
  * @type {HTMLVideoElement}

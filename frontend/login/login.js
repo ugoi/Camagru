@@ -40,7 +40,7 @@ export function logout() {
   delete_cookie("token");
 
   // Redirect to login page
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 }
 
 /**

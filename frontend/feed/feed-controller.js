@@ -1,5 +1,5 @@
-import { getUserFeed } from "./feed_model.js";
-import { checkFileType } from "./upload_model.js";
+import { getUserFeed } from "./feed-model.js";
+import { checkFileType } from "../upload/upload-model.js";
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
@@ -16,7 +16,11 @@ async function reloadFeed() {
   after = null;
   const myMedia = document.getElementById("myMedia");
   myMedia.innerHTML = "";
-  await loadNextFeed();
+  try {
+    await loadNextFeed();
+  } catch (error) {
+    console.log("loadNextFeed() returned exception");
+  }
 }
 
 /**

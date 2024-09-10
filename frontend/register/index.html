@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
@@ -7,8 +7,8 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Login</title>
-    <meta name="description" content="User login page" />
+    <title>Register</title>
+    <meta name="description" content="User registration page" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body
@@ -33,17 +33,20 @@
       style="
         max-width: 600px;
         margin: 50px auto;
-        padding: 20px;
+        padding: 30px;
         background-color: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       "
     >
-      <form id="login-form">
+      <form id="register-form">
         <div class="container">
-          <h1 style="text-align: center; color: #333">Login</h1>
+          <h1 style="text-align: center; color: #333">Register</h1>
+          <p style="text-align: center; color: #555">
+            Please fill in this form to create an account.
+          </p>
 
           <div
-            id="loginSuccess"
+            id="registerSuccess"
             style="
               display: none;
               color: green;
@@ -51,10 +54,10 @@
               margin-bottom: 10px;
             "
           >
-            <p>Login successful</p>
+            <p>Registration successful</p>
           </div>
           <div
-            id="loginError"
+            id="registerError"
             style="
               display: none;
               color: red;
@@ -62,18 +65,37 @@
               margin-bottom: 10px;
             "
           >
-            <p>Login failed</p>
+            <p>Registration failed</p>
           </div>
 
           <label
             for="username"
             style="display: block; margin-bottom: 5px; color: #333"
-            >Username or Email</label
+            >Username</label
           >
           <input
             type="text"
             name="username"
             id="username"
+            style="
+              width: 100%;
+              padding-top: 10px;
+              padding-bottom: 10px;
+              margin-bottom: 10px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+            "
+          />
+
+          <label
+            for="email"
+            style="display: block; margin-bottom: 5px; color: #333"
+            >Email</label
+          >
+          <input
+            type="email"
+            name="email"
+            id="email"
             style="
               width: 100%;
               padding-top: 10px;
@@ -103,15 +125,12 @@
             "
           />
 
-          <a
-            href="forgot-password.html"
-            style="color: #007bff; text-decoration: none"
-            >Forgot password?</a
-          >
-
-          <br />
-          <br />
-
+          <p style="text-align: center; color: #555">
+            By creating an account you agree to our
+            <a href="#" style="color: #007bff; text-decoration: none"
+              >Terms & Privacy</a
+            >.
+          </p>
           <button
             type="submit"
             style="
@@ -124,7 +143,7 @@
               border-radius: 5px;
             "
           >
-            Login
+            Register
           </button>
         </div>
         <div
@@ -132,25 +151,22 @@
           style="text-align: center; margin-top: 20px"
         >
           <p style="color: #555">
-            Don't have an account?
-            <a
-              href="register.html"
-              style="color: #007bff; text-decoration: none"
-              >Sign up</a
+            Already have an account?
+            <a href="/login" style="color: #007bff; text-decoration: none"
+              >Sign in</a
             >.
           </p>
         </div>
       </form>
     </main>
-
     <script type="module">
-      import { handleLogin } from "./login.js";
+      import { handleRegister } from "./register.js";
 
-      const loginForm = document.querySelector("#login-form");
+      const loginForm = document.querySelector("#register-form");
 
       // listening to click events
       loginForm.addEventListener("submit", (event) => {
-        handleLogin(event);
+        handleRegister(event);
       });
     </script>
   </body>

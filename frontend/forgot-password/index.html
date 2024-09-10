@@ -31,7 +31,7 @@
     >
       <form id="login-form">
         <div class="container">
-          <h1 style="text-align: center; color: #333">Choose new password</h1>
+          <h1 style="text-align: center; color: #333">Reset password</h1>
 
           <div
             id="loginSuccess"
@@ -42,7 +42,7 @@
               margin-bottom: 10px;
             "
           >
-            <p>Password reset successful</p>
+            <p>An email with reset link was sucessfully sent</p>
           </div>
           <div
             id="loginError"
@@ -57,14 +57,14 @@
           </div>
 
           <label
-            for="password"
+            for="email"
             style="display: block; margin-bottom: 5px; color: #333"
-            >Password</label
+            >Email</label
           >
           <input
             type="text"
-            name="password"
-            id="password"
+            name="email"
+            id="email"
             style="
               width: 100%;
               padding-top: 10px;
@@ -87,7 +87,7 @@
               border-radius: 5px;
             "
           >
-            Reset password
+            Send Reset Link
           </button>
         </div>
         <div
@@ -106,6 +106,6 @@
       </form>
     </main>
 
-    <script type="module" src="controller.js"></script>
+    <script type="module" src="forgot-password-controller.js"></script>
   </body>
 </html>

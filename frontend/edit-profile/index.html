@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
@@ -7,9 +7,10 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Register</title>
-    <meta name="description" content="User registration page" />
+    <title>Edit Profile</title>
+    <meta name="description" content="Edit user profile" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../styles.css" />
   </head>
   <body
     style="
@@ -29,20 +30,23 @@
         your experience.
       </p>
     <![endif]-->
+
+    <camagru-header></camagru-header>
+
     <main
       style="
         max-width: 600px;
-        margin: 50px auto;
-        padding: 30px;
+        margin: 20px auto;
+        padding: 20px;
         background-color: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       "
     >
-      <form id="register-form">
+      <form id="edit-form">
         <div class="container">
-          <h1 style="text-align: center; color: #333">Register</h1>
+          <h1 style="text-align: center; color: #333">Edit Profile</h1>
           <p style="text-align: center; color: #555">
-            Please fill in this form to create an account.
+            Please fill in this form to edit account details.
           </p>
 
           <div
@@ -54,7 +58,7 @@
               margin-bottom: 10px;
             "
           >
-            <p>Registration successful</p>
+            <p>Success</p>
           </div>
           <div
             id="registerError"
@@ -65,7 +69,7 @@
               margin-bottom: 10px;
             "
           >
-            <p>Registration failed</p>
+            <p>Fail</p>
           </div>
 
           <label
@@ -79,8 +83,7 @@
             id="username"
             style="
               width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
+              padding: 10px;
               margin-bottom: 10px;
               border: 1px solid #ccc;
               border-radius: 5px;
@@ -98,8 +101,7 @@
             id="email"
             style="
               width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
+              padding: 10px;
               margin-bottom: 10px;
               border: 1px solid #ccc;
               border-radius: 5px;
@@ -117,20 +119,13 @@
             id="password"
             style="
               width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
+              padding: 10px;
               margin-bottom: 20px;
               border: 1px solid #ccc;
               border-radius: 5px;
             "
           />
 
-          <p style="text-align: center; color: #555">
-            By creating an account you agree to our
-            <a href="#" style="color: #007bff; text-decoration: none"
-              >Terms & Privacy</a
-            >.
-          </p>
           <button
             type="submit"
             style="
@@ -143,30 +138,36 @@
               border-radius: 5px;
             "
           >
-            Register
+            Save
           </button>
-        </div>
-        <div
-          class="container signin"
-          style="text-align: center; margin-top: 20px"
-        >
-          <p style="color: #555">
-            Already have an account?
-            <a href="login.html" style="color: #007bff; text-decoration: none"
-              >Sign in</a
-            >.
-          </p>
         </div>
       </form>
     </main>
-    <script type="module">
-      import { handleRegister } from "./register.js";
 
-      const loginForm = document.querySelector("#register-form");
+    <camagru-footer></camagru-footer>
+
+    <script type="module" src="../web_components/CamagruHeader.js"></script>
+    <script type="module" src="../web_components/CamagruFooter.js"></script>
+    <script type="module">
+      import {
+        handleLoadEditProfile,
+        handleEditProfile,
+      } from "./edit-profile.js";
+
+      window.addEventListener(
+        "DOMContentLoaded",
+        (event) => {
+          console.log("load event");
+          handleLoadEditProfile();
+        },
+        false
+      );
+
+      const loginForm = document.querySelector("#edit-form");
 
       // listening to click events
       loginForm.addEventListener("submit", (event) => {
-        handleRegister(event);
+        handleEditProfile(event);
       });
     </script>
   </body>

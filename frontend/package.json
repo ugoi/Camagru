@@ -16,8 +16,5 @@
     "url": "https://github.com/ugoi/Camagru/issues"
   },
   "homepage": "https://github.com/ugoi/Camagru#readme",
-  "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.10.3",
-    "custom-element-vs-code-integration": "^1.4.1"
-  }
+  "devDependencies": {}
 }

@@ -1,4 +1,4 @@
-import { logout } from "../login.js";
+import { logout } from "../login/login.js";
 
 const template = document.createElement("template");
 template.innerHTML = `    <header style="background-color: #333; color: white; padding: 10px 0">
@@ -21,19 +21,24 @@ template.innerHTML = `    <header style="background-color: #333; color: white; p
           "
         >
           <li>
-            <a href="index.html" style="color: white; text-decoration: none"
+            <a href="/index.html" style="color: white; text-decoration: none"
               >Home</a
             >
           </li>
           <li>
-            <a href="profile.html" style="color: white; text-decoration: none"
+            <a href="/feed" style="color: white; text-decoration: none"
+              >Feed</a
+            >
+          </li>
+          <li>
+            <a href="/profile" style="color: white; text-decoration: none"
               >Profile</a
             >
           </li>
         </ul>
         <div>
           <button
-            onclick="window.location.href='login.html'"
+            onclick="window.location.href='/login'"
             style="
               background-color: #4caf50;
               color: white;
