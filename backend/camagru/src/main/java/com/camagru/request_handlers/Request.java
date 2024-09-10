@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import com.sun.net.httpserver.HttpExchange;
 
 public class Request {
+    private String cachedRequestBody = "";
     private final HttpExchange exchange;
 
     public Request(HttpExchange exchange) {
@@ -59,10 +60,18 @@ public class Request {
     }
 
     public JSONObject getBodyAsJson() throws IOException {
+
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8));
         String requestBody = reader.lines().collect(Collectors.joining());
-        return new JSONObject(requestBody);
+
+        if (requestBody != null) {
+            if (!requestBody.isEmpty()) {
+                cachedRequestBody = requestBody;
+            }
+        }
+
+        return new JSONObject(cachedRequestBody);
     }
 
     public byte[] getBody() throws IOException {

@@ -72,8 +72,6 @@ public class SendVerificationEmailRequestHandler implements HttpHandler {
       return;
     }
 
-    String username = "";
-
     String token = UUID.randomUUID().toString();
     Timestamp expiryDate = new Timestamp(System.currentTimeMillis() + 36000000);
     try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
@@ -90,7 +88,6 @@ public class SendVerificationEmailRequestHandler implements HttpHandler {
       String userId = null;
       while (rs.next()) {
         userId = rs.getString("user_id");
-        username = rs.getString("username");
       }
       if (userId == null) {
         String errorMessage = "User not found";
