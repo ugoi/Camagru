@@ -7,8 +7,11 @@
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../utils.css" />
   </head>
   <body>
+    <camagru-header></camagru-header>
+
     <div style="display: flex; justify-content: center">
       <div>
         <div id="cameraPreview" style="border: solid">
@@ -106,6 +109,11 @@
         </div>
       </div>
     </div>
+
+    <camagru-footer></camagru-footer>
+
+    <script type="module" src="../web_components/CamagruHeader.js"></script>
+    <script type="module" src="../web_components/CamagruFooter.js"></script>
 
     <script type="module" src="upload-controller.js"></script>
     <script type="module"></script>

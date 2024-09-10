@@ -7,7 +7,7 @@ import {
   getUserMedia,
   checkFileType,
   deleteMedia,
-} from "../upload-model.js";
+} from "./upload-model.js";
 
 /**
  * @type {HTMLVideoElement}
@@ -145,10 +145,10 @@ var userMedia = [];
 // Load overlay assets
 (async () => {
   var overlayAssetPaths = [
-    "assets/overlay/clownfish.png",
-    "assets/overlay/goat.png",
-    "assets/overlay/police-armor.png",
-    "assets/overlay/red-rocket.png",
+    "../assets/overlay/clownfish.png",
+    "../assets/overlay/goat.png",
+    "../assets/overlay/police-armor.png",
+    "../assets/overlay/red-rocket.png",
   ];
   // Add overlay assets to the carousel
   if (overlayAssetPaths && overlayAssetPaths.length > 0) {
