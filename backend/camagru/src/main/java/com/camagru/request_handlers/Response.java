@@ -16,6 +16,12 @@ public class Response {
         this.exchange = exchange;
     }
 
+    public void sendOptionsResponse(Response res) {
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT, PATCH");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, *");
+        res.sendResponse(204, null);
+    }
+
     public void setHeader(String key, String value) {
         exchange.getResponseHeaders().set(key, value);
     }
@@ -60,20 +66,33 @@ public class Response {
                 // Handle JSONObject response
                 contentType = "application/json";
                 responseBytes = ((JSONObject) responseBody).toString().getBytes(StandardCharsets.UTF_8);
+            } else if (responseBody instanceof String) {
+                contentType = "text/plain";
+                responseBytes = responseBody.toString().getBytes(StandardCharsets.UTF_8);
+            } else if (responseBody == null) {
+                // Handle null response, Dont send any body. Content type should be none
+                contentType = null;
+                responseBytes = null;
             } else {
-                // Default fallback for unknown types
                 contentType = "text/plain";
                 responseBytes = responseBody.toString().getBytes(StandardCharsets.UTF_8);
             }
 
             // Set Headers
-            exchange.getResponseHeaders().set("Content-Type", contentType);
+            if (contentType != null) {
+                exchange.getResponseHeaders().set("Content-Type", contentType);
+            }
             exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
             exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
 
-            exchange.sendResponseHeaders(statusCode, responseBytes.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(responseBytes);
+            if (responseBytes == null) {
+                exchange.sendResponseHeaders(statusCode, -1);
+            } else {
+
+                exchange.sendResponseHeaders(statusCode, responseBytes.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(responseBytes);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

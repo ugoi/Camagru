@@ -39,9 +39,7 @@ public class ProfileRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, *");
-        res.sendJsonResponse(204, ""); // No content
+        res.sendOptionsResponse(res);
     }
 
     private void handleGetRequest(Request req, Response res) {
@@ -78,12 +76,9 @@ public class ProfileRequestHandler implements HttpHandler {
                     userEmail = rs.getString("email");
                 } else {
                     String errorMessage = "User not found";
-                    System.err.println(errorMessage);
                     res.sendJsonResponse(404, createErrorResponse(errorMessage));
                     return;
                 }
-
-                System.out.println("Successfully connected to database and retrieved user data");
             }
 
             JSONObject jsonResponse = new JSONObject()
@@ -92,7 +87,6 @@ public class ProfileRequestHandler implements HttpHandler {
             res.sendJsonResponse(200, jsonResponse.toString());
         } catch (Exception e) {
             String errorMessage = "Internal server error: " + e.getMessage();
-            System.err.println(errorMessage);
             e.printStackTrace();
             res.sendJsonResponse(500, createErrorResponse(errorMessage));
         }

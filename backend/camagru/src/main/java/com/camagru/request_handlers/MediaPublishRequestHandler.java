@@ -49,9 +49,7 @@ public class MediaPublishRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        res.sendJsonResponse(204, ""); // No content
+        res.sendOptionsResponse(res);
     }
 
     private String createErrorResponse(String errorMessage) {
