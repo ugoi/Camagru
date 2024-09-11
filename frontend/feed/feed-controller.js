@@ -16,8 +16,8 @@ var after = null;
 
 async function reloadFeed() {
   after = null;
-  const myMedia = document.getElementById("myMedia");
-  myMedia.innerHTML = "";
+  const mediaCollection = document.getElementById("myMedia");
+  mediaCollection.innerHTML = "";
   try {
     await loadNextFeed();
   } catch (error) {
@@ -30,7 +30,7 @@ async function reloadFeed() {
  * @returns {Promise<void>}
  */
 async function loadNextFeed() {
-  const myMedia = document.getElementById("myMedia");
+  const mediaCollection = document.getElementById("myMedia");
   const result = await getUserFeed(after, 3);
   const json = await result.json();
   const data = json.data;
@@ -54,32 +54,60 @@ async function loadNextFeed() {
       const fileType = await checkFileType(downloadUrl);
       const isVideo = fileType === "video";
       const objectURL = downloadUrl;
-      if (isVideo) {
-        var outputMedia = document.createElement("video");
-      } else {
-        var outputMedia = document.createElement("img");
-      }
-      outputMedia.src = objectURL;
-      outputMedia.controls = true;
-      outputMedia.className = "captured-media";
 
-      const videoInteractions = document.createElement("div");
-      videoInteractions.innerHTML = `
-    <div>
-      <button>Like</button>
-      <form action="/action_page.php">
-        <input type="text" id="lname" name="lname" value="Add a comment..." />
-        <input type="submit" value="Submit" />
-      </form>
-    </div>
+      const mediaWrapper = document.createElement("div");
+
+      mediaWrapper.className = "div-wrapper";
+
+      // Assign unique id based on the index
+      const uniqueId = `collapsible-${after}-${index}`;
+
+      mediaWrapper.innerHTML = `
+        <div class="div-wrapper">
+        ${
+          isVideo
+            ? `
+          <video src="${objectURL}" controls class="captured-media"></video>
+        `
+            : `
+          <img src="${objectURL}" class="captured-media" />
+        `
+        }
+          <div class="media-actions">
+            <div class="like-section">
+              <button class="like-btn">❤️</button>
+              <span class="like-count">10</span>
+              <!-- Replace 10 with dynamic count -->
+            </div>
+            <form action="/action_page.php" class="comment-form">
+              <input
+                type="text"
+                id="comment"
+                name="comment"
+                placeholder="Add a comment..."
+                class="comment-input"
+              />
+              <input type="submit" value="Submit" class="btn" />
+            </form>
+          </div>
+
+          <div class="wrap-collabsible">
+            <input id="${uniqueId}" class="toggle" type="checkbox" />
+            <label for="${uniqueId}" class="lbl-toggle">Show comments</label>
+            <div class="collapsible-content">
+              <div class="content-inner">
+                <div class="comment">
+                  <p><strong>Stefan:</strong> Looks very nice</p>
+                </div>
+                <div class="comment">
+                  <p><strong>Bob:</strong> Where is this?</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       `;
-
-      const divWrapper = document.createElement("div");
-      divWrapper.style.paddingBottom = "10px";
-      divWrapper.id = mediaElement.id;
-      divWrapper.appendChild(outputMedia);
-      divWrapper.appendChild(videoInteractions);
-      myMedia.appendChild(divWrapper);
+      mediaCollection.appendChild(mediaWrapper);
     }
   }
 }

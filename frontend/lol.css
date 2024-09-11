@@ -31,10 +31,7 @@ h1 {
 
 .media-container {
   width: 100%;
-}
-
-.captured-media {
-  width: 100%;
+  max-width: 400px;
 }
 
 .media-img {

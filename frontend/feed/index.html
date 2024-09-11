@@ -26,18 +26,23 @@
 
     <h1>Feed</h1>
     <div
-      id="myMediaWrapper"
-      style="
-        overflow-y: scroll;
-        background-color: aqua;
-        text-align: center;
-        height: 600px;
-        align-items: center;
-      "
-      class="hide-scrollbar"
+      id="feed"
+      style="display: flex; align-items: center; justify-content: center"
     >
-      <div id="myMedia"></div>
-      <button id="loadMoreButton">Load more</button>
+      <div
+        id="myMediaWrapper"
+        style="
+          overflow-y: scroll;
+          height: 600px;
+          max-width: 600px;
+          width: 100%;
+          text-align: center;
+        "
+        class="hide-scrollbar"
+      >
+        <div id="myMedia" class="media-container"></div>
+        <button id="loadMoreButton">Load more</button>
+      </div>
     </div>
 
     <camagru-footer></camagru-footer>
