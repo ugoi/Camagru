@@ -1,4 +1,9 @@
-import { getUserFeed } from "./feed-model.js";
+import {
+  deleteLike,
+  getLikesCount,
+  getUserFeed,
+  postLike,
+} from "./feed-model.js";
 import { checkFileType } from "../upload/upload-model.js";
 
 // Load user media
@@ -51,16 +56,31 @@ async function loadNextFeed() {
     for (let index = 0; index < data.length; index++) {
       const mediaElement = data[index];
       const downloadUrl = mediaElement.downloadUrl;
+      const mediaId = mediaElement.id;
+
       const fileType = await checkFileType(downloadUrl);
       const isVideo = fileType === "video";
       const objectURL = downloadUrl;
 
       const mediaWrapper = document.createElement("div");
-
       mediaWrapper.className = "div-wrapper";
 
       // Assign unique id based on the index
       const uniqueId = `collapsible-${after}-${index}`;
+
+      // Get likes and comments
+      /**
+       * @type {number}
+       */
+      let totalLikes = 0;
+
+      {
+        const result = await getLikesCount(mediaId);
+
+        const json = await result.json();
+
+        totalLikes = Number(json.total_count);
+      }
 
       mediaWrapper.innerHTML = `
         <div class="div-wrapper">
@@ -75,8 +95,8 @@ async function loadNextFeed() {
         }
           <div class="media-actions">
             <div class="like-section">
-              <button class="like-btn">❤️</button>
-              <span class="like-count">10</span>
+              <button class="like-btn" id=like-btn-${mediaId}>❤️</button>
+              <span class="like-count" id=like-count-${mediaId}>${totalLikes}</span>
               <!-- Replace 10 with dynamic count -->
             </div>
             <form action="/action_page.php" class="comment-form">
@@ -107,7 +127,30 @@ async function loadNextFeed() {
           </div>
         </div>
       `;
+
       mediaCollection.appendChild(mediaWrapper);
+
+      const likeButton = document.getElementById(`like-btn-${mediaId}`);
+      const likeCount = document.getElementById(`like-count-${mediaId}`);
+      likeButton.addEventListener("click", async (event) => {
+        console.log("LIKE BUTTON CLICKED");
+        console.log("mediaId", mediaId);
+
+        try {
+          await postLike(mediaId);
+          const newCount = Number(likeCount.innerHTML) + 1;
+          likeCount.innerHTML = `${newCount}`;
+        } catch (error) {
+          try {
+            deleteLike(mediaId);
+            const newCount = Number(likeCount.innerHTML) - 1;
+            likeCount.innerHTML = `${newCount}`;
+          } catch (error) {
+            console.log("Failed to delete like");
+            console.log(error);
+          }
+        }
+      });
     }
   }
 }

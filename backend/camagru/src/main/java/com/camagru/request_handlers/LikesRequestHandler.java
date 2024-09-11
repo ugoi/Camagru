@@ -79,7 +79,7 @@ public class LikesRequestHandler implements HttpHandler {
             }
 
             // Extract input
-            String mediaId = req.getQueryParameter("media_id");
+            String mediaUri = req.getQueryParameter("media_id");
 
             // Properties
             PropertiesManager propertiesManager = new PropertiesManager();
@@ -90,6 +90,31 @@ public class LikesRequestHandler implements HttpHandler {
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
+
+                String mediaId;
+                // Get mediaId from mediaUri
+                {
+                    String sql = """
+                                SELECT media_id
+                                FROM media
+                                WHERE media_uri=?
+                            """;
+
+                    PreparedStatement myStmt;
+
+                    myStmt = con.prepareStatement(sql);
+                    myStmt.setString(1, mediaUri);
+
+                    ResultSet rs = myStmt.executeQuery();
+
+                    if (!rs.next()) {
+                        String resposne = "Media not found.";
+                        res.sendResponse(404, resposne);
+                        return;
+                    }
+
+                    mediaId = rs.getString("media_id");
+                }
 
                 String sql = """
                         SELECT COUNT(*)
@@ -154,7 +179,7 @@ public class LikesRequestHandler implements HttpHandler {
 
             // Get body params
             JSONObject json = req.getBodyAsJson();
-            String mediaId = json.getString("media_id");
+            String mediaUri = json.getString("media_id");
 
             String reaction;
             try {
@@ -167,6 +192,31 @@ public class LikesRequestHandler implements HttpHandler {
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
+
+                String mediaId;
+                // Get mediaId from mediaUri
+                {
+                    String sql = """
+                                SELECT media_id
+                                FROM media
+                                WHERE media_uri=?
+                            """;
+
+                    PreparedStatement myStmt;
+
+                    myStmt = con.prepareStatement(sql);
+                    myStmt.setString(1, mediaUri);
+
+                    ResultSet rs = myStmt.executeQuery();
+
+                    if (!rs.next()) {
+                        String resposne = "Media not found.";
+                        res.sendResponse(404, resposne);
+                        return;
+                    }
+
+                    mediaId = rs.getString("media_id");
+                }
 
                 // Check if like already exists
                 {
@@ -240,7 +290,7 @@ public class LikesRequestHandler implements HttpHandler {
             }
 
             // Extract input
-            String mediaId = req.getQueryParameter("media_id");
+            String mediaUri = req.getQueryParameter("media_id");
 
             // Properties
             PropertiesManager propertiesManager = new PropertiesManager();
@@ -261,6 +311,31 @@ public class LikesRequestHandler implements HttpHandler {
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
+
+                String mediaId;
+                // Get mediaId from mediaUri
+                {
+                    String sql = """
+                                SELECT media_id
+                                FROM media
+                                WHERE media_uri=?
+                            """;
+
+                    PreparedStatement myStmt;
+
+                    myStmt = con.prepareStatement(sql);
+                    myStmt.setString(1, mediaUri);
+
+                    ResultSet rs = myStmt.executeQuery();
+
+                    if (!rs.next()) {
+                        String resposne = "Media not found.";
+                        res.sendResponse(404, resposne);
+                        return;
+                    }
+
+                    mediaId = rs.getString("media_id");
+                }
 
                 String sql = """
                         DELETE
