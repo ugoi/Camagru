@@ -2,8 +2,6 @@ const loginForm = document.querySelector("#login-form");
 
 // listening to click events
 loginForm.addEventListener("submit", (event) => {
-  console.log("Start");
-
   event.preventDefault();
   handleLogin(event);
 });
@@ -14,7 +12,6 @@ loginForm.addEventListener("submit", (event) => {
  * @returns {void}
  */
 export async function handleLogin(event) {
-  console.log("Handling login form submission");
   var email = document.getElementById("email").value;
 
   var loginSuccessElement = document.getElementById("loginSuccess");
@@ -39,8 +36,6 @@ export async function handleLogin(event) {
  * @returns {void}
  */
 async function sendLoginRequest(email) {
-  console.log("logining", email);
-
   //Make request to server
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");

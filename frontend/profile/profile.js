@@ -4,7 +4,6 @@
  * @returns {void}
  */
 export async function handleLoadProfile() {
-  console.log("handling get profile");
   var usernameElement = document.getElementById("username");
   var emailElement = document.getElementById("email");
 
@@ -27,8 +26,6 @@ export async function handleLoadProfile() {
  * @returns {Profile}
  */
 export async function getProfile() {
-  console.log("getting profile");
-
   //Make request to server
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -47,8 +44,6 @@ export async function getProfile() {
   );
 
   const json = await response.json();
-  console.log(json);
-
   if (response.status === 200) {
     return json;
   } else {

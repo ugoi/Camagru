@@ -204,9 +204,6 @@ async function loadNextUserMedia() {
   const data = json.data;
   after = json.paging.after;
   userMedia = data;
-
-  console.log("After: ", after);
-
   if (after == null) {
     document.getElementById("loadMoreButton").style.display = "none";
   } else {
@@ -283,7 +280,6 @@ document
     if (containerId != null) {
       var response = await publishMedia(containerId);
       if (response.status === 200) {
-        console.log("Media published");
         setContainerId(null);
         reloadUserMedia();
       } else {
@@ -299,13 +295,6 @@ document
     let formData = new FormData();
     formData.append("media", media);
     formData.append("overlayMedia", overlayMedia);
-
-    // Display the key/value pairs
-    console.log("Sart logging");
-    for (var pair of formData.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
-    }
-
     var postResponse = await postMedia(formData);
     var postJson = await postResponse.json();
     var id = postJson.containerId;

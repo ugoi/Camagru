@@ -35,8 +35,6 @@ export async function handleRegister(event) {
  * @returns {void}
  */
 async function register(username, email, password) {
-  console.log("registering", username, email, password);
-
   //Make request to server
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -60,8 +58,6 @@ async function register(username, email, password) {
   );
 
   const json = await response.json();
-  console.log(json);
-
   if (response.status === 201) {
   } else {
     throw new Error(json.error);

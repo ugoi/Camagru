@@ -2,7 +2,6 @@ const loginForm = document.querySelector("#login-form");
 
 // listening to click events
 loginForm.addEventListener("submit", (event) => {
-  console.log("Start");
   event.preventDefault();
   handlePasswordReset(event);
 });
@@ -13,8 +12,6 @@ loginForm.addEventListener("submit", (event) => {
  * @returns {void}
  */
 export async function handlePasswordReset(event) {
-  console.log("Handling login form submission");
-
   var password = document.getElementById("password").value;
 
   var loginSuccessElement = document.getElementById("loginSuccess");
@@ -40,9 +37,6 @@ export async function resetPassword(newPassword) {
 
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
-
-  console.log("token", token);
-
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append(

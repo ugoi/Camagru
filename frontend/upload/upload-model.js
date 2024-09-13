@@ -62,8 +62,6 @@ class MediaService {
 
     // Usage Example:
     const timeout = createCompletableTimeout(() => {
-      console.log("Timeout completed");
-
       if (recorder.state === "recording") {
         recorder.stop();
       }
@@ -72,7 +70,6 @@ class MediaService {
     let recorded = timeout;
 
     this.#stopRecordingFunction = () => {
-      console.log("about to call stopRecordingFunction");
       timeout.complete();
     };
 
@@ -114,8 +111,6 @@ export async function deleteMedia(id) {
   );
 
   if (response.status === 200) {
-    console.log(response);
-
     return response;
   } else {
     throw new Error(response.error);
@@ -145,8 +140,6 @@ export async function postMedia(formData) {
   );
 
   if (response.status === 200) {
-    console.log(response);
-
     return response;
   } else {
     throw new Error(response.error);
@@ -169,8 +162,6 @@ export async function publishMedia(id) {
     requestOptions
   );
   if (response.status === 200) {
-    console.log(response);
-
     return response;
   } else {
     throw new Error(response.error);
@@ -319,8 +310,6 @@ export function checkIsVideo(blob) {
 }
 
 export async function checkFileType(url) {
-  console.log("Checking file type for URL:", url);
-
   try {
     //Make request to server
     const myHeaders = new Headers();

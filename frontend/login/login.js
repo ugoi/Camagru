@@ -5,8 +5,6 @@
  * @returns {void}
  */
 export async function handleLogin(event) {
-  console.log("Handling login form submission");
-
   event.preventDefault();
   var username = document.getElementById("username").value;
   var password = document.getElementById("password").value;
@@ -60,8 +58,6 @@ function delete_cookie(name) {
  * @returns {void}
  */
 async function sendLoginRequest(username, password) {
-  console.log("logining", username, password);
-
   //Make request to server
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -86,8 +82,6 @@ async function sendLoginRequest(username, password) {
   );
 
   const json = await response.json();
-  console.log(json);
-
   if (response.status === 201) {
   } else {
     throw new Error(json.error);

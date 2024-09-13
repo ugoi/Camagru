@@ -9,8 +9,6 @@ window.addEventListener("DOMContentLoaded", async (event) => {
  * @returns {void}
  */
 export async function handleEmailValidation(event) {
-  console.log("Handling email validation form submission");
-
   var loginSuccessElement = document.getElementById("loginSuccess");
   var loginErrorElement = document.getElementById("loginError");
 
@@ -28,12 +26,8 @@ export async function handleEmailValidation(event) {
 }
 
 export async function validateEmail() {
-  console.log("Validating email");
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
-
-  console.log("token", token);
-
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append(
@@ -57,8 +51,6 @@ export async function validateEmail() {
   if (response.status === 200) {
   } else {
     const json = await response.json();
-    console.log("Validation end");
-
     throw new Error(json.error);
   }
 }

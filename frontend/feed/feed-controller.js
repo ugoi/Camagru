@@ -25,9 +25,7 @@ async function reloadFeed() {
   mediaCollection.innerHTML = "";
   try {
     await loadNextFeed();
-  } catch (error) {
-    console.log("loadNextFeed() returned exception");
-  }
+  } catch (error) {}
 }
 
 /**
@@ -40,11 +38,6 @@ async function loadNextFeed() {
   const json = await result.json();
   const data = json.data;
   after = json.paging.after;
-
-  console.log("Json", json);
-
-  console.log("After: ", after);
-
   if (after == null) {
     document.getElementById("loadMoreButton").style.display = "none";
   } else {
@@ -133,22 +126,14 @@ async function loadNextFeed() {
       const likeButton = document.getElementById(`like-btn-${mediaId}`);
       const likeCount = document.getElementById(`like-count-${mediaId}`);
       likeButton.addEventListener("click", async (event) => {
-        console.log("LIKE BUTTON CLICKED");
-        console.log("mediaId", mediaId);
-
         try {
           await postLike(mediaId);
           const newCount = Number(likeCount.innerHTML) + 1;
           likeCount.innerHTML = `${newCount}`;
         } catch (error) {
-          try {
-            deleteLike(mediaId);
-            const newCount = Number(likeCount.innerHTML) - 1;
-            likeCount.innerHTML = `${newCount}`;
-          } catch (error) {
-            console.log("Failed to delete like");
-            console.log(error);
-          }
+          deleteLike(mediaId);
+          const newCount = Number(likeCount.innerHTML) - 1;
+          likeCount.innerHTML = `${newCount}`;
         }
       });
     }
