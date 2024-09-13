@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.camagru.exceptions.InvalidProperiesException;
 import com.camagru.request_handlers.CommentRequestHandler;
@@ -75,6 +77,11 @@ public class CamguruHttpServer {
 
                 // Http Server
                 HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 8000), 0);
+
+                // Setting up a fixed thread pool
+                ExecutorService executor = Executors.newFixedThreadPool(16); // Adjust thread
+                // count as needed
+                server.setExecutor(executor);
 
                 server.createContext("/api/register", new RegisterRequestHandler());
                 server.createContext("/api/login", new LoginRequestHandler());

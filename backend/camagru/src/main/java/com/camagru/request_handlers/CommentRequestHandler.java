@@ -75,7 +75,7 @@ public class CommentRequestHandler implements HttpHandler {
             }
 
             // Extract input
-            String mediaID = req.getQueryParameter("media_id");
+            String mediaUri = req.getQueryParameter("media_id");
 
             // Properties
             PropertiesManager propertiesManager = new PropertiesManager();
@@ -87,6 +87,31 @@ public class CommentRequestHandler implements HttpHandler {
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
 
+                String mediaId;
+                // Get mediaId from mediaUri
+                {
+                    String sql = """
+                                SELECT media_id
+                                FROM media
+                                WHERE media_uri=?
+                            """;
+
+                    PreparedStatement myStmt;
+
+                    myStmt = con.prepareStatement(sql);
+                    myStmt.setString(1, mediaUri);
+
+                    ResultSet rs = myStmt.executeQuery();
+
+                    if (!rs.next()) {
+                        String resposne = "Media not found.";
+                        res.sendResponse(404, resposne);
+                        return;
+                    }
+
+                    mediaId = rs.getString("media_id");
+                }
+
                 String sql = """
                         SELECT * FROM comments
                         WHERE media_id=?
@@ -94,13 +119,12 @@ public class CommentRequestHandler implements HttpHandler {
                         """;
                 PreparedStatement myStmt;
                 myStmt = con.prepareStatement(sql);
-                myStmt.setString(1, mediaID);
+                myStmt.setString(1, mediaId);
                 ResultSet rs = myStmt.executeQuery();
 
                 while (rs.next()) {
                     String commentTitle = "";
                     String commentBody = "";
-                    String mediaId = "";
                     String userId = "";
                     commentTitle = rs.getString("comment_title");
                     commentBody = rs.getString("comment_body");
@@ -165,7 +189,7 @@ public class CommentRequestHandler implements HttpHandler {
 
             // Get body params
             JSONObject json = req.getBodyAsJson();
-            String mediaId = json.getString("media_id");
+            String mediaUri = json.getString("media_id");
             String commentTitle = json.getString("comment_title");
             String commentBody = json.getString("comment_body");
             Timestamp commentDate = new Timestamp(System.currentTimeMillis());
@@ -174,6 +198,31 @@ public class CommentRequestHandler implements HttpHandler {
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                     Statement stmt = con.createStatement()) {
+
+                String mediaId;
+                // Get mediaId from mediaUri
+                {
+                    String sql = """
+                                SELECT media_id
+                                FROM media
+                                WHERE media_uri=?
+                            """;
+
+                    PreparedStatement myStmt;
+
+                    myStmt = con.prepareStatement(sql);
+                    myStmt.setString(1, mediaUri);
+
+                    ResultSet rs = myStmt.executeQuery();
+
+                    if (!rs.next()) {
+                        String resposne = "Media not found.";
+                        res.sendResponse(404, resposne);
+                        return;
+                    }
+
+                    mediaId = rs.getString("media_id");
+                }
 
                 String sql = """
                             INSERT INTO comments(media_id, user_id, comment_title, comment_body, comment_date)

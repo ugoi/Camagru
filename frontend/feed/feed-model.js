@@ -57,7 +57,7 @@ export async function postLike(mediaId) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(await response.text());
+    throw new Error(await response.text);
   }
 }
 
@@ -85,7 +85,7 @@ export async function deleteLike(mediaId) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(await response.text());
+    throw new Error(await response.text);
   }
 }
 
@@ -113,6 +113,61 @@ export async function getLikesCount(mediaId) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(await response.text());
+    throw new Error(await response.text);
+  }
+}
+
+export async function postComment(mediaId, commentTitle, commentBody) {
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  const raw = JSON.stringify({
+    comment_title: commentTitle,
+    comment_body: commentBody,
+    media_id: mediaId,
+  });
+
+  const requestOptions = {
+    credentials: "include",
+    mode: "cors",
+    method: "POST",
+    headers: myHeaders,
+    body: raw,
+    redirect: "follow",
+  };
+
+  const response = await fetch(
+    "http://127.0.0.1:8000/api/comments",
+    requestOptions
+  );
+
+  if (response.status === 200) {
+    return response;
+  } else {
+    throw new Error(await response.text);
+  }
+}
+
+export async function getComments(mediaId) {
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  const requestOptions = {
+    credentials: "include",
+    mode: "cors",
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+  const response = await fetch(
+    `http://127.0.0.1:8000/api/comments?media_id=${mediaId}`,
+    requestOptions
+  );
+
+  if (response.status === 200) {
+    return response;
+  } else {
+    throw new Error(await response.text);
   }
 }

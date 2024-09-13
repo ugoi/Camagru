@@ -110,6 +110,7 @@ public class MediaRequestHandler implements HttpHandler {
             }
 
             List<String> ids = new ArrayList<>();
+            List<String> mimeTypes = new ArrayList<>();
             // Add media to database
             try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                     propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
@@ -140,7 +141,9 @@ public class MediaRequestHandler implements HttpHandler {
 
                 while (rs.next()) {
                     String id = rs.getString("media_uri");
+                    String mimeType = rs.getString("mime_type");
                     ids.add(id);
+                    mimeTypes.add(mimeType);
                     System.out.println(id);
 
                 }
@@ -174,6 +177,7 @@ public class MediaRequestHandler implements HttpHandler {
                 JSONObject contnet = new JSONObject();
                 contnet.put("id", id);
                 contnet.put("downloadUrl", "http://127.0.0.1:8000/api/serve/media?id=" + id);
+                contnet.put("mime_type", mimeTypes.get(ids.indexOf(id)));
                 responseBodyData.put(contnet);
             }
 
