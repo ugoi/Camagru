@@ -1,6 +1,7 @@
 package com.camagru.request_handlers;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -28,7 +29,6 @@ public class Response {
 
     public void sendJsonResponse(int statusCode, String responseBody) {
         try {
-
             // Set Default Headers
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
@@ -36,10 +36,16 @@ public class Response {
 
             byte[] responseBytes = responseBody.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(statusCode, responseBytes.length);
+
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(responseBytes);
             }
+        } catch (IOException e) {
+            // Handle case where client disconnects
+            System.err.println("Client disconnected while sending JSON response: " + e.getMessage());
         } catch (Exception e) {
+            // Log unexpected errors
+            System.err.println("Error while sending JSON response: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -54,26 +60,22 @@ public class Response {
                 contentType = "text/plain";
                 responseBytes = ((String) responseBody).getBytes(StandardCharsets.UTF_8);
             } else if (responseBody instanceof byte[]) {
-                String mimeType;
+                // Handle binary data (e.g., images, files)
                 Tika tika = new Tika();
                 try (ByteArrayInputStream input = new ByteArrayInputStream((byte[]) responseBody)) {
-                    mimeType = tika.detect(input);
+                    contentType = tika.detect(input);
                 }
-                // Handle binary data (e.g., images, files)
-                contentType = mimeType;
                 responseBytes = (byte[]) responseBody;
             } else if (responseBody instanceof JSONObject) {
                 // Handle JSONObject response
                 contentType = "application/json";
                 responseBytes = ((JSONObject) responseBody).toString().getBytes(StandardCharsets.UTF_8);
-            } else if (responseBody instanceof String) {
-                contentType = "text/plain";
-                responseBytes = responseBody.toString().getBytes(StandardCharsets.UTF_8);
             } else if (responseBody == null) {
-                // Handle null response, Dont send any body. Content type should be none
+                // Handle null response, don't send any body, Content type should be none
                 contentType = null;
                 responseBytes = null;
             } else {
+                // Fallback for other types
                 contentType = "text/plain";
                 responseBytes = responseBody.toString().getBytes(StandardCharsets.UTF_8);
             }
@@ -86,15 +88,20 @@ public class Response {
             exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
 
             if (responseBytes == null) {
+                // No content to send
                 exchange.sendResponseHeaders(statusCode, -1);
             } else {
-
                 exchange.sendResponseHeaders(statusCode, responseBytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(responseBytes);
                 }
             }
+        } catch (IOException e) {
+            // Handle specific IOException (client disconnection or I/O issues)
+            System.err.println("Client disconnected or I/O error: " + e.getMessage());
         } catch (Exception e) {
+            // Log other exceptions
+            System.err.println("Error while sending response: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -103,7 +103,7 @@ public class CamguruHttpServer {
                 server.createContext("/api/comments", new CommentRequestHandler());
                 server.createContext("/api/likes", new LikesRequestHandler());
 
-                server.setExecutor(null); // creates a default executor
+                // server.setExecutor(null); // creates a default executor
                 server.start();
                 System.out.println("Server started on port 8000");
         }
