@@ -142,8 +142,6 @@ public class MediaRequestHandler implements HttpHandler {
                     String mimeType = rs.getString("mime_type");
                     ids.add(id);
                     mimeTypes.add(mimeType);
-                    System.out.println(id);
-
                 }
             }
 

@@ -179,7 +179,7 @@ if (navigator.mediaDevices.getUserMedia) {
       videoPreview.play();
     })
     .catch(function (error) {
-      console.log("Something went wrong!");
+      console.log("Something went wrong with the camera... Try restarting the fronternd server" + error);
       console.log(error);
     });
 }

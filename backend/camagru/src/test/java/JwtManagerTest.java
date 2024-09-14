@@ -1,5 +1,6 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,6 @@ public class JwtManagerTest {
             JwtManager jwtManager = new JwtManager("secret");
             String token = jwtManager.createToken("user007");
             JSONObject decoded = jwtManager.decodeToken(token);
-            System.out.println(token);
             assertEquals("user007", decoded.getJSONObject("payload").getString("sub"));
         } catch (Exception e) {
             fail("Should not have thrown any exception");
