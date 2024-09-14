@@ -77,7 +77,7 @@ async function sendLoginRequest(username, password) {
   };
 
   const response = await fetch(
-    "http://127.0.0.1:8000/api/login/",
+    "http://camagru.com:8000/api/login/",
     requestOptions
   );
 

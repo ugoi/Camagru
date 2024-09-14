@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,6 +45,7 @@ public class FeedRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
+        System.out.println("Getting options response");
         res.sendOptionsResponse(res);
 
     }
@@ -54,112 +56,115 @@ public class FeedRequestHandler implements HttpHandler {
 
     // Main methods
     private void handleGetRequest(Request req, Response res) {
-        try {
-            // Validate input
-            List<PropertyField> propertyFields = Arrays.asList(
-                    new PropertyField("after", false),
-                    new PropertyField("limit", false, RegexUtil.NUMBER_REGEX))
+        CompletableFuture.runAsync(() -> {
+            try {
+                System.out.println("Getting feed");
+                // Validate input
+                List<PropertyField> propertyFields = Arrays.asList(
+                        new PropertyField("after", false),
+                        new PropertyField("limit", false, RegexUtil.NUMBER_REGEX))
 
-            ;
-            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
-            List<String> wrongFields = propertyFieldsManager.validationResult(req);
+                ;
+                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
+                List<String> wrongFields = propertyFieldsManager.validationResult(req);
 
-            if (!wrongFields.isEmpty()) {
-                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                System.err.println(errorMessage);
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
-                return;
-            }
-
-            // Extract input
-            String lastPictureId = req.getQueryParameter("after", null);
-            String limit = req.getQueryParameter("limit", "30");
-
-            // Properties
-            PropertiesManager propertiesManager = new PropertiesManager();
-
-            List<String> ids = new ArrayList<>();
-            List<String> mimeTypes = new ArrayList<>();
-
-            // Add media to database
-            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement()) {
-
-                String query;
-                if (lastPictureId != null && !lastPictureId.isEmpty() && !lastPictureId.equals("null")
-                        && !lastPictureId.equals("undefined")) {
-                    query = String.format(
-                            "SELECT * FROM media " +
-                                    "WHERE media_date < (SELECT media_date FROM media WHERE media_uri='%s') " +
-                                    "AND media_type='media' " +
-                                    "ORDER BY media_date DESC " +
-                                    "LIMIT %s",
-                            lastPictureId, limit);
-                } else {
-                    query = String.format(
-                            "SELECT * FROM media " +
-                                    "WHERE media_type='media' " +
-                                    "ORDER BY media_date DESC " +
-                                    "LIMIT %s",
-                            limit);
+                if (!wrongFields.isEmpty()) {
+                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                    System.err.println(errorMessage);
+                    res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                    return;
                 }
 
-                ResultSet rs = stmt.executeQuery(query);
+                // Extract input
+                String lastPictureId = req.getQueryParameter("after", null);
+                String limit = req.getQueryParameter("limit", "30");
 
-                while (rs.next()) {
-                    String id = rs.getString("media_uri");
-                    String mimeType = rs.getString("mime_type");
-                    ids.add(id);
-                    mimeTypes.add(mimeType);
+                // Properties
+                PropertiesManager propertiesManager = new PropertiesManager();
 
+                List<String> ids = new ArrayList<>();
+                List<String> mimeTypes = new ArrayList<>();
+
+                // Add media to database
+                try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                        Statement stmt = con.createStatement()) {
+
+                    String query;
+                    if (lastPictureId != null && !lastPictureId.isEmpty() && !lastPictureId.equals("null")
+                            && !lastPictureId.equals("undefined")) {
+                        query = String.format(
+                                "SELECT * FROM media " +
+                                        "WHERE media_date < (SELECT media_date FROM media WHERE media_uri='%s') " +
+                                        "AND media_type='media' " +
+                                        "ORDER BY media_date DESC " +
+                                        "LIMIT %s",
+                                lastPictureId, limit);
+                    } else {
+                        query = String.format(
+                                "SELECT * FROM media " +
+                                        "WHERE media_type='media' " +
+                                        "ORDER BY media_date DESC " +
+                                        "LIMIT %s",
+                                limit);
+                    }
+
+                    ResultSet rs = stmt.executeQuery(query);
+
+                    while (rs.next()) {
+                        String id = rs.getString("media_uri");
+                        String mimeType = rs.getString("mime_type");
+                        ids.add(id);
+                        mimeTypes.add(mimeType);
+
+                    }
                 }
-            }
 
-            // find first element
-            String first;
-            String last;
-            String next;
-            String previous;
-            try {
-                first = ids.get(0);
-                previous = "http://127.0.0.1:8000/api/feed?after=" + first;
+                // find first element
+                String first;
+                String last;
+                String next;
+                String previous;
+                try {
+                    first = ids.get(0);
+                    previous = "http://camagru.com:8000/api/feed?after=" + first;
+                } catch (Exception e) {
+                    first = null;
+                    previous = null;
+                }
+                try {
+                    last = ids.get(ids.size() - 1);
+                    next = "http://camagru.com:8000/api/feed?after=" + last;
+
+                } catch (Exception e) {
+                    last = null;
+                    next = null;
+                }
+
+                JSONObject responseBody = new JSONObject();
+                JSONArray responseBodyData = new JSONArray();
+                for (String id : ids) {
+                    JSONObject contnet = new JSONObject();
+                    contnet.put("id", id);
+                    contnet.put("downloadUrl", "http://camagru.com:8000/api/serve/media?id=" + id);
+                    contnet.put("mime_type", mimeTypes.get(ids.indexOf(id)));
+                    responseBodyData.put(contnet);
+                }
+
+                responseBody.put("paging", new JSONObject()
+                        .put("after", last != null ? last : JSONObject.NULL)
+                        .put("before", first != null ? first : JSONObject.NULL)
+                        .put("next", next != null ? next : JSONObject.NULL)
+                        .put("previous", previous != null ? previous : JSONObject.NULL))
+                        .put("data", responseBodyData);
+
+                res.sendJsonResponse(200, responseBody.toString());
+
             } catch (Exception e) {
-                first = null;
-                previous = null;
+                String errorMessage = "Internal server error: " + e.getMessage();
+                res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }
-            try {
-                last = ids.get(ids.size() - 1);
-                next = "http://127.0.0.1:8000/api/feed?after=" + last;
-
-            } catch (Exception e) {
-                last = null;
-                next = null;
-            }
-
-            JSONObject responseBody = new JSONObject();
-            JSONArray responseBodyData = new JSONArray();
-            for (String id : ids) {
-                JSONObject contnet = new JSONObject();
-                contnet.put("id", id);
-                contnet.put("downloadUrl", "http://127.0.0.1:8000/api/serve/media?id=" + id);
-                contnet.put("mime_type", mimeTypes.get(ids.indexOf(id)));
-                responseBodyData.put(contnet);
-            }
-
-            responseBody.put("paging", new JSONObject()
-                    .put("after", last != null ? last : JSONObject.NULL)
-                    .put("before", first != null ? first : JSONObject.NULL)
-                    .put("next", next != null ? next : JSONObject.NULL)
-                    .put("previous", previous != null ? previous : JSONObject.NULL))
-                    .put("data", responseBodyData);
-
-            res.sendJsonResponse(200, responseBody.toString());
-
-        } catch (Exception e) {
-            String errorMessage = "Internal server error: " + e.getMessage();
-            res.sendJsonResponse(500, createErrorResponse(errorMessage));
-        }
+        });
 
     }
 

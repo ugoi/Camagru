@@ -53,7 +53,7 @@ async function register(username, email, password) {
   };
 
   const response = await fetch(
-    "http://127.0.0.1:8000/api/register/",
+    "http://camagru.com:8000/api/register/",
     requestOptions
   );
 

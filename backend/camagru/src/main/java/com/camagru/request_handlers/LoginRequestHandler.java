@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.json.JSONObject;
 
@@ -48,75 +49,78 @@ public class LoginRequestHandler implements HttpHandler {
     }
 
     private void handlePostRequest(Request req, Response res) {
-        try {
-            // Properties
-            PropertiesManager propertiesManager = new PropertiesManager();
+        CompletableFuture.runAsync(() -> {
 
-            // Get JSON body
-            JSONObject jsonBody = req.getBodyAsJson();
+            try {
+                // Properties
+                PropertiesManager propertiesManager = new PropertiesManager();
 
-            // Validate fields
+                // Get JSON body
+                JSONObject jsonBody = req.getBodyAsJson();
 
-            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(Arrays.asList(
-                    new PropertyField("username", true),
-                    new PropertyField("password", true, RegexUtil.PASSWORD_REGEX)));
-            List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
+                // Validate fields
 
-            if (!wrongFields.isEmpty()) {
-                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(Arrays.asList(
+                        new PropertyField("username", true),
+                        new PropertyField("password", true, RegexUtil.PASSWORD_REGEX)));
+                List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
+
+                if (!wrongFields.isEmpty()) {
+                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                    System.err.println(errorMessage);
+
+                    res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                }
+
+                // Extract fields
+                String username = jsonBody.getString("username");
+
+                // Get user password from database
+                String query = "select * from users where username='" + username + "'" + " OR email='" + username + "'";
+
+                String userId = null;
+                try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                        Statement stmt = con.createStatement();) {
+                    ;
+
+                    // Get user from database
+                    String userPassword = null;
+                    ResultSet rs = stmt
+                            .executeQuery(query);
+                    if (rs.next()) {
+                        userId = rs.getString("user_id");
+                        userPassword = rs.getString("password");
+                    } else {
+                        String errorMessage = "User not found";
+                        System.err.println(errorMessage);
+                        res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                    }
+                    try {
+                        PasswordUtil.verifyPassword(jsonBody.getString("password"), userPassword);
+                    } catch (Exception e) {
+                        String errorMessage = "Invalid password";
+                        System.err.println(errorMessage);
+
+                        res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                    }
+                }
+
+                JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+                String token = jwtManager.createToken(userId);
+
+                res.setHeader("Set-Cookie", "token=" + token
+                        + "; Max-Age=3600000; Path=/; Expires=Wed, 09 Jun 2025 10:18:14 GMT; SameSite=Lax");
+                res.sendJsonResponse(201, new JSONObject()
+                        .put("message", "User successfully logged in").toString());
+
+            } catch (Exception e) {
+                String errorMessage = "Internal server error: " + e.getMessage();
                 System.err.println(errorMessage);
-
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                e.printStackTrace();
+                res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }
-
-            // Extract fields
-            String username = jsonBody.getString("username");
-
-            // Get user password from database
-            String query = "select * from users where username='" + username + "'" + " OR email='" + username + "'";
-
-            String userId = null;
-            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement();) {
-                ;
-
-                // Get user from database
-                String userPassword = null;
-                ResultSet rs = stmt
-                        .executeQuery(query);
-                if (rs.next()) {
-                    userId = rs.getString("user_id");
-                    userPassword = rs.getString("password");
-                } else {
-                    String errorMessage = "User not found";
-                    System.err.println(errorMessage);
-                    res.sendJsonResponse(404, createErrorResponse(errorMessage));
-                }
-                try {
-                    PasswordUtil.verifyPassword(jsonBody.getString("password"), userPassword);
-                } catch (Exception e) {
-                    String errorMessage = "Invalid password";
-                    System.err.println(errorMessage);
-
-                    res.sendJsonResponse(401, createErrorResponse(errorMessage));
-                }
-            }
-
-            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            String token = jwtManager.createToken(userId);
-
-            res.setHeader("Set-Cookie", "token=" + token
-                    + "; Max-Age=3600000; Path=/; Expires=Wed, 09 Jun 2025 10:18:14 GMT; SameSite=Lax");
-            res.sendJsonResponse(201, new JSONObject()
-                    .put("message", "User successfully logged in").toString());
-
-        } catch (Exception e) {
-            String errorMessage = "Internal server error: " + e.getMessage();
-            System.err.println(errorMessage);
-            e.printStackTrace();
-            res.sendJsonResponse(500, createErrorResponse(errorMessage));
-        }
+        });
     }
 
     private String createErrorResponse(String errorMessage) {

@@ -6,9 +6,6 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-import com.camagru.CookieUtil;
-import com.camagru.JwtManager;
-import com.camagru.PropertiesManager;
 import com.camagru.PropertyField;
 import com.camagru.PropertyFieldsManager;
 import com.camagru.services.MediaService;
@@ -40,25 +37,15 @@ public class ServeMediaRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
+        System.out.println("Getting options response");
         res.sendOptionsResponse(res);
 
     }
 
     private void handleGetRequest(Request req, Response res) {
         try {
-            // Extract jwt from cookie
-            PropertiesManager propertiesManager = new PropertiesManager();
-            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-
-            String jwt = "";
-            try {
-                jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
-                jwtManager.verifySignature(jwt);
-            } catch (Exception e) {
-                res.sendJsonResponse(401, createErrorResponse("Unauthorized"));
-                return;
-            }
-            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+            System.out.println("Serving media");
+            // No authorization needed
 
             // Validate input
             List<String> wrongFields = new PropertyFieldsManager(
@@ -71,7 +58,6 @@ public class ServeMediaRequestHandler implements HttpHandler {
                 return;
             }
             String contentId = req.getQueryParameter("id");
-            MediaService.hasPermission(sub, contentId);
             byte[] videoFile = MediaService.getMedia(contentId);
             res.sendResponse(200, videoFile);
         } catch (Exception e) {

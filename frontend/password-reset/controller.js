@@ -58,7 +58,7 @@ export async function resetPassword(newPassword) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/user/profile/password?token=${token}`,
+    `http://camagru.com:8000/api/user/profile/password?token=${token}`,
     requestOptions
   );
 

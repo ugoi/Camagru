@@ -106,7 +106,7 @@ export async function deleteMedia(id) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/media?id=${id}`,
+    `http://camagru.com:8000/api/media?id=${id}`,
     requestOptions
   );
 
@@ -135,7 +135,7 @@ export async function postMedia(formData) {
   };
 
   const response = await fetch(
-    "http://127.0.0.1:8000/api/media?scale_factor=0.1&x_position_factor=0&y_position_factor=0",
+    "http://camagru.com:8000/api/media?scale_factor=0.1&x_position_factor=0&y_position_factor=0",
     requestOptions
   );
 
@@ -158,7 +158,7 @@ export async function publishMedia(id) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/media_publish?creation_id=${id}`,
+    `http://camagru.com:8000/api/media_publish?creation_id=${id}`,
     requestOptions
   );
   if (response.status === 200) {
@@ -186,7 +186,7 @@ export async function getServeMedia(id) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/serve/media?id=${id}`,
+    `http://camagru.com:8000/api/serve/media?id=${id}`,
     requestOptions
   );
 
@@ -215,7 +215,7 @@ export async function getUserMedia(after, limit) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/media?after=${after}&limit=${limit}`,
+    `http://camagru.com:8000/api/media?after=${after}&limit=${limit}`,
     requestOptions
   );
 

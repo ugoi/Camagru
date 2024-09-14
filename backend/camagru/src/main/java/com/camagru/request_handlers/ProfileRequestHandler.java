@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.concurrent.CompletableFuture;
 
 import org.json.JSONObject;
 
@@ -43,53 +44,59 @@ public class ProfileRequestHandler implements HttpHandler {
     }
 
     private void handleGetRequest(Request req, Response res) {
-        try {
-            // Properties
-            PropertiesManager propertiesManager = new PropertiesManager();
-            String cookieHeader = req.getHeader("Cookie");
+        CompletableFuture.runAsync(() -> {
 
-            if (cookieHeader == null || cookieHeader.isEmpty()) {
-                res.sendJsonResponse(400, createErrorResponse("Request headers not supported"));
-                return;
-            }
+            try {
+                System.out.println("Getting profile");
+                // Properties
+                PropertiesManager propertiesManager = new PropertiesManager();
+                String cookieHeader = req.getHeader("Cookie");
 
-            // GET COOKIE BY NAME
-            String jwt = CookieUtil.getCookie(cookieHeader, "token");
-            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            jwtManager.verifySignature(jwt);
-            JSONObject decoded = jwtManager.decodeToken(jwt);
-
-            String userId = decoded.getJSONObject("payload").getString("sub");
-
-            // Get user details from database
-            String query = "select * from users where user_id='" + userId + "'";
-
-            String userName = null;
-            String userEmail = null;
-            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement()) {
-
-                ResultSet rs = stmt.executeQuery(query);
-                if (rs.next()) {
-                    userName = rs.getString("username");
-                    userEmail = rs.getString("email");
-                } else {
-                    String errorMessage = "User not found";
-                    res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                if (cookieHeader == null || cookieHeader.isEmpty()) {
+                    res.sendJsonResponse(400, createErrorResponse("Request headers not supported"));
                     return;
                 }
-            }
 
-            JSONObject jsonResponse = new JSONObject()
-                    .put("username", userName)
-                    .put("email", userEmail);
-            res.sendJsonResponse(200, jsonResponse.toString());
-        } catch (Exception e) {
-            String errorMessage = "Internal server error: " + e.getMessage();
-            e.printStackTrace();
-            res.sendJsonResponse(500, createErrorResponse(errorMessage));
-        }
+                // GET COOKIE BY NAME
+                String jwt = CookieUtil.getCookie(cookieHeader, "token");
+                JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+                jwtManager.verifySignature(jwt);
+                JSONObject decoded = jwtManager.decodeToken(jwt);
+
+                String userId = decoded.getJSONObject("payload").getString("sub");
+
+                // Get user details from database
+                String query = "select * from users where user_id='" + userId + "'";
+
+                String userName = null;
+                String userEmail = null;
+                System.out.println("Before database connection");
+                try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                        Statement stmt = con.createStatement()) {
+
+                    ResultSet rs = stmt.executeQuery(query);
+                    if (rs.next()) {
+                        userName = rs.getString("username");
+                        userEmail = rs.getString("email");
+                    } else {
+                        String errorMessage = "User not found";
+                        res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                        return;
+                    }
+                }
+                System.out.println("After database connection");
+
+                JSONObject jsonResponse = new JSONObject()
+                        .put("username", userName)
+                        .put("email", userEmail);
+                res.sendJsonResponse(200, jsonResponse.toString());
+            } catch (Exception e) {
+                String errorMessage = "Internal server error: " + e.getMessage();
+                e.printStackTrace();
+                res.sendJsonResponse(500, createErrorResponse(errorMessage));
+            }
+        });
     }
 
     private String createErrorResponse(String errorMessage) {

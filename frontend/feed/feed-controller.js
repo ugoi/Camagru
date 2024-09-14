@@ -6,7 +6,7 @@ import {
   postComment,
   postLike,
 } from "./feed-model.js";
-import { checkFileType } from "../upload/upload-model.js";
+import { checkUserAuthentication } from "../services/auth-service.js";
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
@@ -47,51 +47,40 @@ async function loadNextFeed() {
   }
 
   if (data && data.length > 0) {
-    // Remove the previous images
+    // Get media details concurretnly
+    let commentsResJsonArray = [];
+    let totalLikesArray = [];
 
-    data.forEach(async (mediaElement) => {
-      const downloadUrl = mediaElement.downloadUrl;
+    await Promise.all(
+      data.map(async (mediaElement) => {
+        // State variables
+        const isAuth = checkUserAuthentication();
+        const mediaId = mediaElement.id;
+        if (isAuth) {
+          const [likesResult, commentRes] = await Promise.all([
+            getLikesCount(mediaId),
+            getComments(mediaId),
+          ]);
+          var commentsResJson = await commentRes.json();
+          var totalLikes = Number((await likesResult.json()).total_count);
+          commentsResJsonArray.push(commentsResJson);
+          totalLikesArray.push(totalLikes);
+        }
+      })
+    );
+
+    data.forEach((mediaElement) => {
+      // State variables
+      const isAuth = checkUserAuthentication();
       const mediaId = mediaElement.id;
+      const commentsResJson = commentsResJsonArray.shift();
+      const totalLikes = totalLikesArray.shift();
+      const isVideo = mediaElement.mime_type.includes("video") ? true : false;
+      const objectURL = mediaElement.downloadUrl;
 
-      const likesCountPromise = getLikesCount(mediaId);
-      const commentsPromise = getComments(mediaId);
-
-      const [likesResult, commentRes] = await Promise.all([
-        likesCountPromise,
-        commentsPromise,
-      ]);
-
-      let commentsResJson = await commentRes.json();
-
-      const mimeType = mediaElement.mime_type;
-
-      let fileType = "image";
-
-      if (mimeType.includes("video")) {
-        fileType = "video";
-      }
-
-      const isVideo = fileType === "video";
-      const objectURL = downloadUrl;
-
+      // Create the media element
       const mediaWrapper = document.createElement("div");
       mediaWrapper.className = "div-wrapper";
-
-      // Assign unique id based on the index
-      const uniqueId = `collapsible-${mediaId}`;
-
-      // Get likes and comments
-      /**
-       * @type {number}
-       */
-      let totalLikes = 0;
-
-      {
-        const json = await likesResult.json();
-
-        totalLikes = Number(json.total_count);
-      }
-
       mediaWrapper.innerHTML = `
         <div class="div-wrapper">
         ${
@@ -103,7 +92,11 @@ async function loadNextFeed() {
           <img src="${objectURL}" class="captured-media" />
         `
         }
-          <div class="media-actions">
+
+        ${
+          isAuth
+            ? `
+            <div class="media-actions">
             <div class="like-section">
               <button class="like-btn" id=like-btn-${mediaId}>❤️</button>
               <span class="like-count" id=like-count-${mediaId}>${totalLikes}</span>
@@ -122,48 +115,56 @@ async function loadNextFeed() {
           </div>
 
           <div class="wrap-collabsible">
-            <input id="${uniqueId}" class="toggle" type="checkbox" />
-            <label for="${uniqueId}" class="lbl-toggle">Show comments</label>
+            <input id="${`collapsible-${mediaId}`}" class="toggle" type="checkbox" />
+            <label for="${`collapsible-${mediaId}`}" class="lbl-toggle">Show comments</label>
             <div class="collapsible-content">
               <div class="content-inner">
                 ${commentsResJson.data
                   .map((comment) => {
-                    return `<div class="comment"> <p><strong>${comment.user_id}:</strong> ${comment.comment_body}</p> </div>`;
+                    return `<div class="comment"> <p><strong>${comment.username}:</strong> ${comment.comment_body}</p> </div>`;
                   })
                   .join("")}
               </div>
             </div>
           </div>
+          `
+            : ``
+        }
         </div>
       `;
 
       mediaCollection.appendChild(mediaWrapper);
 
-      const likeButton = document.getElementById(`like-btn-${mediaId}`);
-      const likeCount = document.getElementById(`like-count-${mediaId}`);
-      likeButton.addEventListener("click", async (event) => {
-        try {
-          await postLike(mediaId);
-          const newCount = Number(likeCount.innerHTML) + 1;
-          likeCount.innerHTML = `${newCount}`;
-        } catch (error) {
+      // Add event listeners
+
+      if (isAuth) {
+        const likeButton = document.getElementById(`like-btn-${mediaId}`);
+        const likeCount = document.getElementById(`like-count-${mediaId}`);
+        likeButton.addEventListener("click", async (event) => {
           try {
-            await deleteLike(mediaId);
-            const newCount = Number(likeCount.innerHTML) - 1;
+            await postLike(mediaId);
+            const newCount = Number(likeCount.innerHTML) + 1;
             likeCount.innerHTML = `${newCount}`;
           } catch (error) {
-            console.log("Error while deleting like");
+            try {
+              console.clear();
+              await deleteLike(mediaId);
+              const newCount = Number(likeCount.innerHTML) - 1;
+              likeCount.innerHTML = `${newCount}`;
+            } catch (error) {
+              console.log("Error while deleting like");
+            }
           }
-        }
-      });
+        });
 
-      const commentForm = document.getElementById(`comment-form-${mediaId}`);
-      commentForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const formData = new FormData(commentForm);
-        const comment = formData.get("comment");
-        await postComment(mediaId, "Default Title", comment);
-      });
+        const commentForm = document.getElementById(`comment-form-${mediaId}`);
+        commentForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const formData = new FormData(commentForm);
+          const comment = formData.get("comment");
+          await postComment(mediaId, "Default Title", comment);
+        });
+      }
     });
   }
 }

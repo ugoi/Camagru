@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.json.JSONObject;
 
@@ -50,71 +51,76 @@ public class SendVerificationEmailRequestHandler implements HttpHandler {
   }
 
   private void handlePostRequest(Request req, Response res) {
-    String email;
-    try {
-      email = req.getQueryParameter("email");
-    } catch (Exception e) {
-      res.sendJsonResponse(400, createErrorResponse("Invalid request: email is required"));
-      return;
-    }
+    CompletableFuture.runAsync(() -> {
 
-    PropertiesManager propertiesManager;
-    try {
-      propertiesManager = new PropertiesManager();
-    } catch (Exception e) {
-      String errorMessage = "Failed to load properties file";
-      res.sendJsonResponse(500, createErrorResponse(errorMessage));
-      e.printStackTrace();
-      return;
-    }
-
-    String token = UUID.randomUUID().toString();
-    Timestamp expiryDate = new Timestamp(System.currentTimeMillis() + 36000000);
-    try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-        Statement stmt = con.createStatement()) {
-
-      // Check if email exists in the database
-      String preparedStmt = "SELECT * FROM users WHERE email = ?";
-      PreparedStatement myStmt;
-      myStmt = con.prepareStatement(preparedStmt);
-      myStmt.setString(1, email);
-      ResultSet rs = myStmt.executeQuery();
-
-      String userId = null;
-      while (rs.next()) {
-        userId = rs.getString("user_id");
-      }
-      if (userId == null) {
-        String errorMessage = "User not found";
-        res.sendJsonResponse(404, createErrorResponse(errorMessage));
+      String email;
+      try {
+        email = req.getQueryParameter("email");
+      } catch (Exception e) {
+        res.sendJsonResponse(400, createErrorResponse("Invalid request: email is required"));
         return;
       }
-      // If email exists, generate a reset password token and store it in the database
-      preparedStmt = "INSERT INTO tokens (user_id, token, type, expiry_date, used) VALUES (?, ?, ?, ?, ?)";
-      myStmt = con.prepareStatement(preparedStmt);
-      myStmt.setString(1, userId);
-      myStmt.setString(2, token);
-      myStmt.setString(3, "email_validation");
-      myStmt.setTimestamp(4, expiryDate);
-      myStmt.setBoolean(5, false);
-      myStmt.executeUpdate();
-    } catch (SQLException e) {
-      String errorMessage = "Database error: " + e.getMessage();
-      res.sendJsonResponse(500, createErrorResponse(errorMessage));
-      e.printStackTrace();
-      return;
+
+      PropertiesManager propertiesManager;
+      try {
+        propertiesManager = new PropertiesManager();
+      } catch (Exception e) {
+        String errorMessage = "Failed to load properties file";
+        res.sendJsonResponse(500, createErrorResponse(errorMessage));
+        e.printStackTrace();
+        return;
+      }
+
+      String token = UUID.randomUUID().toString();
+      Timestamp expiryDate = new Timestamp(System.currentTimeMillis() + 36000000);
+      try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+          propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+          Statement stmt = con.createStatement()) {
+
+        // Check if email exists in the database
+        String preparedStmt = "SELECT * FROM users WHERE email = ?";
+        PreparedStatement myStmt;
+        myStmt = con.prepareStatement(preparedStmt);
+        myStmt.setString(1, email);
+        ResultSet rs = myStmt.executeQuery();
+
+        String userId = null;
+        while (rs.next()) {
+          userId = rs.getString("user_id");
+        }
+        if (userId == null) {
+          String errorMessage = "User not found";
+          res.sendJsonResponse(404, createErrorResponse(errorMessage));
+          return;
+        }
+        // If email exists, generate a reset password token and store it in the database
+        preparedStmt = "INSERT INTO tokens (user_id, token, type, expiry_date, used) VALUES (?, ?, ?, ?, ?)";
+        myStmt = con.prepareStatement(preparedStmt);
+        myStmt.setString(1, userId);
+        myStmt.setString(2, token);
+        myStmt.setString(3, "email_validation");
+        myStmt.setTimestamp(4, expiryDate);
+        myStmt.setBoolean(5, false);
+        myStmt.executeUpdate();
+      } catch (SQLException e) {
+        String errorMessage = "Database error: " + e.getMessage();
+        res.sendJsonResponse(500, createErrorResponse(errorMessage));
+        e.printStackTrace();
+        return;
+      }
+
+      try {
+        SendVerificationEmailService.sendForVerifyingEmail(email);
+      } catch (Exception e) {
+        String errorMessage = "Failed to send email: " + e.getMessage();
+        res.sendJsonResponse(500, createErrorResponse(errorMessage));
+        e.printStackTrace();
+        return;
+      }
+
+      res.sendResponse(200, "Successfully sent email with password reset link");
     }
 
-    try {
-      SendVerificationEmailService.sendForVerifyingEmail(email);
-    } catch (Exception e) {
-      String errorMessage = "Failed to send email: " + e.getMessage();
-      res.sendJsonResponse(500, createErrorResponse(errorMessage));
-      e.printStackTrace();
-      return;
-    }
-
-    res.sendResponse(200, "Successfully sent email with password reset link");
+    );
   }
 }

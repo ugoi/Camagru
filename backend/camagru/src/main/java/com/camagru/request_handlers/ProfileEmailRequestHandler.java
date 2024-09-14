@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.json.JSONObject;
 
@@ -48,70 +49,74 @@ public class ProfileEmailRequestHandler implements HttpHandler {
     }
 
     private void handlePutRequest(Request req, Response res) {
-        try {
-            // Properties
-            PropertiesManager propertiesManager = new PropertiesManager();
-            JSONObject jsonBody = req.getBodyAsJson();
-            List<PropertyField> propertyFields = Arrays.asList(
-                    new PropertyField("email", true, RegexUtil.EMAIL_REGEX));
-            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields);
-            List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
+        CompletableFuture.runAsync(() -> {
 
-            if (!wrongFields.isEmpty()) {
-                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                System.err.println(errorMessage);
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
-                return;
-            }
+            try {
+                // Properties
+                PropertiesManager propertiesManager = new PropertiesManager();
+                JSONObject jsonBody = req.getBodyAsJson();
+                List<PropertyField> propertyFields = Arrays.asList(
+                        new PropertyField("email", true, RegexUtil.EMAIL_REGEX));
+                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields);
+                List<String> wrongFields = propertyFieldsManager.getWrongFields(jsonBody);
 
-            String cookieHeader = req.getHeader("Cookie");
-            String requestEmail = jsonBody.getString("email");
-            String jwt = CookieUtil.getCookie(cookieHeader, "token");
-            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            jwtManager.verifySignature(jwt);
-            String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
-            String query = "update users set email='" + requestEmail + "' where user_id='" + sub + "'";
+                if (!wrongFields.isEmpty()) {
+                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                    System.err.println(errorMessage);
+                    res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                    return;
+                }
 
-            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement()) {
+                String cookieHeader = req.getHeader("Cookie");
+                String requestEmail = jsonBody.getString("email");
+                String jwt = CookieUtil.getCookie(cookieHeader, "token");
+                JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+                jwtManager.verifySignature(jwt);
+                String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+                String query = "update users set email='" + requestEmail + "' where user_id='" + sub + "'";
 
-                // Check if username already exists
-                {
-                    String email = "";
-                    String userId = "";
-                    ResultSet rs = stmt
-                            .executeQuery("select * from users where email='" + requestEmail + "'");
-                    while (rs.next()) {
-                        if (rs.getString("email").equals(requestEmail)) {
-                            email = rs.getString("email");
-                            userId = rs.getString("user_id");
+                try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                        Statement stmt = con.createStatement()) {
+
+                    // Check if username already exists
+                    {
+                        String email = "";
+                        String userId = "";
+                        ResultSet rs = stmt
+                                .executeQuery("select * from users where email='" + requestEmail + "'");
+                        while (rs.next()) {
+                            if (rs.getString("email").equals(requestEmail)) {
+                                email = rs.getString("email");
+                                userId = rs.getString("user_id");
+                            }
+                        }
+                        if (!userId.equals(sub) && !email.isEmpty()) {
+                            String errorMessage = "Email already exists";
+                            System.err.println(errorMessage);
+                            res.sendJsonResponse(409, createErrorResponse(errorMessage));
+                            return;
                         }
                     }
-                    if (!userId.equals(sub) && !email.isEmpty()) {
-                        String errorMessage = "Email already exists";
+
+                    int rs = stmt.executeUpdate(query);
+                    if (rs != 0) {
+                        res.sendJsonResponse(200,
+                                new JSONObject().put("message", "Email updated successfully").toString());
+                    } else {
+                        String errorMessage = "User not found";
                         System.err.println(errorMessage);
-                        res.sendJsonResponse(409, createErrorResponse(errorMessage));
-                        return;
+                        res.sendJsonResponse(404, createErrorResponse(errorMessage));
                     }
-                }
 
-                int rs = stmt.executeUpdate(query);
-                if (rs != 0) {
-                    res.sendJsonResponse(200, new JSONObject().put("message", "Email updated successfully").toString());
-                } else {
-                    String errorMessage = "User not found";
-                    System.err.println(errorMessage);
-                    res.sendJsonResponse(404, createErrorResponse(errorMessage));
                 }
-
+            } catch (Exception e) {
+                String errorMessage = "Internal server error: " + e.getMessage();
+                System.err.println(errorMessage);
+                e.printStackTrace();
+                res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }
-        } catch (Exception e) {
-            String errorMessage = "Internal server error: " + e.getMessage();
-            System.err.println(errorMessage);
-            e.printStackTrace();
-            res.sendJsonResponse(500, createErrorResponse(errorMessage));
-        }
+        });
     }
 
     private String createErrorResponse(String errorMessage) {

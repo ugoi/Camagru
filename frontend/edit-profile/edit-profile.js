@@ -38,7 +38,6 @@ export async function handleLoadEditProfile() {
  * @returns {void}
  */
 async function updateUsername(username) {
-
   //Make request to server
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -57,7 +56,7 @@ async function updateUsername(username) {
   };
 
   const response = await fetch(
-    "http://127.0.0.1:8000/api/user/profile/username",
+    "http://camagru.com:8000/api/user/profile/username",
     requestOptions
   );
 
@@ -77,7 +76,6 @@ async function updateUsername(username) {
  * @returns {void}
  */
 async function updateEmail(email) {
-
   //Make request to server
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -96,7 +94,7 @@ async function updateEmail(email) {
   };
 
   const response = await fetch(
-    "http://127.0.0.1:8000/api/user/profile/email",
+    "http://camagru.com:8000/api/user/profile/email",
     requestOptions
   );
 
@@ -116,7 +114,6 @@ async function updateEmail(email) {
  * @returns {void}
  */
 async function updatePassword(password) {
-
   //Make request to server
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -135,7 +132,7 @@ async function updatePassword(password) {
   };
 
   const response = await fetch(
-    "http://127.0.0.1:8000/api/user/profile/password",
+    "http://camagru.com:8000/api/user/profile/password",
     requestOptions
   );
 

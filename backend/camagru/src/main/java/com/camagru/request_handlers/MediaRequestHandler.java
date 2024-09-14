@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.tika.Tika;
 import org.json.JSONArray;
@@ -71,301 +72,315 @@ public class MediaRequestHandler implements HttpHandler {
 
     // Main methods
     private void handleGetRequest(Request req, Response res) {
-        try {
-            // Validate input
-            List<PropertyField> propertyFields = Arrays.asList(
-                    new PropertyField("after", false),
-                    new PropertyField("limit", false, RegexUtil.NUMBER_REGEX))
+        CompletableFuture.runAsync(() -> {
 
-            ;
-            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
-            List<String> wrongFields = propertyFieldsManager.validationResult(req);
-
-            if (!wrongFields.isEmpty()) {
-                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                System.err.println(errorMessage);
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
-                return;
-            }
-
-            // Extract input
-            String lastPictureId = req.getQueryParameter("after", null);
-            String limit = req.getQueryParameter("limit", "30");
-
-            // Properties
-            PropertiesManager propertiesManager = new PropertiesManager();
-            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            String sub;
             try {
-                String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
-                jwtManager.verifySignature(jwt);
-                sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
-            } catch (Exception e) {
-                String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
-                        + e.getMessage();
-                res.sendJsonResponse(401, createErrorResponse(errorMessage));
-                return;
-            }
+                System.out.println("GET /api/media");
+                // Validate input
+                List<PropertyField> propertyFields = Arrays.asList(
+                        new PropertyField("after", false),
+                        new PropertyField("limit", false, RegexUtil.NUMBER_REGEX))
 
-            List<String> ids = new ArrayList<>();
-            List<String> mimeTypes = new ArrayList<>();
-            // Add media to database
-            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement()) {
+                ;
+                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
+                List<String> wrongFields = propertyFieldsManager.validationResult(req);
 
-                String query;
-                if (lastPictureId != null && !lastPictureId.isEmpty() && !lastPictureId.equals("null")
-                        && !lastPictureId.equals("undefined")) {
-                    query = String.format(
-                            "SELECT * FROM media " +
-                                    "WHERE user_id='%s' " +
-                                    "AND media_date < (SELECT media_date FROM media WHERE media_uri='%s') " +
-                                    "AND media_type='media' " +
-                                    "ORDER BY media_date DESC " +
-                                    "LIMIT %s",
-                            sub, lastPictureId, limit);
-                } else {
-                    query = String.format(
-                            "SELECT * FROM media " +
-                                    "WHERE user_id='%s' " +
-                                    "AND media_type='media' " +
-                                    "ORDER BY media_date DESC " +
-                                    "LIMIT %s",
-                            sub, limit);
+                if (!wrongFields.isEmpty()) {
+                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                    System.err.println(errorMessage);
+                    res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                    return;
                 }
 
-                ResultSet rs = stmt.executeQuery(query);
+                // Extract input
+                String lastPictureId = req.getQueryParameter("after", null);
+                String limit = req.getQueryParameter("limit", "30");
 
-                while (rs.next()) {
-                    String id = rs.getString("media_uri");
-                    String mimeType = rs.getString("mime_type");
-                    ids.add(id);
-                    mimeTypes.add(mimeType);
+                // Properties
+                PropertiesManager propertiesManager = new PropertiesManager();
+                JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+                String sub;
+                try {
+                    String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
+                    jwtManager.verifySignature(jwt);
+                    sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+                } catch (Exception e) {
+                    String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
+                            + e.getMessage();
+                    res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                    return;
                 }
-            }
 
-            // find first element
-            String first;
-            String last;
-            String next;
-            String previous;
-            try {
-                first = ids.get(0);
-                previous = "http://127.0.0.1:8000/api/media?after=" + first;
+                List<String> ids = new ArrayList<>();
+                List<String> mimeTypes = new ArrayList<>();
+                List<String> mediaDates = new ArrayList<>();
+                // Add media to database
+                try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                        Statement stmt = con.createStatement()) {
+
+                    String query;
+                    if (lastPictureId != null && !lastPictureId.isEmpty() && !lastPictureId.equals("null")
+                            && !lastPictureId.equals("undefined")) {
+                        query = String.format(
+                                "SELECT * FROM media " +
+                                        "WHERE user_id='%s' " +
+                                        "AND media_date < (SELECT media_date FROM media WHERE media_uri='%s') " +
+                                        "AND media_type='media' " +
+                                        "ORDER BY media_date DESC " +
+                                        "LIMIT %s",
+                                sub, lastPictureId, limit);
+                    } else {
+                        query = String.format(
+                                "SELECT * FROM media " +
+                                        "WHERE user_id='%s' " +
+                                        "AND media_type='media' " +
+                                        "ORDER BY media_date DESC " +
+                                        "LIMIT %s",
+                                sub, limit);
+                    }
+
+                    ResultSet rs = stmt.executeQuery(query);
+
+                    while (rs.next()) {
+                        String id = rs.getString("media_uri");
+                        String mimeType = rs.getString("mime_type");
+                        String mediaDate = rs.getString("media_date");
+                        ids.add(id);
+                        mimeTypes.add(mimeType);
+                        mediaDates.add(mediaDate);
+                    }
+                }
+
+                // find first element
+                String first;
+                String last;
+                String next;
+                String previous;
+                try {
+                    first = ids.get(0);
+                    previous = "http://camagru.com:8000/api/media?after=" + first;
+                } catch (Exception e) {
+                    first = null;
+                    previous = null;
+                }
+                try {
+                    last = ids.get(ids.size() - 1);
+                    next = "http://camagru.com:8000/api/media?after=" + last;
+
+                } catch (Exception e) {
+                    last = null;
+                    next = null;
+                }
+
+                JSONObject responseBody = new JSONObject();
+                JSONArray responseBodyData = new JSONArray();
+                for (String id : ids) {
+                    JSONObject contnet = new JSONObject();
+                    contnet.put("id", id);
+                    contnet.put("downloadUrl", "http://camagru.com:8000/api/serve/media?id=" + id);
+                    contnet.put("mime_type", mimeTypes.get(ids.indexOf(id)));
+                    contnet.put("media_date", mediaDates.get(ids.indexOf(id)));
+                    responseBodyData.put(contnet);
+                }
+
+                responseBody.put("paging", new JSONObject()
+                        .put("after", last != null ? last : JSONObject.NULL)
+                        .put("before", first != null ? first : JSONObject.NULL)
+                        .put("next", next != null ? next : JSONObject.NULL)
+                        .put("previous", previous != null ? previous : JSONObject.NULL))
+                        .put("data", responseBodyData);
+
+                res.sendJsonResponse(200, responseBody.toString());
+
             } catch (Exception e) {
-                first = null;
-                previous = null;
+                String errorMessage = "Internal server error: " + e.getMessage();
+                res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }
-            try {
-                last = ids.get(ids.size() - 1);
-                next = "http://127.0.0.1:8000/api/media?after=" + last;
-
-            } catch (Exception e) {
-                last = null;
-                next = null;
-            }
-
-            JSONObject responseBody = new JSONObject();
-            JSONArray responseBodyData = new JSONArray();
-            for (String id : ids) {
-                JSONObject contnet = new JSONObject();
-                contnet.put("id", id);
-                contnet.put("downloadUrl", "http://127.0.0.1:8000/api/serve/media?id=" + id);
-                contnet.put("mime_type", mimeTypes.get(ids.indexOf(id)));
-                responseBodyData.put(contnet);
-            }
-
-            responseBody.put("paging", new JSONObject()
-                    .put("after", last != null ? last : JSONObject.NULL)
-                    .put("before", first != null ? first : JSONObject.NULL)
-                    .put("next", next != null ? next : JSONObject.NULL)
-                    .put("previous", previous != null ? previous : JSONObject.NULL))
-                    .put("data", responseBodyData);
-
-            res.sendJsonResponse(200, responseBody.toString());
-
-        } catch (Exception e) {
-            String errorMessage = "Internal server error: " + e.getMessage();
-            res.sendJsonResponse(500, createErrorResponse(errorMessage));
-        }
+        });
 
     }
 
     private void handlePostRequest(Request req, Response res) {
-        try {
-            // Validate input
-            List<PropertyField> propertyFields = Arrays.asList(
-                    new PropertyField("scale_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX),
-                    new PropertyField("x_position_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX),
-                    new PropertyField("y_position_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX));
-            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
-            List<String> wrongFields = propertyFieldsManager.validationResult(req);
+        CompletableFuture.runAsync(() -> {
 
-            if (!wrongFields.isEmpty()) {
-                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                System.err.println(errorMessage);
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
-                return;
-            }
-
-            // Get query parameters
-            double scaleFactor = Double.parseDouble(req.getQueryParameter("scale_factor", "0.5"));
-            double xPositionFactor = Double.parseDouble(req.getQueryParameter("x_position_factor", "0.5"));
-            double yPositionFactor = Double.parseDouble(req.getQueryParameter("y_position_factor", "0.5"));
-
-            // Properties
-            PropertiesManager propertiesManager = new PropertiesManager();
-            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            String sub;
             try {
-                String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
-                jwtManager.verifySignature(jwt);
-                sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
-            } catch (Exception e) {
-                String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
-                        + e.getMessage();
-                res.sendJsonResponse(401, createErrorResponse(errorMessage));
-                return;
-            }
+                // Validate input
+                List<PropertyField> propertyFields = Arrays.asList(
+                        new PropertyField("scale_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX),
+                        new PropertyField("x_position_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX),
+                        new PropertyField("y_position_factor", false, RegexUtil.NUMBER_BETWEEN_0_AND_1_REGEX));
+                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
+                List<String> wrongFields = propertyFieldsManager.validationResult(req);
 
-            String containerDescription = "";
-            try {
-                containerDescription = req.getQueryParameter("containerDescription");
-            } catch (Exception e) {
-                containerDescription = "";
-            }
-
-            HashMap<String, byte[]> files = req.files();
-            byte[] media = files.get("media");
-            byte[] overlayMedia = files.get("overlayMedia");
-
-            if (media == null || overlayMedia == null) {
-                String errorMessage = "Media and overlayMedia must be provided";
-                System.err.println(errorMessage);
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
-                return;
-            }
-
-            String extension;
-            String mimeType;
-            Tika tika = new Tika();
-            try (ByteArrayInputStream input = new ByteArrayInputStream(media)) {
-                mimeType = tika.detect(input);
-                extension = HttpUtil.getMimeTypeExtension(mimeType);
-            }
-
-            String mediaFileName;
-            String mediaUri = UUID.randomUUID().toString();
-            String containerUri = UUID.randomUUID().toString();
-
-            // Add media to database
-            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement()) {
-
-                int affectedColumns = stmt.executeUpdate(
-                        "INSERT INTO media(user_id, mime_type, media_description, media_type, media_uri, container_uri, media_date)"
-                                + " VALUES('" + sub + "', '" + mimeType + "', '" + containerDescription + "', '"
-                                + "container" + "', '" + mediaUri + "', '" + containerUri + "', '"
-                                + java.time.LocalDateTime.now() + "')",
-                        Statement.RETURN_GENERATED_KEYS);
-                if (affectedColumns == 0) {
-                    String errorMessage = "Failed to add media to database";
-                    res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                if (!wrongFields.isEmpty()) {
+                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                    System.err.println(errorMessage);
+                    res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
 
-                mediaFileName = sub + "_" + containerUri + "_container" + extension;
+                // Get query parameters
+                double scaleFactor = Double.parseDouble(req.getQueryParameter("scale_factor", "0.5"));
+                double xPositionFactor = Double.parseDouble(req.getQueryParameter("x_position_factor", "0.5"));
+                double yPositionFactor = Double.parseDouble(req.getQueryParameter("y_position_factor", "0.5"));
 
+                // Properties
+                PropertiesManager propertiesManager = new PropertiesManager();
+                JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+                String sub;
+                try {
+                    String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
+                    jwtManager.verifySignature(jwt);
+                    sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+                } catch (Exception e) {
+                    String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
+                            + e.getMessage();
+                    res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                    return;
+                }
+
+                String containerDescription = "";
+                try {
+                    containerDescription = req.getQueryParameter("containerDescription");
+                } catch (Exception e) {
+                    containerDescription = "";
+                }
+
+                HashMap<String, byte[]> files = req.files();
+                byte[] media = files.get("media");
+                byte[] overlayMedia = files.get("overlayMedia");
+
+                if (media == null || overlayMedia == null) {
+                    String errorMessage = "Media and overlayMedia must be provided";
+                    System.err.println(errorMessage);
+                    res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                    return;
+                }
+
+                String extension;
+                String mimeType;
+                Tika tika = new Tika();
+                try (ByteArrayInputStream input = new ByteArrayInputStream(media)) {
+                    mimeType = tika.detect(input);
+                    extension = HttpUtil.getMimeTypeExtension(mimeType);
+                }
+
+                String mediaFileName;
+                String mediaUri = UUID.randomUUID().toString();
+                String containerUri = UUID.randomUUID().toString();
+
+                // Add media to database
+                try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                        Statement stmt = con.createStatement()) {
+
+                    int affectedColumns = stmt.executeUpdate(
+                            "INSERT INTO media(user_id, mime_type, media_description, media_type, media_uri, container_uri, media_date)"
+                                    + " VALUES('" + sub + "', '" + mimeType + "', '" + containerDescription + "', '"
+                                    + "container" + "', '" + mediaUri + "', '" + containerUri + "', '"
+                                    + java.time.LocalDateTime.now() + "')",
+                            Statement.RETURN_GENERATED_KEYS);
+                    if (affectedColumns == 0) {
+                        String errorMessage = "Failed to add media to database";
+                        res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                        return;
+                    }
+
+                    mediaFileName = sub + "_" + containerUri + "_container" + extension;
+
+                }
+
+                String uploadFilePath = "uploads/media/" + mediaFileName;
+                // Save video file to disk
+                combineMedia(media, overlayMedia, uploadFilePath, scaleFactor, xPositionFactor, yPositionFactor);
+
+                // Save video file to disk
+                JSONObject jsonResponse = new JSONObject()
+                        .put("containerId", containerUri)
+                        .put("downloadUrl",
+                                "http://camagru.com:8000/api/serve/media?id=" + containerUri)
+                        .put("publishUrl", "http://camagru.com:8000/api/media_publish?id=" + containerUri);
+                res.sendJsonResponse(200, jsonResponse.toString());
+            } catch (Exception e) {
+                String errorMessage = "Internal server error: " + e.getMessage();
+                res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }
-
-            String uploadFilePath = "uploads/media/" + mediaFileName;
-            // Save video file to disk
-            combineMedia(media, overlayMedia, uploadFilePath, scaleFactor, xPositionFactor, yPositionFactor);
-
-            // Save video file to disk
-            JSONObject jsonResponse = new JSONObject()
-                    .put("containerId", containerUri)
-                    .put("downloadUrl",
-                            "http://127.0.0.1:8000/api/serve/media?id=" + containerUri)
-                    .put("publishUrl", "http://127.0.0.1:8000/api/media_publish?id=" + containerUri);
-            res.sendJsonResponse(200, jsonResponse.toString());
-        } catch (Exception e) {
-            String errorMessage = "Internal server error: " + e.getMessage();
-            res.sendJsonResponse(500, createErrorResponse(errorMessage));
-        }
+        });
     }
 
     private void handleDeleteRequest(Request req, Response res) {
-        try {
-            // Validate input
-            List<PropertyField> propertyFields = Arrays.asList(
-                    new PropertyField("id", true));
-            PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
-            List<String> wrongFields = propertyFieldsManager.validationResult(req);
+        CompletableFuture.runAsync(() -> {
 
-            if (!wrongFields.isEmpty()) {
-                String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                System.err.println(errorMessage);
-                res.sendJsonResponse(400, createErrorResponse(errorMessage));
-                return;
-            }
-
-            // Get query parameters
-            String id = req.getQueryParameter("id");
-
-            // Properties
-            PropertiesManager propertiesManager = new PropertiesManager();
-            JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
-            String sub;
             try {
-                String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
-                jwtManager.verifySignature(jwt);
-                sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
-            } catch (Exception e) {
-                String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
-                        + e.getMessage();
-                res.sendJsonResponse(401, createErrorResponse(errorMessage));
-                return;
-            }
+                // Validate input
+                List<PropertyField> propertyFields = Arrays.asList(
+                        new PropertyField("id", true));
+                PropertyFieldsManager propertyFieldsManager = new PropertyFieldsManager(propertyFields, null);
+                List<String> wrongFields = propertyFieldsManager.validationResult(req);
 
-            // Delete media from database
-            try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                    propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                    Statement stmt = con.createStatement()) {
-
-                String preparedStmt = "DELETE FROM media WHERE (media_uri=? OR container_uri=?) AND user_id=?";
-
-                PreparedStatement myStmt;
-                myStmt = con.prepareStatement(preparedStmt);
-                myStmt.setString(1, id);
-                myStmt.setString(2, id);
-                myStmt.setString(3, sub);
-
-                int affectedColumns = myStmt.executeUpdate();
-
-                // int affectedColumns = stmt.executeUpdate(
-                // "DELETE FROM media WHERE (media_uri='" + id + "' AND user_id='" + sub + "'");
-                if (affectedColumns == 0) {
-                    String errorMessage = "Failed to delete media from database";
-                    res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                if (!wrongFields.isEmpty()) {
+                    String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
+                    System.err.println(errorMessage);
+                    res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
 
+                // Get query parameters
+                String id = req.getQueryParameter("id");
+
+                // Properties
+                PropertiesManager propertiesManager = new PropertiesManager();
+                JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+                String sub;
+                try {
+                    String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
+                    jwtManager.verifySignature(jwt);
+                    sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+                } catch (Exception e) {
+                    String errorMessage = "Authentication failed: Invalid JWT token. Please include a valid \"token\" in the request Cookie. Error details: "
+                            + e.getMessage();
+                    res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                    return;
+                }
+
+                // Delete media from database
+                try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
+                        Statement stmt = con.createStatement()) {
+
+                    String preparedStmt = "DELETE FROM media WHERE (media_uri=? OR container_uri=?) AND user_id=?";
+
+                    PreparedStatement myStmt;
+                    myStmt = con.prepareStatement(preparedStmt);
+                    myStmt.setString(1, id);
+                    myStmt.setString(2, id);
+                    myStmt.setString(3, sub);
+
+                    int affectedColumns = myStmt.executeUpdate();
+
+                    // int affectedColumns = stmt.executeUpdate(
+                    // "DELETE FROM media WHERE (media_uri='" + id + "' AND user_id='" + sub + "'");
+                    if (affectedColumns == 0) {
+                        String errorMessage = "Failed to delete media from database";
+                        res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                        return;
+                    }
+
+                }
+
+                // Delete media file from disk
+                MediaService.deleteMedia(id);
+
+                JSONObject jsonResponse = new JSONObject();
+                jsonResponse.put("message", "Media deleted successfully");
+
+                res.sendJsonResponse(200, jsonResponse.toString());
+            } catch (Exception e) {
+                String errorMessage = "Internal server error: " + e.getMessage();
+                res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }
-
-            // Delete media file from disk
-            MediaService.deleteMedia(id);
-
-            JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("message", "Media deleted successfully");
-
-            res.sendJsonResponse(200, jsonResponse.toString());
-        } catch (Exception e) {
-            String errorMessage = "Internal server error: " + e.getMessage();
-            res.sendJsonResponse(500, createErrorResponse(errorMessage));
-        }
+        });
     }
 
     // Utils

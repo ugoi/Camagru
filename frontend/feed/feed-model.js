@@ -16,7 +16,7 @@ export async function getUserFeed(after, limit) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/feed?after=${after}&limit=${limit}`,
+    `http://camagru.com:8000/api/feed?after=${after}&limit=${limit}`,
     requestOptions
   );
 
@@ -50,7 +50,7 @@ export async function postLike(mediaId) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/likes`,
+    `http://camagru.com:8000/api/likes`,
     requestOptions
   );
 
@@ -78,7 +78,7 @@ export async function deleteLike(mediaId) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/likes?media_id=${mediaId}`,
+    `http://camagru.com:8000/api/likes?media_id=${mediaId}`,
     requestOptions
   );
 
@@ -106,7 +106,7 @@ export async function getLikesCount(mediaId) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/likes?media_id=${mediaId}`,
+    `http://camagru.com:8000/api/likes?media_id=${mediaId}`,
     requestOptions
   );
 
@@ -137,7 +137,7 @@ export async function postComment(mediaId, commentTitle, commentBody) {
   };
 
   const response = await fetch(
-    "http://127.0.0.1:8000/api/comments",
+    "http://camagru.com:8000/api/comments",
     requestOptions
   );
 
@@ -161,13 +161,14 @@ export async function getComments(mediaId) {
   };
 
   const response = await fetch(
-    `http://127.0.0.1:8000/api/comments?media_id=${mediaId}`,
+    `http://camagru.com:8000/api/comments?media_id=${mediaId}`,
     requestOptions
   );
 
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(await response.text);
+    // Log reponse body
+    throw new Error(await response.text());
   }
 }

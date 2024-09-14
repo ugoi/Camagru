@@ -18,9 +18,16 @@ public class Response {
     }
 
     public void sendOptionsResponse(Response res) {
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT, PATCH");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, *");
-        res.sendResponse(204, null);
+        try {
+            res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE, PUT, PATCH");
+            res.setHeader("Access-Control-Allow-Headers", "Content-Type, *");
+            res.sendResponse(204, null);
+        } catch (Exception e) {
+            System.err.println("Error while sending OPTIONS response: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            exchange.close();
+        }
     }
 
     public void setHeader(String key, String value) {
@@ -29,38 +36,44 @@ public class Response {
 
     public void sendJsonResponse(int statusCode, String responseBody) {
         try {
-            // Set Default Headers
+            System.out.println("Sending JSON response");
+            // Set default headers for JSON
             exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://camagru.com:5500");
             exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
 
             byte[] responseBytes = responseBody.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(statusCode, responseBytes.length);
 
+            // Writing the response body
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(responseBytes);
             }
         } catch (IOException e) {
-            // Handle case where client disconnects
+            // Handle client disconnection during the response
             System.err.println("Client disconnected while sending JSON response: " + e.getMessage());
         } catch (Exception e) {
-            // Log unexpected errors
+            // Handle other unexpected errors
             System.err.println("Error while sending JSON response: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // Ensure the exchange is closed, freeing resources
+            exchange.close();
         }
     }
 
     public void sendResponse(int statusCode, Object responseBody) {
         try {
-            byte[] responseBytes;
-            String contentType;
+            System.out.println("Sending response");
+            byte[] responseBytes = null;
+            String contentType = null;
 
             if (responseBody instanceof String) {
-                // Handle String response
+                // Handle string response
                 contentType = "text/plain";
                 responseBytes = ((String) responseBody).getBytes(StandardCharsets.UTF_8);
             } else if (responseBody instanceof byte[]) {
-                // Handle binary data (e.g., images, files)
+                // Handle binary data response
                 Tika tika = new Tika();
                 try (ByteArrayInputStream input = new ByteArrayInputStream((byte[]) responseBody)) {
                     contentType = tika.detect(input);
@@ -71,20 +84,19 @@ public class Response {
                 contentType = "application/json";
                 responseBytes = ((JSONObject) responseBody).toString().getBytes(StandardCharsets.UTF_8);
             } else if (responseBody == null) {
-                // Handle null response, don't send any body, Content type should be none
+                // Handle no content response
                 contentType = null;
-                responseBytes = null;
             } else {
                 // Fallback for other types
                 contentType = "text/plain";
                 responseBytes = responseBody.toString().getBytes(StandardCharsets.UTF_8);
             }
 
-            // Set Headers
+            // Set response headers
             if (contentType != null) {
                 exchange.getResponseHeaders().set("Content-Type", contentType);
             }
-            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://camagru.com:5500");
             exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
 
             if (responseBytes == null) {
@@ -92,17 +104,21 @@ public class Response {
                 exchange.sendResponseHeaders(statusCode, -1);
             } else {
                 exchange.sendResponseHeaders(statusCode, responseBytes.length);
+                // Writing the response body
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(responseBytes);
                 }
             }
         } catch (IOException e) {
-            // Handle specific IOException (client disconnection or I/O issues)
+            // Handle client disconnection or I/O issues
             System.err.println("Client disconnected or I/O error: " + e.getMessage());
         } catch (Exception e) {
-            // Log other exceptions
+            // Handle other unexpected errors
             System.err.println("Error while sending response: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // Ensure the exchange is closed, freeing resources
+            exchange.close();
         }
     }
 }

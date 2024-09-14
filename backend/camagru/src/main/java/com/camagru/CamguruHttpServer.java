@@ -78,7 +78,7 @@ public class CamguruHttpServer {
                 HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 8000), 0);
 
                 // Setting up a fixed thread pool
-                ExecutorService executor = Executors.newFixedThreadPool(16); // Adjust thread
+                ExecutorService executor = Executors.newFixedThreadPool(1); // Adjust thread
                 // count as needed
                 server.setExecutor(executor);
 
