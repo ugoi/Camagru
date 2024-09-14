@@ -19,8 +19,6 @@ public class ServeMediaRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        System.out.println("Content upload request received");
-
         Request req = new Request(exchange);
         Response res = new Response(exchange);
 

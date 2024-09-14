@@ -118,7 +118,6 @@ public class VerifyEmailRequestHandler implements HttpHandler {
           String invalidateTokenQuery = "update tokens set used=true where token='" + token + "'";
           int rs2 = stmt.executeUpdate(invalidateTokenQuery);
           if (rs2 != 0) {
-            System.out.println("Successfully connected to database and invalidated token");
           } else {
             String errorMessage = "Token not found";
             System.err.println(errorMessage);
@@ -149,7 +148,6 @@ public class VerifyEmailRequestHandler implements HttpHandler {
         myStmt.setString(2, sub);
         int rs = myStmt.executeUpdate();
         if (rs != 0) {
-          System.out.println("Successfully connected to database and updated user");
           res.sendJsonResponse(200,
               new JSONObject().put("message", "Email verified successfully").toString());
         } else {

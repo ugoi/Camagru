@@ -26,8 +26,6 @@ public class MediaPublishRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        System.out.println("Content upload request received");
-
         Request req = new Request(exchange);
         Response res = new Response(exchange);
 
@@ -123,7 +121,6 @@ public class MediaPublishRequestHandler implements HttpHandler {
 
                 mediaFileName = sub + "_" + mediaId + "_media" + extension;
 
-                System.out.println("Successfully connected to database and added user");
             }
 
             String mediaPath = "uploads/media/";

@@ -69,7 +69,6 @@ public class CamguruHttpServer {
                                         + "reaction varchar(30),"
                                         + " FOREIGN KEY (media_id) REFERENCES media(media_id), FOREIGN KEY (user_id) REFERENCES users(user_id))");
 
-                        System.out.println("Successfully connected to database and created table if it doesn't exist");
                 } catch (SQLException e) {
                         System.err.println("Error connecting to database in CamguruHttpServer");
                         e.printStackTrace();

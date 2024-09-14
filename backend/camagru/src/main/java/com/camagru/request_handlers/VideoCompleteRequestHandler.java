@@ -99,7 +99,6 @@ public class VideoCompleteRequestHandler implements HttpHandler {
             int exitCode = process.waitFor();
 
             if (exitCode == 0) {
-                System.out.println("MP4 files combined successfully into " + outputFile);
             } else {
                 System.out.println("Failed to combine MP4 files. Exit code: " + exitCode);
                 JSONObject jsonResponse = new JSONObject().put("message", "Failed to combine MP4 files");

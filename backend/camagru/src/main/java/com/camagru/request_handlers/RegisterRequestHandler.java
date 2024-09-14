@@ -103,7 +103,6 @@ public class RegisterRequestHandler implements HttpHandler {
 
                 stmt.executeUpdate("INSERT INTO users(username, email, password, isEmailVerified)"
                         + " VALUES('" + username + "', '" + email + "', '" + hashedPassword + "', false)");
-                System.out.println("Successfully connected to database and added user");
             }
 
             // Send verification email

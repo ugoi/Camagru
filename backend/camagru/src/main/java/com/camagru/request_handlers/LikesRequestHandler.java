@@ -130,7 +130,6 @@ public class LikesRequestHandler implements HttpHandler {
                 while (rs.next()) {
                     total = rs.getInt(1);
                 }
-                System.out.println("Successfully connected to database and added user");
             }
 
             JSONObject responseBody = new JSONObject();
@@ -259,7 +258,6 @@ public class LikesRequestHandler implements HttpHandler {
                     return;
                 }
 
-                System.out.println("Successfully connected to database and added user");
             }
 
             // Save video file to disk
@@ -356,7 +354,6 @@ public class LikesRequestHandler implements HttpHandler {
                     res.sendResponse(404, response);
                 }
 
-                System.out.println("Successfully connected to database and added user");
             }
             return;
 

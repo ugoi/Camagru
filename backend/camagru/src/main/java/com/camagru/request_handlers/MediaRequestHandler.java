@@ -34,8 +34,6 @@ public class MediaRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        System.out.println("Media request received");
-
         Request req = new Request(exchange);
         Response res = new Response(exchange);
 
@@ -147,7 +145,6 @@ public class MediaRequestHandler implements HttpHandler {
                     System.out.println(id);
 
                 }
-                System.out.println("Successfully connected to database and added user");
             }
 
             // find first element
@@ -283,7 +280,6 @@ public class MediaRequestHandler implements HttpHandler {
 
                 mediaFileName = sub + "_" + containerUri + "_container" + extension;
 
-                System.out.println("Successfully connected to database and added user");
             }
 
             String uploadFilePath = "uploads/media/" + mediaFileName;
@@ -359,7 +355,6 @@ public class MediaRequestHandler implements HttpHandler {
                     return;
                 }
 
-                System.out.println("Successfully connected to database and deleted media");
             }
 
             // Delete media file from disk
@@ -453,7 +448,6 @@ public class MediaRequestHandler implements HttpHandler {
         new File(mediaPath + overlayFileName).delete();
 
         if (exitCode == 0) {
-            System.out.println("MP4 files combined successfully into " + outputFile);
         } else {
             throw new Exception("Failed to combine MP4 files");
         }

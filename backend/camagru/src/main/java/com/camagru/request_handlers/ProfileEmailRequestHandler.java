@@ -98,7 +98,6 @@ public class ProfileEmailRequestHandler implements HttpHandler {
 
                 int rs = stmt.executeUpdate(query);
                 if (rs != 0) {
-                    System.out.println("Successfully connected to database and updated user");
                     res.sendJsonResponse(200, new JSONObject().put("message", "Email updated successfully").toString());
                 } else {
                     String errorMessage = "User not found";

@@ -101,7 +101,6 @@ public class LoginRequestHandler implements HttpHandler {
 
                     res.sendJsonResponse(401, createErrorResponse(errorMessage));
                 }
-                System.out.println("Successfully connected to database and added user");
             }
 
             JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());

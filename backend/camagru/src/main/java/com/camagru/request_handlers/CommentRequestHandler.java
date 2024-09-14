@@ -140,7 +140,6 @@ public class CommentRequestHandler implements HttpHandler {
 
                     jsonArray.put(comment);
                 }
-                System.out.println("Successfully connected to database and added user");
             }
 
             JSONObject responseBody = new JSONObject();
@@ -246,7 +245,6 @@ public class CommentRequestHandler implements HttpHandler {
                     return;
                 }
 
-                System.out.println("Successfully connected to database and added user");
             }
 
             // Save video file to disk

@@ -23,8 +23,6 @@ public class FeedRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        System.out.println("Media request received");
-
         Request req = new Request(exchange);
         Response res = new Response(exchange);
 
@@ -117,7 +115,6 @@ public class FeedRequestHandler implements HttpHandler {
                     System.out.println(id);
 
                 }
-                System.out.println("Successfully connected to database and added user");
             }
 
             // find first element
