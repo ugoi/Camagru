@@ -97,6 +97,19 @@ function renderMedia(value) {
 /**
  * @type {Blob}
  */
+var previewMedia = null;
+/**
+ * @param {Blob} value
+ * @returns {void}
+ */
+function setPreviewMedia(value) {
+  previewMedia = value;
+  renderMedia(value);
+}
+
+/**
+ * @type {Blob}
+ */
 var overlayMedia = null;
 /**
  * @param {Blob} value
@@ -179,7 +192,10 @@ if (navigator.mediaDevices.getUserMedia) {
       videoPreview.play();
     })
     .catch(function (error) {
-      console.log("Something went wrong with the camera... Try restarting the fronternd server" + error);
+      console.log(
+        "Something went wrong with the camera... Try restarting the fronternd server" +
+          error
+      );
       console.log(error);
     });
 }
@@ -249,7 +265,11 @@ async function loadNextUserMedia() {
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
-  reloadUserMedia();
+  try {
+    await reloadUserMedia();
+  } catch (error) {
+    console.log("Failed to load user media", error);
+  }
 });
 
 document.getElementById("loadMoreButton").addEventListener("click", (event) => {
@@ -301,13 +321,14 @@ document
     setContainerId(id);
     var response = await getServeMedia(id);
     var myBlob = await response.blob();
-    setMedia(myBlob);
+    setPreviewMedia(myBlob);
   });
 
 document.getElementById("cancelButton").addEventListener("click", (event) => {
   event.preventDefault();
   setContainerId(null);
   setMedia(null);
+  setPreviewMedia(null);
 });
 
 //Stop camera preview. This should be done when the user leaves the page.

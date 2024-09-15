@@ -15,7 +15,7 @@ export async function getUserFeed(after, limit) {
     redirect: "follow",
   };
 
-  const response = await fetch(
+  let response = await fetch(
     `http://camagru.com:8000/api/feed?after=${after}&limit=${limit}`,
     requestOptions
   );
@@ -57,7 +57,7 @@ export async function postLike(mediaId) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(await response.text);
+    throw new Error(await response.text());
   }
 }
 
@@ -85,7 +85,7 @@ export async function deleteLike(mediaId) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(await response.text);
+    throw new Error(await response.text());
   }
 }
 
@@ -113,7 +113,7 @@ export async function getLikesCount(mediaId) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(await response.text);
+    throw new Error(await response.text());
   }
 }
 
@@ -144,7 +144,7 @@ export async function postComment(mediaId, commentTitle, commentBody) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(await response.text);
+    throw new Error(await response.text());
   }
 }
 

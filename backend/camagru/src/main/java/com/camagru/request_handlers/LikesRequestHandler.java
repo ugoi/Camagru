@@ -66,6 +66,19 @@ public class LikesRequestHandler implements HttpHandler {
         CompletableFuture.runAsync(() -> {
             try {
                 System.out.println("Getting likes");
+
+                PropertiesManager propertiesManager = new PropertiesManager();
+                String sub = null;
+                try {
+                    JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
+                    String jwt = CookieUtil.getCookie(req.getHeader("Cookie"), "token");
+                    jwtManager.verifySignature(jwt);
+                    sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
+
+                } catch (Exception e) {
+                    sub = null;
+                }
+
                 // Validate input
                 List<PropertyField> propertyFields = Arrays.asList(
                         new PropertyField("media_id", true));
@@ -84,56 +97,33 @@ public class LikesRequestHandler implements HttpHandler {
                 // Extract input
                 String mediaUri = req.getQueryParameter("media_id");
 
-                // Properties
-                PropertiesManager propertiesManager = new PropertiesManager();
-
+                // Db variables
                 int total = 0;
+                boolean hasLiked = false;
 
                 // Add media to database
                 System.out.println("Before database connection");
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
-
-                    String mediaId;
-                    // Get mediaId from mediaUri
-                    {
-                        String sql = """
-                                    SELECT media_id
-                                    FROM media
-                                    WHERE media_uri=?
-                                """;
-
-                        PreparedStatement myStmt;
-
-                        myStmt = con.prepareStatement(sql);
-                        myStmt.setString(1, mediaUri);
-
-                        ResultSet rs = myStmt.executeQuery();
-
-                        if (!rs.next()) {
-                            String resposne = "Media not found.";
-                            res.sendResponse(404, resposne);
-                            return;
-                        }
-
-                        mediaId = rs.getString("media_id");
-                    }
-
                     String sql = """
                             SELECT COUNT(*)
                             FROM likes
-                            WHERE media_id=?
+                            WHERE media_uri=?
                             AND reaction=?
                             """;
                     PreparedStatement myStmt;
                     myStmt = con.prepareStatement(sql);
-                    myStmt.setString(1, mediaId);
+                    myStmt.setString(1, mediaUri);
                     myStmt.setString(2, "like");
                     ResultSet rs = myStmt.executeQuery();
 
                     while (rs.next()) {
                         total = rs.getInt(1);
+                    }
+
+                    if (sub != null) {
+                        hasLiked = hasUserLikedMedia(mediaUri, sub, con);
                     }
                 }
 
@@ -142,6 +132,7 @@ public class LikesRequestHandler implements HttpHandler {
                 JSONObject responseBody = new JSONObject();
 
                 responseBody.put("total_count", total);
+                responseBody.put("has_liked", hasLiked);
 
                 res.sendJsonResponse(200, responseBody.toString());
 
@@ -199,63 +190,24 @@ public class LikesRequestHandler implements HttpHandler {
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
-
-                    String mediaId;
-                    // Get mediaId from mediaUri
-                    {
-                        String sql = """
-                                    SELECT media_id
-                                    FROM media
-                                    WHERE media_uri=?
-                                """;
-
-                        PreparedStatement myStmt;
-
-                        myStmt = con.prepareStatement(sql);
-                        myStmt.setString(1, mediaUri);
-
-                        ResultSet rs = myStmt.executeQuery();
-
-                        if (!rs.next()) {
-                            String resposne = "Media not found.";
-                            res.sendResponse(404, resposne);
-                            return;
-                        }
-
-                        mediaId = rs.getString("media_id");
-                    }
-
                     // Check if like already exists
-                    {
-                        String sql = """
-                                    SELECT 1
-                                    FROM likes
-                                    WHERE media_id=?
-                                """;
 
-                        PreparedStatement myStmt;
+                    if (hasUserLikedMedia(mediaUri, sub, con)) {
+                        String resposne = "You already liked this media.";
+                        res.sendResponse(400, resposne);
+                        return;
 
-                        myStmt = con.prepareStatement(sql);
-                        myStmt.setString(1, mediaId);
-
-                        ResultSet rs = myStmt.executeQuery();
-
-                        if (rs.next()) {
-                            String resposne = "You already liked this media.";
-                            res.sendResponse(400, resposne);
-                            return;
-                        }
                     }
 
                     String sql = """
-                                INSERT INTO likes(media_id, user_id, reaction)
+                                INSERT INTO likes(media_uri, user_id, reaction)
                                 VALUES(?, ?, ?)
                             """;
 
                     PreparedStatement myStmt;
 
                     myStmt = con.prepareStatement(sql);
-                    myStmt.setString(1, mediaId);
+                    myStmt.setString(1, mediaUri);
                     myStmt.setString(2, sub);
                     myStmt.setString(3, reaction);
 
@@ -320,41 +272,15 @@ public class LikesRequestHandler implements HttpHandler {
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
-
-                    String mediaId;
-                    // Get mediaId from mediaUri
-                    {
-                        String sql = """
-                                    SELECT media_id
-                                    FROM media
-                                    WHERE media_uri=?
-                                """;
-
-                        PreparedStatement myStmt;
-
-                        myStmt = con.prepareStatement(sql);
-                        myStmt.setString(1, mediaUri);
-
-                        ResultSet rs = myStmt.executeQuery();
-
-                        if (!rs.next()) {
-                            String resposne = "Media not found.";
-                            res.sendResponse(404, resposne);
-                            return;
-                        }
-
-                        mediaId = rs.getString("media_id");
-                    }
-
                     String sql = """
                             DELETE
                             FROM likes
-                            WHERE media_id=?
+                            WHERE media_uri=?
                             AND user_id=?
                             """;
                     PreparedStatement myStmt;
                     myStmt = con.prepareStatement(sql);
-                    myStmt.setString(1, mediaId);
+                    myStmt.setString(1, mediaUri);
                     myStmt.setString(2, sub);
                     int rs = myStmt.executeUpdate();
 
@@ -377,4 +303,27 @@ public class LikesRequestHandler implements HttpHandler {
 
     }
 
+    private boolean hasUserLikedMedia(String mediaUri, String userId, Connection con) throws Exception {
+        String sql = """
+                    SELECT 1
+                    FROM likes
+                    WHERE media_uri=?
+                    AND user_id=?
+                """;
+
+        PreparedStatement myStmt;
+
+        myStmt = con.prepareStatement(sql);
+        myStmt.setString(1, mediaUri);
+        myStmt.setString(2, userId);
+
+        ResultSet rs = myStmt.executeQuery();
+
+        if (rs.next()) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
 }

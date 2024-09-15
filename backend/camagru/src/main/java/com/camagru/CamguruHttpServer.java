@@ -49,7 +49,7 @@ public class CamguruHttpServer {
                         // Create media table
                         stmt.execute("CREATE TABLE IF NOT EXISTS media"
                                         + "(media_id int PRIMARY KEY AUTO_INCREMENT, user_id int, mime_type varchar(30),"
-                                        + "media_description varchar(255), media_type varchar(30), media_uri varchar(36), container_uri varchar(36),"
+                                        + "media_description varchar(255), media_type varchar(30), media_uri varchar(36) UNIQUE, container_uri varchar(36) UNIQUE,"
                                         + "media_date datetime, FOREIGN KEY (user_id) REFERENCES users(user_id))");
 
                         // Create tokens
@@ -59,15 +59,15 @@ public class CamguruHttpServer {
 
                         // Create comments
                         stmt.execute("CREATE TABLE IF NOT EXISTS comments"
-                                        + "(comment_id int PRIMARY KEY AUTO_INCREMENT, media_id int, user_id int,"
+                                        + "(comment_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
                                         + "comment_title varchar(30), comment_body varchar(255),"
-                                        + "comment_date datetime, FOREIGN KEY (media_id) REFERENCES media(media_id), FOREIGN KEY (user_id) REFERENCES users(user_id))");
+                                        + "comment_date datetime, FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))");
 
                         // Create likes
                         stmt.execute("CREATE TABLE IF NOT EXISTS likes"
-                                        + "(like_id int PRIMARY KEY AUTO_INCREMENT, media_id int, user_id int,"
+                                        + "(like_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
                                         + "reaction varchar(30),"
-                                        + " FOREIGN KEY (media_id) REFERENCES media(media_id), FOREIGN KEY (user_id) REFERENCES users(user_id))");
+                                        + " FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))");
 
                 } catch (SQLException e) {
                         System.err.println("Error connecting to database in CamguruHttpServer");

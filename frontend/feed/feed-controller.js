@@ -27,14 +27,18 @@ async function reloadFeed() {
   mediaCollection.innerHTML = "";
   try {
     await loadNextFeed();
-  } catch (error) {}
+    console.log("Loaded feed");
+  } catch (error) {
+    console.log("Failed to load feed", error);
+  }
 }
 
 /**
- * @param {String} after
  * @returns {Promise<void>}
  */
 async function loadNextFeed() {
+  console.log("Loading feed");
+
   const mediaCollection = document.getElementById("myMedia");
   const result = await getUserFeed(after, 3);
   const json = await result.json();
@@ -48,8 +52,9 @@ async function loadNextFeed() {
 
   if (data && data.length > 0) {
     // Get media details concurretnly
-    let commentsResJsonArray = [];
-    let totalLikesArray = [];
+    let commentsResJsonDict = {};
+    let totalLikesDict = {};
+    let hasLikedDict = {};
 
     await Promise.all(
       data.map(async (mediaElement) => {
@@ -62,9 +67,12 @@ async function loadNextFeed() {
             getComments(mediaId),
           ]);
           var commentsResJson = await commentRes.json();
-          var totalLikes = Number((await likesResult.json()).total_count);
-          commentsResJsonArray.push(commentsResJson);
-          totalLikesArray.push(totalLikes);
+          const json = await likesResult.json();
+          var totalLikes = Number(json.total_count);
+          var hasLiked = Boolean(json.has_liked);
+          commentsResJsonDict[mediaId] = commentsResJson;
+          totalLikesDict[mediaId] = totalLikes;
+          hasLikedDict[mediaId] = hasLiked;
         }
       })
     );
@@ -73,8 +81,9 @@ async function loadNextFeed() {
       // State variables
       const isAuth = checkUserAuthentication();
       const mediaId = mediaElement.id;
-      const commentsResJson = commentsResJsonArray.shift();
-      const totalLikes = totalLikesArray.shift();
+      const commentsResJson = commentsResJsonDict[mediaId];
+      const totalLikes = totalLikesDict[mediaId];
+      let hasReallyLiked = hasLikedDict[mediaId];
       const isVideo = mediaElement.mime_type.includes("video") ? true : false;
       const objectURL = mediaElement.downloadUrl;
 
@@ -118,7 +127,7 @@ async function loadNextFeed() {
             <input id="${`collapsible-${mediaId}`}" class="toggle" type="checkbox" />
             <label for="${`collapsible-${mediaId}`}" class="lbl-toggle">Show comments</label>
             <div class="collapsible-content">
-              <div class="content-inner">
+              <div class="content-inner" id=${`comments-${mediaId}`}>
                 ${commentsResJson.data
                   .map((comment) => {
                     return `<div class="comment"> <p><strong>${comment.username}:</strong> ${comment.comment_body}</p> </div>`;
@@ -136,24 +145,55 @@ async function loadNextFeed() {
       mediaCollection.appendChild(mediaWrapper);
 
       // Add event listeners
-
       if (isAuth) {
         const likeButton = document.getElementById(`like-btn-${mediaId}`);
-        const likeCount = document.getElementById(`like-count-${mediaId}`);
+        const likeCountElement = document.getElementById(
+          `like-count-${mediaId}`
+        );
+        let likeCount = Number(likeCountElement.innerHTML) || 0;
+        let isLiked = hasReallyLiked;
+        let locked = false;
         likeButton.addEventListener("click", async (event) => {
-          try {
-            await postLike(mediaId);
-            const newCount = Number(likeCount.innerHTML) + 1;
-            likeCount.innerHTML = `${newCount}`;
-          } catch (error) {
-            try {
-              console.clear();
-              await deleteLike(mediaId);
-              const newCount = Number(likeCount.innerHTML) - 1;
-              likeCount.innerHTML = `${newCount}`;
-            } catch (error) {
-              console.log("Error while deleting like");
-            }
+          console.log("Like button clicked");
+
+          if (isLiked) {
+            likeCount -= 1;
+            likeCountElement.innerHTML = `${likeCount}`;
+            isLiked = false;
+          } else {
+            likeCount += 1;
+            likeCountElement.innerHTML = `${likeCount}`;
+            isLiked = true;
+          }
+
+          if (!locked) {
+            locked = true;
+            setTimeout(async () => {
+              locked = false;
+              await (async () => {
+                if (hasReallyLiked && isLiked === false) {
+                  console.log("Deleting like");
+                  try {
+                    await deleteLike(mediaId);
+                    hasReallyLiked = false;
+                    likeCountElement.innerHTML = `${likeCount}`;
+                    return;
+                  } catch (error) {
+                    console.error("Failed to delete like", error);
+                  }
+                } else if (!hasReallyLiked && isLiked === true) {
+                  console.log("Adding like");
+                  try {
+                    await postLike(mediaId);
+                    hasReallyLiked = true;
+                    likeCountElement.innerHTML = `${likeCount}`;
+                    return;
+                  } catch (error) {
+                    console.error("Failed to add like", error);
+                  }
+                }
+              })();
+            }, 1000);
           }
         });
 
@@ -161,8 +201,18 @@ async function loadNextFeed() {
         commentForm.addEventListener("submit", async (event) => {
           event.preventDefault();
           const formData = new FormData(commentForm);
-          const comment = formData.get("comment");
-          await postComment(mediaId, "Default Title", comment);
+          const commentBody = formData.get("comment");
+          if (commentBody == null || commentBody.length === 0) {
+            return;
+          }
+          const comment = await (
+            await postComment(mediaId, "Default Title", commentBody)
+          ).json();
+
+          const commentsDiv = document.getElementById(`comments-${mediaId}`);
+          commentsDiv.innerHTML =
+            `<div class="comment"> <p><strong>${comment.username}:</strong> ${comment.comment_body}</p> </div>` +
+            commentsDiv.innerHTML;
         });
       }
     });

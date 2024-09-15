@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -91,41 +92,16 @@ public class CommentRequestHandler implements HttpHandler {
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
 
-                    String mediaId;
-                    // Get mediaId from mediaUri
-                    {
-                        String sql = """
-                                    SELECT media_id
-                                    FROM media
-                                    WHERE media_uri=?
-                                """;
-
-                        PreparedStatement myStmt;
-
-                        myStmt = con.prepareStatement(sql);
-                        myStmt.setString(1, mediaUri);
-
-                        ResultSet rs = myStmt.executeQuery();
-
-                        if (!rs.next()) {
-                            String resposne = "Media not found.";
-                            res.sendResponse(404, resposne);
-                            return;
-                        }
-
-                        mediaId = rs.getString("media_id");
-                    }
-
                     String sql = """
                             SELECT comments.*, users.username
                             FROM comments
                             INNER JOIN users ON comments.user_id = users.user_id
-                            WHERE media_id=?
+                            WHERE comments.media_uri=?
                             ORDER BY comment_date DESC
                             """;
                     PreparedStatement myStmt;
                     myStmt = con.prepareStatement(sql);
-                    myStmt.setString(1, mediaId);
+                    myStmt.setString(1, mediaUri);
                     ResultSet rs = myStmt.executeQuery();
 
                     while (rs.next()) {
@@ -136,14 +112,14 @@ public class CommentRequestHandler implements HttpHandler {
 
                         commentTitle = rs.getString("comment_title");
                         commentBody = rs.getString("comment_body");
-                        mediaId = rs.getString("media_id");
+                        mediaUri = rs.getString("media_uri");
                         userId = rs.getString("user_id");
                         username = rs.getString("username");
                         JSONObject comment = new JSONObject();
 
                         comment.put("comment_title", commentTitle);
                         comment.put("comment_body", commentBody);
-                        comment.put("media_id", mediaId);
+                        comment.put("media_uri", mediaUri);
                         comment.put("user_id", userId);
                         comment.put("username", username);
                         jsonArray.put(comment);
@@ -202,63 +178,100 @@ public class CommentRequestHandler implements HttpHandler {
                 String commentBody = json.getString("comment_body");
                 Timestamp commentDate = new Timestamp(System.currentTimeMillis());
 
+                // Db resuls
+                String username = "";
+
                 // Add media to database
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
 
-                    String mediaId;
-                    // Get mediaId from mediaUri
+                    // String mediaId;
+                    // // Get mediaId from mediaUri
+                    // {
+                    // String sql = """
+                    // SELECT media_id
+                    // FROM media
+                    // WHERE media_uri=?
+                    // """;
+
+                    // PreparedStatement myStmt;
+
+                    // myStmt = con.prepareStatement(sql);
+                    // myStmt.setString(1, mediaUri);
+
+                    // ResultSet rs = myStmt.executeQuery();
+
+                    // if (!rs.next()) {
+                    // String resposne = "Media not found.";
+                    // res.sendResponse(404, resposne);
+                    // return;
+                    // }
+
+                    // mediaId = rs.getString("media_id");
+                    // }
+                    long comment_id;
+
                     {
+
                         String sql = """
-                                    SELECT media_id
-                                    FROM media
-                                    WHERE media_uri=?
+                                    INSERT INTO comments(media_uri, user_id, comment_title, comment_body, comment_date)
+                                    VALUES(?, ?, ?, ?, ?)
                                 """;
 
                         PreparedStatement myStmt;
 
-                        myStmt = con.prepareStatement(sql);
+                        myStmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                         myStmt.setString(1, mediaUri);
+                        myStmt.setString(2, sub);
+                        myStmt.setString(3, commentTitle);
+                        myStmt.setString(4, commentBody);
+                        myStmt.setTimestamp(5, commentDate);
 
-                        ResultSet rs = myStmt.executeQuery();
+                        int affectedColumns = myStmt.executeUpdate();
 
-                        if (!rs.next()) {
-                            String resposne = "Media not found.";
-                            res.sendResponse(404, resposne);
+                        if (affectedColumns == 0) {
+                            String errorMessage = "Failed to add media to database";
+                            res.sendJsonResponse(500, createErrorResponse(errorMessage));
                             return;
                         }
 
-                        mediaId = rs.getString("media_id");
+                        try (ResultSet generatedKeys = myStmt.getGeneratedKeys()) {
+                            if (generatedKeys.next()) {
+                                comment_id = generatedKeys.getLong(1);
+                            } else {
+                                throw new SQLException("Creating user failed, no ID obtained.");
+                            }
+                        }
                     }
 
                     String sql = """
-                                INSERT INTO comments(media_id, user_id, comment_title, comment_body, comment_date)
-                                VALUES(?, ?, ?, ?, ?)
+                            SELECT comments.*, users.username
+                            FROM comments
+                            INNER JOIN users ON comments.user_id = users.user_id
+                            WHERE comment_id=?
                             """;
-
                     PreparedStatement myStmt;
-
                     myStmt = con.prepareStatement(sql);
-                    myStmt.setString(1, mediaId);
-                    myStmt.setString(2, sub);
-                    myStmt.setString(3, commentTitle);
-                    myStmt.setString(4, commentBody);
-                    myStmt.setTimestamp(5, commentDate);
+                    myStmt.setString(1, String.valueOf(comment_id));
+                    ResultSet rs = myStmt.executeQuery();
 
-                    int affectedColumns = myStmt.executeUpdate();
-
-                    if (affectedColumns == 0) {
-                        String errorMessage = "Failed to add media to database";
-                        res.sendJsonResponse(500, createErrorResponse(errorMessage));
-                        return;
+                    if (rs.next()) {
+                        username = rs.getString("username");
                     }
-
                 }
 
                 // Save video file to disk
 
-                res.sendResponse(200, "Successfully posted comment!");
+                JSONObject message = new JSONObject();
+                message
+                        .put("media_uri", mediaUri)
+                        .put("user_id", sub)
+                        .put("username", username)
+                        .put("comment_title", commentTitle)
+                        .put("comment_body", commentBody);
+
+                res.sendResponse(200, message);
             } catch (Exception e) {
                 String errorMessage = "Internal server error: " + e.getMessage();
                 res.sendJsonResponse(500, createErrorResponse(errorMessage));

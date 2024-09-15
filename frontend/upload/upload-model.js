@@ -222,7 +222,7 @@ export async function getUserMedia(after, limit) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(json.error);
+    throw new Error((await response.json()).error);
   }
 }
 

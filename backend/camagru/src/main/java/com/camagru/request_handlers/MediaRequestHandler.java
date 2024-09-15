@@ -203,7 +203,6 @@ public class MediaRequestHandler implements HttpHandler {
 
     private void handlePostRequest(Request req, Response res) {
         CompletableFuture.runAsync(() -> {
-
             try {
                 // Validate input
                 List<PropertyField> propertyFields = Arrays.asList(
