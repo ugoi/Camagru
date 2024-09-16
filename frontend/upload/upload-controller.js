@@ -1,3 +1,4 @@
+import { checkUserAuthentication } from "../services/auth-service.js";
 import {
   checkIsVideo,
   postMedia,
@@ -266,6 +267,10 @@ async function loadNextUserMedia() {
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
   try {
+    const isLoggedIn = checkUserAuthentication();
+    if (!isLoggedIn) {
+      window.location.href = "/login";
+    }
     await reloadUserMedia();
   } catch (error) {
     console.log("Failed to load user media", error);

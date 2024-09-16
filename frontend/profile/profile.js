@@ -1,3 +1,19 @@
+import { checkUserAuthentication } from "../services/auth-service.js";
+
+window.addEventListener(
+  "DOMContentLoaded",
+  (event) => {
+    console.log("DOM fully loaded and parsed");
+    
+    const isLoggedIn = checkUserAuthentication();
+    if (!isLoggedIn) {
+      window.location.href = "/login";
+    }
+    handleLoadProfile();
+  },
+  false
+);
+
 /**
  * Type: View
  * Handles the loading of the profile page
