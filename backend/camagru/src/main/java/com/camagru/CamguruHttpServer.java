@@ -24,6 +24,7 @@ import com.camagru.request_handlers.ProfileUsernameRequestHandler;
 import com.camagru.request_handlers.RegisterRequestHandler;
 import com.camagru.request_handlers.SendVerificationEmailRequestHandler;
 import com.camagru.request_handlers.ServeMediaRequestHandler;
+import com.camagru.request_handlers.SettingsRequestHandler;
 import com.camagru.request_handlers.VerifyEmailRequestHandler;
 import com.camagru.request_handlers.VideoCompleteRequestHandler;
 import com.camagru.request_handlers.VideoDownloadPartRequestHandler;
@@ -44,7 +45,7 @@ public class CamguruHttpServer {
                         // Create users table
                         stmt.execute("CREATE TABLE IF NOT EXISTS users"
                                         + "(user_id int PRIMARY KEY AUTO_INCREMENT, username varchar(30), email varchar(30),"
-                                        + "password varchar(255), isEmailVerified double)");
+                                        + "password varchar(255), isEmailVerified double, enabledNotifications boolean DEFAULT true)");
 
                         // Create media table
                         stmt.execute("CREATE TABLE IF NOT EXISTS media"
@@ -101,6 +102,7 @@ public class CamguruHttpServer {
                 server.createContext("/api/verify-email", new VerifyEmailRequestHandler());
                 server.createContext("/api/comments", new CommentRequestHandler());
                 server.createContext("/api/likes", new LikesRequestHandler());
+                server.createContext("/api/settings", new SettingsRequestHandler());
 
                 // server.setExecutor(null); // creates a default executor
                 server.start();

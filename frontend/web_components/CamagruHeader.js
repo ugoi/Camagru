@@ -35,6 +35,11 @@ template.innerHTML = `    <header style="background-color: #333; color: white; p
               >Profile</a
             >
           </li>
+          <li>
+            <a href="/settings" style="color: white; text-decoration: none"
+              >Settings</a
+            >
+          </li>
         </ul>
         <div>
           <button

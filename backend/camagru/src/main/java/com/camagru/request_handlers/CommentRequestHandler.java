@@ -20,6 +20,7 @@ import com.camagru.JwtManager;
 import com.camagru.PropertiesManager;
 import com.camagru.PropertyField;
 import com.camagru.PropertyFieldsManager;
+import com.camagru.services.EmailService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -245,6 +246,98 @@ public class CommentRequestHandler implements HttpHandler {
 
                     if (rs.next()) {
                         username = rs.getString("username");
+                    }
+
+                    // Send email to author of the media
+                    String sql2 = """
+                            SELECT users.email, users.username, users.enabledNotifications
+                            FROM users
+                            INNER JOIN media ON users.user_id = media.user_id
+                            WHERE media_uri=?
+                            """;
+
+                    PreparedStatement myStmt2;
+                    myStmt2 = con.prepareStatement(sql2);
+                    myStmt2.setString(1, mediaUri);
+                    ResultSet rs2 = myStmt2.executeQuery();
+
+                    if (rs2.next()) {
+                        String email = rs2.getString("email");
+                        String authorName = rs2.getString("username");
+                        boolean enabledNotifications = rs2.getBoolean("enabledNotifications");
+
+                        if (enabledNotifications) {
+
+                            EmailService service = EmailService.create();
+                            String emailTemplate = """
+                                    <!DOCTYPE html>
+                                    <html lang="en">
+
+                                    <head>
+                                        <meta charset="UTF-8">
+                                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                                        <title>New Comment Notification</title>
+                                        <style>
+                                            body {
+                                                font-family: Arial, sans-serif;
+                                                background-color: #f4f4f4;
+                                                margin: 0;
+                                                padding: 20px;
+                                            }
+                                            .container {
+                                                background-color: #ffffff;
+                                                margin: 0 auto;
+                                                padding: 20px;
+                                                border-radius: 8px;
+                                                max-width: 600px;
+                                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                                            }
+                                            h1 {
+                                                color: #333333;
+                                            }
+                                            p {
+                                                font-size: 16px;
+                                                color: #555555;
+                                            }
+                                            .btn {
+                                                display: inline-block;
+                                                padding: 10px 20px;
+                                                background-color: #007bff;
+                                                color: #ffffff;
+                                                text-decoration: none;
+                                                border-radius: 5px;
+                                                font-size: 16px;
+                                            }
+                                            .btn:hover {
+                                                background-color: #0056b3;
+                                            }
+                                            .footer {
+                                                margin-top: 20px;
+                                                font-size: 12px;
+                                                color: #888888;
+                                            }
+                                        </style>
+                                    </head>
+
+                                    <body>
+                                        <div class="container">
+                                            <h1>New Comment on Your Image!</h1>
+                                            <p>Hello <strong>%s</strong>,</p>
+                                            <p>Your image has received a new comment:</p>
+                                            <blockquote style="background-color: #f9f9f9; padding: 10px; border-left: 3px solid #007bff; margin: 10px 0;">
+                                                "%s"
+                                            </blockquote>
+                                        </div>
+                                    </body>
+                                    </html>
+                                                                              """;
+
+                            // Send email with reset password link
+                            String formattedEmail = String.format(emailTemplate, authorName, commentBody);
+                            service.send(authorName, email, "New comment", formattedEmail);
+                        }
+
                     }
                 }
 
