@@ -40,7 +40,7 @@ async function loadNextFeed() {
   console.log("Loading feed");
 
   const mediaCollection = document.getElementById("myMedia");
-  const result = await getUserFeed(after, 3);
+  const result = await getUserFeed(after, 5);
   const json = await result.json();
   const data = json.data;
   after = json.paging.after;
