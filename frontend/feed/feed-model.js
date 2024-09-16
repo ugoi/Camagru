@@ -117,6 +117,14 @@ export async function getLikesCount(mediaId) {
   }
 }
 
+/**
+ * 
+ * @param {String} mediaId 
+ * @param {String} commentTitle 
+ * @param {String} commentBody 
+ * @returns {Promise<Response>}
+ * @throws {Error}
+ */
 export async function postComment(mediaId, commentTitle, commentBody) {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -143,6 +151,8 @@ export async function postComment(mediaId, commentTitle, commentBody) {
 
   if (response.status === 200) {
     return response;
+  } else if (response.status === 413) {
+    throw new Error("Comment too long");
   } else {
     throw new Error(await response.text());
   }

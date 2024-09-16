@@ -115,12 +115,13 @@ input[type="checkbox"] {
 
 .collapsible-content {
   max-height: 0;
-  overflow: hidden;
+  overflow-y: scroll;
+  overflow-x: hidden;
   transition: max-height 0.3s ease-in-out;
 }
 
 .toggle:checked + .lbl-toggle + .collapsible-content {
-  max-height: 100vh;
+  max-height: 50vh;
 }
 
 .collapsible-content .content-inner {
@@ -132,6 +133,7 @@ input[type="checkbox"] {
 
 .comment {
   margin-bottom: 10px;
+  overflow-wrap: anywhere;
 }
 
 .like-section {

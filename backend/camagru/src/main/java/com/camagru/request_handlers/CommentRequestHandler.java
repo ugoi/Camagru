@@ -185,33 +185,7 @@ public class CommentRequestHandler implements HttpHandler {
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
-
-                    // String mediaId;
-                    // // Get mediaId from mediaUri
-                    // {
-                    // String sql = """
-                    // SELECT media_id
-                    // FROM media
-                    // WHERE media_uri=?
-                    // """;
-
-                    // PreparedStatement myStmt;
-
-                    // myStmt = con.prepareStatement(sql);
-                    // myStmt.setString(1, mediaUri);
-
-                    // ResultSet rs = myStmt.executeQuery();
-
-                    // if (!rs.next()) {
-                    // String resposne = "Media not found.";
-                    // res.sendResponse(404, resposne);
-                    // return;
-                    // }
-
-                    // mediaId = rs.getString("media_id");
-                    // }
                     long comment_id;
-
                     {
 
                         String sql = """
@@ -228,10 +202,23 @@ public class CommentRequestHandler implements HttpHandler {
                         myStmt.setString(4, commentBody);
                         myStmt.setTimestamp(5, commentDate);
 
-                        int affectedColumns = myStmt.executeUpdate();
+                        try {
+                            int affectedColumns = myStmt.executeUpdate();
 
-                        if (affectedColumns == 0) {
-                            String errorMessage = "Failed to add media to database";
+                            if (affectedColumns == 0) {
+                                String errorMessage = "Failed to add media to database";
+                                res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                                return;
+                            }
+                        } catch (SQLException e) {
+                            String message = e.getMessage();
+                            if (message.contains("Data truncation")) {
+                                String errorMessage = "Data too long: " + message;
+                                res.sendJsonResponse(413, createErrorResponse(errorMessage));
+                                return;
+
+                            }
+                            String errorMessage = "Failed to add media to database: " + e.getMessage();
                             res.sendJsonResponse(500, createErrorResponse(errorMessage));
                             return;
                         }

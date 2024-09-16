@@ -205,9 +205,31 @@ async function loadNextFeed() {
           if (commentBody == null || commentBody.length === 0) {
             return;
           }
-          const comment = await (
-            await postComment(mediaId, "Default Title", commentBody)
-          ).json();
+
+          let comment;
+          try {
+            const res = await await postComment(
+              mediaId,
+              "Default Title",
+              commentBody
+            );
+            comment = await res.json();
+          } catch (error) {
+            console.error("Failed to post comment", error);
+            console.log(error.message);
+
+            if (error.message.includes("Comment too long")) {
+              alert(
+                "Failed to post comment. Comment is too long. Please keep it under 256 characters."
+              );
+              return;
+            } else {
+              alert(
+                "Failed to post comment. Please check your internet connection."
+              );
+              return;
+            }
+          }
 
           const commentsDiv = document.getElementById(`comments-${mediaId}`);
           commentsDiv.innerHTML =
