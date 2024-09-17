@@ -13,15 +13,9 @@
   display: block;
   margin: 10px auto;
 }
-/* 
-.captured-media {
-  width: 200px;
-  display: block;
-  margin: 10px auto;
-} */
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Poppins", "Arial", sans-serif; /* Primary font is Poppins with Arial as a fallback */
   margin: 0 0 100px;
   padding: 0;
   background-color: #f4f4f4;

@@ -1,29 +1,158 @@
 <!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title></title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editing Page</title>
+    <link rel="stylesheet" href="test.css" />
+    <link rel="stylesheet" href="../styles.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Lora:wght@400&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <!--[if lt IE 7]>
-      <p class="browsehappy">
-        You are using an <strong>outdated</strong> browser. Please
-        <a href="#">upgrade your browser</a> to improve your experience.
-      </p>
-    <![endif]-->
+    <div class="container">
+      <header
+        style="
+          background-color: #333;
+          color: white;
+          padding: 10px 0;
+          grid-area: header;
+        "
+      >
+        <nav
+          style="
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <ul
+            style="
+              list-style: none;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              gap: 15px;
+            "
+          >
+            <li>
+              <a href="/index.html" style="color: white; text-decoration: none"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a href="/feed" style="color: white; text-decoration: none"
+                >Feed</a
+              >
+            </li>
+            <li>
+              <a href="/profile" style="color: white; text-decoration: none"
+                >Profile</a
+              >
+            </li>
+            <li>
+              <a href="/settings" style="color: white; text-decoration: none"
+                >Settings</a
+              >
+            </li>
+          </ul>
+          <div>
+            <button
+              onclick="window.location.href='/login'"
+              style="
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                cursor: pointer;
+              "
+            >
+              Login
+            </button>
+            <button
+              onclick="this.getRootNode().host.handleLogout()"
+              style="
+                background-color: #f44336;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                cursor: pointer;
+              "
+            >
+              Logout
+            </button>
+          </div>
+        </nav>
+      </header>
 
-    <h1>Test</h1>
+      <main class="main">
+        <section class="webcam-preview">
+          <h2>Webcam Preview</h2>
+          <video id="webcam" autoplay></video>
+          <div class="file-upload-wrapper">
+            <input type="file" id="image-upload" accept="image/*, video/*" />
+            <label for="image-upload" class="custom-file-upload"
+              >Upload Image</label
+            >
+          </div>
+          <div class="superposable-images">
+            <label for="image-select" class="custom-label"
+              >Select a Superposable Image:</label
+            >
+            <select id="image-select" class="custom-select">
+              <option value="" disabled selected>Select Image</option>
+              <option value="image1">Image 1</option>
+              <option value="image2">Image 2</option>
+            </select>
+          </div>
+          <div class="controls">
+            <button id="capture-image-btn" class="capture-btn" disabled>
+              <i class="fa-solid fa-camera"></i>
+            </button>
+            <button id="capture-video-btn" class="capture-btn" disabled>
+              <i class="fa-solid fa-video"></i>
+            </button>
+          </div>
+        </section>
+      </main>
 
-    <div style="width: 100%; overflow-wrap: anywhere">
-      Hudshakhjkfhfjldhfajdklshfjkasdhfjkadshfjkdshfjkasdhfjkashfjkasdhfjkladshfjkasdhfjkahfjkasdhfjksdhjfiosjfgjsdfiogjiosdfjgiosjgiosjgiosdfjfjksdhfjksdahfjksdahfjksahfjskda
+      <aside class="side">
+        <h2>Previous Captures</h2>
+        <div class="thumbnail-gallery" id="thumbnail-gallery">
+          <!-- Thumbnails of previous pictures will be inserted here -->
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <img src="https://picsum.photos/200/200" alt="Placeholder" />
+          <button id="loadMoreButton" class="load-btn">Load more</button>
+        </div>
+      </aside>
+
+      <footer class="footer">
+        <p>&copy; 2024 Editing Page</p>
+      </footer>
     </div>
+
+    <script src="script.js"></script>
   </body>
 </html>

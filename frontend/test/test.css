@@ -1,0 +1,211 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f4f4;
+}
+
+.container {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "main side"
+    "footer footer";
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  grid-area: header;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+.main {
+  grid-area: main;
+  padding: 20px;
+}
+
+.webcam-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#webcam {
+  height: auto;
+  max-height: 300px;
+  border: 10px solid #000000;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+/* General styling for the container */
+.superposable-images {
+  margin: 20px 0;
+  text-align: center;
+}
+
+/* Label styling */
+.custom-label {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: block;
+  color: #333;
+}
+
+/* Styling for the select dropdown */
+.custom-select {
+  width: 300px; /* You can adjust the width */
+  padding: 12px 15px;
+  font-size: 16px;
+  color: #333;
+  border: 2px solid #4caf50; /* Green border */
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjQzBDMEMwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMCAxMCI+PHBhdGggZD0iTTUgNS4zMjdsLTMuNzg0LTMuNzg0LS40MjkuNDI5TDUgNi41NzRsNC4yMTctNC4yMTctLjQyOC0uNDI5eiIvPjwvc3ZnPg==");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* Focused state */
+.custom-select:focus {
+  border-color: #45a049; /* Darker green on focus */
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Green shadow */
+}
+
+/* Styling for the select options */
+.custom-select option {
+  padding: 10px;
+  background-color: white;
+  color: #333;
+}
+
+/* Optional: Hover effect for options in some browsers */
+.custom-select:hover {
+  border-color: #45a049; /* Slightly darker border on hover */
+}
+
+/* Optional: Hide the default dropdown arrow in some browsers */
+.custom-select::-ms-expand {
+  display: none;
+}
+
+/* Hides the default input file button */
+#image-upload {
+  display: none;
+}
+
+/* Styling for the label which acts as the button */
+.custom-file-upload {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #4caf50; /* Green background */
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+/* Hover effect */
+.custom-file-upload:hover {
+  background-color: #45a049; /* Slightly darker green on hover */
+}
+
+/* Active effect when clicked */
+.custom-file-upload:active {
+  background-color: #3e8e41;
+  transform: scale(0.98); /* Slight shrink effect */
+}
+
+/* Optional: Style the wrapper */
+.file-upload-wrapper {
+  text-align: center; /* Centers the button */
+}
+
+.superposable-images {
+  margin: 10px 0;
+}
+
+.capture-btn {
+  border-radius: 200px;
+  padding: 10px 20px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  cursor: not-allowed;
+}
+
+.load-btn {
+  border-radius: 5px;
+  padding: 10px 20px;
+  background-color: #45a049;
+  color: white;
+  border: none;
+  cursor: not-allowed;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  grid-area: side;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-left: 2px solid #ccc;
+  flex: 1 1 auto;
+  min-height: 0px;
+}
+
+.thumbnail-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0px;
+  justify-content: center;
+}
+
+.thumbnail-gallery img {
+  width: 100%;
+  height: auto;
+  min-width: 100px;
+  object-fit: cover;
+  margin: 5px;
+}
+
+.footer {
+  grid-area: footer;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px;
+}

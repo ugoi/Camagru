@@ -1,7 +1,7 @@
 import { logout } from "../login/login.js";
 
 const template = document.createElement("template");
-template.innerHTML = `    <header style="background-color: #333; color: white; padding: 10px 0">
+template.innerHTML = `    <header style="background-color: #333; color: white; padding: 10px 0; grid-area: header">
       <nav
         style="
           max-width: 1000px;
