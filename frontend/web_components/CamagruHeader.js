@@ -48,7 +48,7 @@ template.innerHTML = `    <header style="background-color: #333; color: white; p
               background-color: #4caf50;
               color: white;
               border: none;
-              padding: 10px 20px;
+              padding: 5px 5px;
               cursor: pointer;
             "
           >
@@ -60,7 +60,7 @@ template.innerHTML = `    <header style="background-color: #333; color: white; p
               background-color: #f44336;
               color: white;
               border: none;
-              padding: 10px 20px;
+              padding: 5px 5px;
               cursor: pointer;
             "
           >
