@@ -47,7 +47,6 @@ camagru-header {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   min-height: 0px;
   overflow-y: auto;
-
 }
 
 .main {
@@ -67,6 +66,48 @@ camagru-header {
   border: 10px solid #000000;
   border-radius: 20px;
   margin-bottom: 10px;
+}
+
+.close-snapshot-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: #39ff14;
+  font-size: 24px;
+  border: none;
+  outline: none;
+  background: none;
+  z-index: 100;
+}
+
+#snapshot-image-wrapper {
+  position: relative;
+  display: none;
+}
+
+#snapshot-video-wrapper {
+  position: relative;
+  display: none;
+}
+
+#snapshot-image {
+  height: auto;
+  max-height: 300px;
+  border: 10px solid #000000;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  display: none;
+}
+
+#snapshot-video {
+  height: auto;
+  max-height: 300px;
+  border: 10px solid #000000;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  display: none;
+  outline: 0px;
+  display: none;
 }
 
 /* General styling for the container */
@@ -169,7 +210,7 @@ camagru-header {
 .capture-btn {
   border-radius: 200px;
   padding: 10px 20px;
-  background-color: #000000;
+  background-color: #45a049;
   color: white;
   border: none;
   cursor: not-allowed;
@@ -182,6 +223,22 @@ camagru-header {
   color: white;
   border: none;
   cursor: not-allowed;
+}
+
+.capture-btn:disabled {
+  background-color: #d3d3d3; /* Light gray background */
+  color: #6c757d; /* Slightly darker text */
+  border: 1px solid #a9a9a9; /* Medium gray border */
+  cursor: not-allowed; /* Change cursor to indicate it's disabled */
+  opacity: 0.6; /* Optionally lower the opacity for a 'faded' look */
+}
+
+.load-btn:disabled {
+  background-color: #d3d3d3; /* Light gray background */
+  color: #6c757d; /* Slightly darker text */
+  border: 1px solid #a9a9a9; /* Medium gray border */
+  cursor: not-allowed; /* Change cursor to indicate it's disabled */
+  opacity: 0.6; /* Optionally lower the opacity for a 'faded' look */
 }
 
 .side {

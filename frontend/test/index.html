@@ -27,6 +27,20 @@
           <section class="webcam-preview">
             <h2>Webcam Preview</h2>
             <video id="webcam" autoplay></video>
+
+            <div id="snapshot-image-wrapper">
+              <button id="close-snapshot-image" class="close-snapshot-btn">
+                &times;
+              </button>
+              <img id="snapshot-image" />
+            </div>
+            <div id="snapshot-video-wrapper">
+              <button id="close-snapshot-video" class="close-snapshot-btn">
+                &times;
+              </button>
+              <video id="snapshot-video" controls loop autoplay></video>
+            </div>
+
             <div class="file-upload-wrapper">
               <input type="file" id="image-upload" accept="image/*, video/*" />
               <label for="image-upload" class="custom-file-upload"
@@ -78,7 +92,8 @@
       <camagru-footer></camagru-footer>
     </div>
 
-    <script src="script.js"></script>
+    <!-- <script src="script.js"></script> -->
+    <script type="module" src="upload-controller.js"></script>
     <script type="module" src="../web_components/CamagruHeader.js"></script>
     <script type="module" src="../web_components/CamagruFooter.js"></script>
   </body>
