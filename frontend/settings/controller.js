@@ -1,10 +1,16 @@
+import { checkUserAuthentication } from "../services/auth-service.js";
 import { getSettings, patchSettings } from "./model.js";
 
 document
   .getElementById("saveSettingsButton")
   .addEventListener("click", saveSettings);
 
-document.addEventListener("DOMContentLoaded", loadSettings);
+document.addEventListener("DOMContentLoaded", () => {
+  const camagruHeader = document.getElementsByTagName("camagru-header")[0];
+  camagruHeader.setAttribute("is-logged-in", checkUserAuthentication());
+
+  loadSettings();
+});
 
 export async function saveSettings() {
   const emailNotifications =

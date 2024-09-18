@@ -3,8 +3,8 @@ import { checkUserAuthentication } from "../services/auth-service.js";
 window.addEventListener(
   "DOMContentLoaded",
   (event) => {
-    console.log("DOM fully loaded and parsed");
-    
+    const camagruHeader = document.getElementsByTagName("camagru-header")[0];
+    camagruHeader.setAttribute("is-logged-in", checkUserAuthentication());
     const isLoggedIn = checkUserAuthentication();
     if (!isLoggedIn) {
       window.location.href = "/login";

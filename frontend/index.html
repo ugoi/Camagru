@@ -7,45 +7,50 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
 
-  <body
+  <body>
+    <div class="root">
+      <camagru-header></camagru-header>
 
-  >
-    <camagru-header></camagru-header>
-    <main
-      style="
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: white;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        text-align: center;
-      "
-    >
-      <h1 style="color: #333">Welcome to CamGuru</h1>
-      <p style="color: #555">
-        Edit and upload your pictures. Connect with your friends just like
-        Instagram.
-      </p>
-      <div style="margin-top: 20px">
-        <button
-          onclick="window.location.href='upload'"
+      <main style="height: 100%; width: 100%; overflow-y: scroll">
+        <main
           style="
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            cursor: pointer;
-            border-radius: 5px;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
           "
         >
-          Upload Photo
-        </button>
-      </div>
-    </main>
-    <camagru-footer></camagru-footer>
+          <h1 style="color: #333">Welcome to CamGuru</h1>
+          <p style="color: #555">
+            Edit and upload your pictures. Connect with your friends just like
+            Instagram.
+          </p>
+          <div style="margin-top: 20px">
+            <button
+              onclick="window.location.href='webcam'"
+              style="
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 15px 30px;
+                cursor: pointer;
+                border-radius: 5px;
+              "
+            >
+              Start Webcam
+            </button>
+          </div>
+        </main>
+      </main>
+
+      <camagru-footer></camagru-footer>
+    </div>
+
+    <script type="module" src="controller.js"></script>
 
     <script type="module" src="web_components/CamagruHeader.js"></script>
-
     <script type="module" src="web_components/CamagruFooter.js"></script>
   </body>
 </html>

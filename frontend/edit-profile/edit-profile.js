@@ -1,22 +1,33 @@
 import { getProfile } from "../profile/profile.js";
 
+const registerSuccess = document.getElementById("registerSuccess");
+const registerError = document.getElementById("registerError");
+
 /**
  * Type: View
  * Handles the edit profile form submission
  * @returns {void}
  */
 export async function handleEditProfile() {
-  event.preventDefault();
-  var username = document.getElementById("username").value;
-  var email = document.getElementById("email").value;
-  var password = document.getElementById("password").value;
+  try {
+    event.preventDefault();
+    var username = document.getElementById("username").value;
+    var email = document.getElementById("email").value;
+    var password = document.getElementById("password").value;
 
-  await updateUsername(username);
-  await updateEmail(email);
+    await updateUsername(username);
+    await updateEmail(email);
 
-  if (password) await updatePassword(password);
+    if (password) await updatePassword(password);
 
-  await handleLoadEditProfile();
+    await handleLoadEditProfile();
+    registerSuccess.style.display = "block";
+    registerError.style.display = "none";
+  } catch (error) {
+    registerSuccess.style.display = "none";
+    registerError.style.display = "block";
+    registerError.innerHTML = error.message;
+  }
 }
 
 /**

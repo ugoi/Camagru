@@ -8,58 +8,64 @@
   </head>
 
   <body>
-    <camagru-header></camagru-header>
+    <div class="root">
+      <camagru-header></camagru-header>
 
-    <main
-      style="
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: white;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        text-align: center;
-      "
-    >
-      <h1 style="color: #333">Settings</h1>
+      <main style="height: 100%; width: 100%; overflow-y: scroll">
+        <main
+          style="
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+          "
+        >
+          <h1 style="color: #333">Settings</h1>
 
-      <div
-        style="
-          margin-top: 20px;
-          padding: 10px;
-          background-color: #f9f9f9;
-          border-radius: 10px;
-          max-width: 400px;
-          margin: 20px auto;
-          text-align: left;
-        "
-      >
-        <h2 style="color: #333">Notifications</h2>
-        <label for="emailNotifications" style="color: #555">
-          Email Notifications
-        </label>
-        <label class="switch" style="float: right">
-          <input type="checkbox" id="emailNotifications" checked />
-          <span class="slider round"></span>
-        </label>
-      </div>
+          <div
+            style="
+              margin-top: 20px;
+              padding: 10px;
+              background-color: #f9f9f9;
+              border-radius: 10px;
+              max-width: 400px;
+              margin: 20px auto;
+              text-align: left;
+            "
+          >
+            <h2 style="color: #333">Notifications</h2>
+            <br>
+            <label for="emailNotifications" style="color: #555">
+              Email Notifications
+            </label>
+            <label class="switch" style="float: right">
+              <input type="checkbox" id="emailNotifications" checked />
+              <span class="slider round"></span>
+            </label>
+          </div>
 
-      <button
-        style="
-          background-color: #007bff;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          cursor: pointer;
-          border-radius: 5px;
-          margin-top: 20px;
-        "
-        id="saveSettingsButton"
-      >
-        Save Settings
-      </button>
-    </main>
+          <button
+            style="
+              background-color: #007bff;
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              cursor: pointer;
+              border-radius: 5px;
+              margin-top: 20px;
+            "
+            id="saveSettingsButton"
+          >
+            Save Settings
+          </button>
+        </main>
+      </main>
 
-    <camagru-footer></camagru-footer>
+      <camagru-footer></camagru-footer>
+    </div>
 
     <script type="module" src="../web_components/CamagruHeader.js"></script>
     <script type="module" src="../web_components/CamagruFooter.js"></script>

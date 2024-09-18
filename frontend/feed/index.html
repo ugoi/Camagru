@@ -22,30 +22,37 @@
       </p>
     <![endif]-->
 
-    <camagru-header></camagru-header>
+    <div class="root">
+      <camagru-header></camagru-header>
 
-    <h1>Feed</h1>
-    <div
-      id="feed"
-      style="display: flex; align-items: center; justify-content: center"
-    >
       <div
-        id="myMediaWrapper"
+        id="feed"
         style="
+          display: flex;
+          justify-content: center;
+          height: 100%;
           overflow-y: scroll;
-          height: 600px;
-          max-width: 600px;
           width: 100%;
-          text-align: center;
         "
-        class="hide-scrollbar"
       >
-        <div id="myMedia" class="media-container"></div>
-        <button id="loadMoreButton" style="display: none">Load more</button>
+        <div
+          id="myMediaWrapper"
+          style="
+            height: 600px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+          "
+          class="hide-scrollbar"
+        >
+          <h1>Feed</h1>
+          <div id="myMedia" class="media-container"></div>
+          <button id="loadMoreButton" class="load-btn">Load more</button>
+        </div>
       </div>
-    </div>
 
-    <camagru-footer></camagru-footer>
+      <camagru-footer></camagru-footer>
+    </div>
 
     <script type="module" src="../web_components/CamagruHeader.js"></script>
     <script type="module" src="../web_components/CamagruFooter.js"></script>

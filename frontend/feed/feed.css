@@ -166,3 +166,12 @@ input[type="checkbox"] {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.load-btn {
+  max-width: 100px;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background-color: #45a049;
+  color: white;
+  border: none;
+}

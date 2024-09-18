@@ -11,10 +11,9 @@
     <meta name="description" content="User profile page" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="profile.css">
   </head>
-  <body
-
-  >
+  <body>
     <!--[if lt IE 7]>
       <p
         class="browsehappy"
@@ -25,49 +24,56 @@
         your experience.
       </p>
     <![endif]-->
-    <camagru-header></camagru-header>
 
-    <main
-      style="
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: white;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      "
-    >
-      <h1 style="text-align: center; color: #333">Profile</h1>
+    <div class="root">
+      <camagru-header></camagru-header>
 
-      <section style="margin-bottom: 20px">
-        <h2>Username</h2>
-        <p id="username" style="font-size: 1.2em; color: #555"></p>
-      </section>
+      <main style="height: 100%; width: 100%; overflow-y: scroll;">
+        <main
+          style="
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+          "
+        >
+          <h1 style="text-align: center; color: #333">Profile</h1>
 
-      <section style="margin-bottom: 20px">
-        <h2>Email</h2>
-        <p id="email" style="font-size: 1.2em; color: #555"></p>
-      </section>
+          <section style="margin-bottom: 20px">
+            <h2 >Username</h2>
+            <p id="username" style="font-size: 1.2em; color: #555"></p>
+          </section>
 
-      <section style="margin-bottom: 20px">
-        <h2>Password</h2>
-        <p id="password" style="font-size: 1.2em; color: #555">******</p>
-      </section>
+          <section style="margin-bottom: 20px">
+            <h2>Email</h2>
+            <p id="email" style="font-size: 1.2em; color: #555"></p>
+          </section>
 
-      <div style="text-align: center">
-        <p>
-          <a href="/edit-profile" style="color: #007bff; text-decoration: none"
-            >Edit Profile</a
-          >
-        </p>
-      </div>
-    </main>
+          <section style="margin-bottom: 20px">
+            <h2>Password</h2>
+            <p id="password" style="font-size: 1.2em; color: #555">******</p>
+          </section>
 
-    <camagru-footer></camagru-footer>
+          <div style="text-align: center">
+            <p>
+              <a
+                href="/edit-profile"
+                style="color: #007bff; text-decoration: none"
+                >Edit Profile</a
+              >
+            </p>
+          </div>
+        </main>
+      </main>
+
+      <camagru-footer></camagru-footer>
+    </div>
 
     <script type="module" src="../web_components/CamagruHeader.js"></script>
     <script type="module" src="../web_components/CamagruFooter.js"></script>
 
     <script type="module" src="profile.js"></script>
-
   </body>
 </html>

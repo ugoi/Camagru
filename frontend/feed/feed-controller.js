@@ -11,6 +11,8 @@ import { checkIsMimeTypeVideo } from "../utils/utils.js";
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
+  const camagruHeader = document.getElementsByTagName("camagru-header")[0];
+  camagruHeader.setAttribute("is-logged-in", checkUserAuthentication());
   await reloadFeed();
 });
 

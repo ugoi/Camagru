@@ -1,3 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Poppins", "Arial", sans-serif; /* Primary font is Poppins with Arial as a fallback */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f4f4;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+camagru-footer {
+  width: 100%;
+}
+
+camagru-header {
+  width: 100%;
+}
+
 .carousel-img {
   width: 200px;
 }
@@ -14,9 +53,3 @@
   margin: 10px auto;
 }
 
-body {
-  font-family: "Poppins", "Arial", sans-serif; /* Primary font is Poppins with Arial as a fallback */
-  margin: 0 0 100px;
-  padding: 0;
-  background-color: #f4f4f4;
-}

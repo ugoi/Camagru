@@ -8,7 +8,7 @@ import {
   deleteMedia,
 } from "./upload-model.js";
 
-import { checkFileType } from "../utils/utils.js";
+import { checkFileType, checkIsVideo } from "../utils/utils.js";
 
 // Commonly used HTML elements
 const captureImageBtn = document.getElementById("capture-image-btn");
@@ -480,6 +480,9 @@ document.querySelector("#capture-video-btn").addEventListener(
   "click",
   async (ev) => {
     if (isRecording == false) {
+      setMedia(null);
+      setContainerId(null);
+      setPreviewMedia(null);
       var result = mediaService.startRecording(videoPreview.srcObject, 5000);
       setIsRecording(true);
       var recordedChunks = await result;

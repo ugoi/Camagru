@@ -1,7 +1,7 @@
 import { logout } from "../login/login.js";
 
 const template = document.createElement("template");
-template.innerHTML = `    <header style="background-color: #333; color: white; padding: 10px 0; grid-area: header">
+template.innerHTML = `    <header style="background-color: #333; color: white; padding: 15px 0; grid-area: header">
       <nav
         style="
           max-width: 1000px;
@@ -43,6 +43,7 @@ template.innerHTML = `    <header style="background-color: #333; color: white; p
         </ul>
         <div>
           <button
+            id="login-btn"
             onclick="window.location.href='/login'"
             style="
               background-color: #4caf50;
@@ -55,6 +56,7 @@ template.innerHTML = `    <header style="background-color: #333; color: white; p
             Login
           </button>
           <button
+            id="logout-btn"
             onclick="this.getRootNode().host.handleLogout()"
             style="
               background-color: #f44336;
@@ -83,6 +85,28 @@ class CamagruHeader extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
     shadow.append(template.content.cloneNode(true));
+    this.loginButton = shadow.querySelector("#login-btn");
+    this.logoutButton = shadow.querySelector("#logout-btn");
+  }
+
+  static get observedAttributes() {
+    return ["is-logged-in"];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === "is-logged-in") {
+      this.handleIsLoggedInChange(newValue);
+    }
+  }
+
+  handleIsLoggedInChange(newValue) {
+    if (newValue === "true") {
+      this.loginButton.style.display = "none";
+      this.logoutButton.style.display = "block";
+    } else {
+      this.loginButton.style.display = "block";
+      this.logoutButton.style.display = "none";
+    }
   }
 
   handleLogout() {
