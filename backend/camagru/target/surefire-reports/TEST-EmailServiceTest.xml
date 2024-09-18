@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="EmailServiceTest" time="0.353" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="EmailServiceTest" time="0.431" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="22"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -12,7 +12,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="CH"/>
     <property name="sun.boot.library.path" value="/opt/homebrew/Cellar/openjdk/22.0.2/libexec/openjdk.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/surefire/surefirebooter-20240919004005261_3.jar /Users/stefan/GitHub/Camagru/backend/camagru/target/surefire 2024-09-19T00-40-05_188-jvmRun1 surefire-20240919004005261_1tmp surefire_0-20240919004005261_2tmp"/>
+    <property name="sun.java.command" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/surefire/surefirebooter-20240919014207471_3.jar /Users/stefan/GitHub/Camagru/backend/camagru/target/surefire 2024-09-19T01-42-07_414-jvmRun1 surefire-20240919014207471_1tmp surefire_0-20240919014207471_2tmp"/>
     <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/test-classes:/Users/stefan/GitHub/Camagru/backend/camagru/target/classes:/Users/stefan/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.11.0-RC1/junit-jupiter-api-5.11.0-RC1.jar:/Users/stefan/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/stefan/.m2/repository/org/junit/platform/junit-platform-commons/1.11.0-RC1/junit-platform-commons-1.11.0-RC1.jar:/Users/stefan/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/stefan/.m2/repository/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar:/Users/stefan/.m2/repository/com/google/protobuf/protobuf-java/3.21.9/protobuf-java-3.21.9.jar:/Users/stefan/.m2/repository/org/json/json/20220320/json-20220320.jar:/Users/stefan/.m2/repository/org/apache/tika/tika-core/1.22/tika-core-1.22.jar:/Users/stefan/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/9.0.24/tomcat-embed-core-9.0.24.jar:/Users/stefan/.m2/repository/org/apache/tomcat/tomcat-annotations-api/9.0.24/tomcat-annotations-api-9.0.24.jar:"/>
@@ -29,7 +29,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/surefire/surefirebooter-20240919004005261_3.jar"/>
+    <property name="surefire.real.class.path" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/surefire/surefirebooter-20240919014207471_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.runtime.version" value="22.0.2"/>
@@ -58,8 +58,8 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="66.0"/>
   </properties>
-  <testcase name="testSend" classname="EmailServiceTest" time="0.353">
-    <system-out><![CDATA[{"messageId":"<202409182240.75977198497@smtp-relay.mailin.fr>"}
+  <testcase name="testSend" classname="EmailServiceTest" time="0.431">
+    <system-out><![CDATA[{"messageId":"<202409182342.72677555785@smtp-relay.mailin.fr>"}
 
 ]]></system-out>
   </testcase>

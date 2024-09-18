@@ -3,8 +3,8 @@ package com.camagru.request_handlers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -70,24 +70,28 @@ public class LoginRequestHandler implements HttpHandler {
                     System.err.println(errorMessage);
 
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
+                    return;  // Add return to avoid further execution
                 }
 
                 // Extract fields
                 String username = jsonBody.getString("username");
 
-                // Get user password from database
-                String query = "select * from users where username='" + username + "'" + " OR email='" + username + "'";
+                // Query to get user password from database using prepared statement
+                String query = "SELECT * FROM users WHERE username = ? OR email = ?";
 
                 String userId = null;
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                        Statement stmt = con.createStatement();) {
-                    ;
+                        PreparedStatement pstmt = con.prepareStatement(query)) {
 
-                    // Get user from database
+                    // Set the parameters for the query
+                    pstmt.setString(1, username);
+                    pstmt.setString(2, username);
+
+                    // Execute the query
+                    ResultSet rs = pstmt.executeQuery();
                     String userPassword = null;
-                    ResultSet rs = stmt
-                            .executeQuery(query);
+
                     if (rs.next()) {
                         userId = rs.getString("user_id");
                         userPassword = rs.getString("password");
@@ -95,7 +99,9 @@ public class LoginRequestHandler implements HttpHandler {
                         String errorMessage = "User not found";
                         System.err.println(errorMessage);
                         res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                        return;  // Exit if the user is not found
                     }
+
                     try {
                         PasswordUtil.verifyPassword(jsonBody.getString("password"), userPassword);
                     } catch (Exception e) {
@@ -103,14 +109,18 @@ public class LoginRequestHandler implements HttpHandler {
                         System.err.println(errorMessage);
 
                         res.sendJsonResponse(401, createErrorResponse(errorMessage));
+                        return;  // Exit if the password is invalid
                     }
                 }
 
+                // Generate JWT token after successful login
                 JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
                 String token = jwtManager.createToken(userId);
 
+                // Set the token in the response header
                 res.setHeader("Set-Cookie", "token=" + token
                         + "; Max-Age=3600000; Path=/; Expires=Wed, 09 Jun 2025 10:18:14 GMT; SameSite=Lax");
+
                 res.sendJsonResponse(201, new JSONObject()
                         .put("message", "User successfully logged in").toString());
 

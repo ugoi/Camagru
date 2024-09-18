@@ -3,8 +3,8 @@ package com.camagru.request_handlers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -74,25 +74,29 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
                 jwtManager.verifySignature(jwt);
                 String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
 
-                String query = "update users set username='" + requestUsername + "' where user_id='" + sub + "'";
+                // Query to update the username
+                String updateQuery = "UPDATE users SET username = ? WHERE user_id = ?";
+
+                // Check if the username already exists
+                String checkUsernameQuery = "SELECT username, user_id FROM users WHERE username = ?";
 
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                        Statement stmt = con.createStatement()) {
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword())) {
 
                     // Check if username already exists
-                    {
-                        String username = "";
-                        String userId = "";
-                        ResultSet rs = stmt
-                                .executeQuery("select * from users where username='" + requestUsername + "'");
+                    try (PreparedStatement checkStmt = con.prepareStatement(checkUsernameQuery)) {
+                        checkStmt.setString(1, requestUsername);
+                        ResultSet rs = checkStmt.executeQuery();
+
+                        String existingUsername = "";
+                        String existingUserId = "";
                         while (rs.next()) {
-                            if (rs.getString("username").equals(requestUsername)) {
-                                username = rs.getString("username");
-                                userId = rs.getString("user_id");
-                            }
+                            existingUsername = rs.getString("username");
+                            existingUserId = rs.getString("user_id");
                         }
-                        if (!userId.equals(sub) && !username.isEmpty()) {
+
+                        // If the username exists and belongs to a different user, return error
+                        if (!existingUserId.equals(sub) && !existingUsername.isEmpty()) {
                             String errorMessage = "Username already exists";
                             System.err.println(errorMessage);
                             res.sendJsonResponse(409, createErrorResponse(errorMessage));
@@ -100,17 +104,23 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
                         }
                     }
 
-                    int rs = stmt.executeUpdate(query);
-                    if (rs != 0) {
-                        res.sendJsonResponse(200,
-                                new JSONObject().put("message", "Username updated successfully").toString());
-                    } else {
-                        String errorMessage = "User not found";
-                        System.err.println(errorMessage);
-                        res.sendJsonResponse(404, createErrorResponse(errorMessage));
-                    }
+                    // Update the username if it doesn't already exist
+                    try (PreparedStatement updateStmt = con.prepareStatement(updateQuery)) {
+                        updateStmt.setString(1, requestUsername);
+                        updateStmt.setString(2, sub);
 
+                        int rowsAffected = updateStmt.executeUpdate();
+                        if (rowsAffected > 0) {
+                            res.sendJsonResponse(200,
+                                    new JSONObject().put("message", "Username updated successfully").toString());
+                        } else {
+                            String errorMessage = "User not found";
+                            System.err.println(errorMessage);
+                            res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                        }
+                    }
                 }
+
             } catch (Exception e) {
                 String errorMessage = "Internal server error: " + e.getMessage();
                 System.err.println(errorMessage);

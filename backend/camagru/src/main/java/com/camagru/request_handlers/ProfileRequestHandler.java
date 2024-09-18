@@ -3,8 +3,8 @@ package com.camagru.request_handlers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.concurrent.CompletableFuture;
 
 import org.json.JSONObject;
@@ -65,17 +65,21 @@ public class ProfileRequestHandler implements HttpHandler {
 
                 String userId = decoded.getJSONObject("payload").getString("sub");
 
-                // Get user details from database
-                String query = "select * from users where user_id='" + userId + "'";
+                // Get user details from database using prepared statement
+                String query = "SELECT username, email FROM users WHERE user_id = ?";
 
                 String userName = null;
                 String userEmail = null;
                 System.out.println("Before database connection");
+
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                        Statement stmt = con.createStatement()) {
+                        PreparedStatement pstmt = con.prepareStatement(query)) {
 
-                    ResultSet rs = stmt.executeQuery(query);
+                    // Bind userId to the query
+                    pstmt.setString(1, userId);
+
+                    ResultSet rs = pstmt.executeQuery();
                     if (rs.next()) {
                         userName = rs.getString("username");
                         userEmail = rs.getString("email");

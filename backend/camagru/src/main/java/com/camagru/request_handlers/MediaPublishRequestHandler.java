@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -83,12 +83,13 @@ public class MediaPublishRequestHandler implements HttpHandler {
                 String mediaId = null;
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                        Statement stmt = con.createStatement()) {
+                        PreparedStatement pstmt = con.prepareStatement(
+                                "SELECT * FROM media WHERE container_uri = ? AND media_type = 'container'")) {
 
-                    ResultSet rs = stmt
-                            .executeQuery(
-                                    "select * from media where container_uri='" + creationId + "'"
-                                            + " AND media_type='container'");
+                    // Set parameters for the prepared statement
+                    pstmt.setString(1, creationId);
+
+                    ResultSet rs = pstmt.executeQuery();
                     String userId = null, mimeType = null;
                     while (rs.next()) {
                         mediaId = rs.getString("media_uri");
@@ -108,20 +109,20 @@ public class MediaPublishRequestHandler implements HttpHandler {
                         return;
                     }
 
-                    // UPDATE THE MEDIAS MEDIA TYPE FROM CONTAINER TO MEDIA
+                    // Update media type from container to media
+                    try (PreparedStatement updateStmt = con.prepareStatement(
+                            "UPDATE media SET media_type = 'media' WHERE container_uri = ? AND media_type = 'container'")) {
+                        updateStmt.setString(1, creationId);
+                        int affectedRows = updateStmt.executeUpdate();
 
-                    int affectedColumns = stmt.executeUpdate(
-                            "UPDATE media SET media_type='media' WHERE container_uri='" + creationId
-                                    + "' AND media_type='container'");
-
-                    if (affectedColumns == 0) {
-                        String errorMessage = "Failed to add media to database";
-                        res.sendJsonResponse(500, createErrorResponse(errorMessage));
-                        return;
+                        if (affectedRows == 0) {
+                            String errorMessage = "Failed to add media to database";
+                            res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                            return;
+                        }
                     }
 
                     String extension = HttpUtil.getMimeTypeExtension(mimeType);
-
                     mediaFileName = sub + "_" + mediaId + "_media" + extension;
 
                 }
@@ -129,16 +130,15 @@ public class MediaPublishRequestHandler implements HttpHandler {
                 String mediaPath = "uploads/media/";
                 MediaService.hasPermission(sub, creationId);
                 byte[] mediaFile = MediaService.getMedia(creationId);
-                OutputStream outMedia = new FileOutputStream(new File(mediaPath + mediaFileName));
                 new File(mediaPath).mkdirs();
+                OutputStream outMedia = new FileOutputStream(new File(mediaPath + mediaFileName));
                 outMedia.write(mediaFile);
                 outMedia.close();
 
                 res.sendJsonResponse(200,
                         new JSONObject()
                                 .put("media_uri", mediaId)
-                                .put("downloadUrl",
-                                        "http://camagru.com:8000/api/serve/media?id=" + mediaId)
+                                .put("downloadUrl", "http://camagru.com:8000/api/serve/media?id=" + mediaId)
                                 .toString());
 
             } catch (Exception e) {
@@ -146,6 +146,5 @@ public class MediaPublishRequestHandler implements HttpHandler {
                 res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }
         });
-
     }
 }

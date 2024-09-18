@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
@@ -73,74 +72,72 @@ public class ProfilePasswordRequestHandler implements HttpHandler {
                 String cookieHeader = req.getHeader("Cookie");
                 String requestPassword = jsonBody.getString("password");
 
-                // Check if token exists and is valid for password and then set tokenUserId.
+                // Check if token exists and is valid for password reset
                 String token = req.getQueryParameter("token", null);
                 String tokenUserId = null;
                 if (token != null) {
                     try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                            propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                            Statement stmt = con.createStatement()) {
+                            propertiesManager.getDbUsername(), propertiesManager.getDbPassword())) {
 
-                        // If email exists, generate a reset password token and store it in the database
-                        String preparedStmt = "SELECT * FROM tokens WHERE token = ?";
-                        PreparedStatement myStmt;
-                        myStmt = con.prepareStatement(preparedStmt);
-                        myStmt.setString(1, token);
-                        ResultSet rs = myStmt.executeQuery();
+                        String tokenQuery = "SELECT * FROM tokens WHERE token = ?";
+                        try (PreparedStatement tokenStmt = con.prepareStatement(tokenQuery)) {
+                            tokenStmt.setString(1, token);
+                            ResultSet rs = tokenStmt.executeQuery();
 
-                        String userId = null;
-                        String type = "";
-                        Timestamp expiryDate = null;
-                        Boolean used = false;
-                        while (rs.next()) {
-                            userId = rs.getString("user_id");
-                            type = rs.getString("type");
-                            expiryDate = rs.getTimestamp("expiry_date");
-                            used = rs.getBoolean("used");
-                        }
-                        Boolean isExpired = false;
-                        if (expiryDate != null) {
-                            Timestamp currentDate = new Timestamp(System.currentTimeMillis());
-                            isExpired = expiryDate.before(currentDate);
-                        }
+                            String userId = null;
+                            String type = "";
+                            Timestamp expiryDate = null;
+                            boolean used = false;
+                            while (rs.next()) {
+                                userId = rs.getString("user_id");
+                                type = rs.getString("type");
+                                expiryDate = rs.getTimestamp("expiry_date");
+                                used = rs.getBoolean("used");
+                            }
 
-                        if (!used && type.equals("password_reset") && !isExpired) {
-                            tokenUserId = userId;
-                            String invalidateTokenQuery = "update tokens set used=true where token='" + token + "'";
-                            int rs2 = stmt.executeUpdate(invalidateTokenQuery);
-                            if (rs2 != 0) {
-                            } else {
-                                String errorMessage = "Token not found";
-                                System.err.println(errorMessage);
-                                res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                            boolean isExpired = expiryDate != null && expiryDate.before(new Timestamp(System.currentTimeMillis()));
+
+                            if (!used && type.equals("password_reset") && !isExpired) {
+                                tokenUserId = userId;
+                                String invalidateTokenQuery = "UPDATE tokens SET used = true WHERE token = ?";
+                                try (PreparedStatement invalidateStmt = con.prepareStatement(invalidateTokenQuery)) {
+                                    invalidateStmt.setString(1, token);
+                                    int updateCount = invalidateStmt.executeUpdate();
+                                    if (updateCount == 0) {
+                                        String errorMessage = "Token not found";
+                                        System.err.println(errorMessage);
+                                        res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                                        return;
+                                    }
+                                }
                             }
                         }
-
                     }
                 }
 
-                // Hashing password
+                // Hash the password
                 String hashedPassword = PasswordUtil.hashPassword(requestPassword);
 
-                // If valid token was provided, skip jwt verification and use tokenUserId
-                String sub = null;
-                if (tokenUserId == null) {
+                // If a valid token was provided, use tokenUserId, otherwise verify JWT
+                String sub = tokenUserId;
+                if (sub == null) {
                     String jwt = CookieUtil.getCookie(cookieHeader, "token");
                     JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
                     jwtManager.verifySignature(jwt);
                     sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
-                } else {
-                    sub = tokenUserId;
                 }
 
-                String query = "update users set password='" + hashedPassword + "' where user_id='" + sub + "'";
-
+                // Update the password in the database
+                String updatePasswordQuery = "UPDATE users SET password = ? WHERE user_id = ?";
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                        Statement stmt = con.createStatement()) {
+                        PreparedStatement updateStmt = con.prepareStatement(updatePasswordQuery)) {
 
-                    int rs = stmt.executeUpdate(query);
-                    if (rs != 0) {
+                    updateStmt.setString(1, hashedPassword);
+                    updateStmt.setString(2, sub);
+
+                    int updateCount = updateStmt.executeUpdate();
+                    if (updateCount > 0) {
                         res.sendJsonResponse(200,
                                 new JSONObject().put("message", "Password updated successfully").toString());
                     } else {
@@ -148,8 +145,8 @@ public class ProfilePasswordRequestHandler implements HttpHandler {
                         System.err.println(errorMessage);
                         res.sendJsonResponse(404, createErrorResponse(errorMessage));
                     }
-
                 }
+
             } catch (Exception e) {
                 String errorMessage = "Internal server error: " + e.getMessage();
                 System.err.println(errorMessage);

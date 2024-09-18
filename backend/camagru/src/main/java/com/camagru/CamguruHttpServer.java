@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,36 +39,50 @@ public class CamguruHttpServer {
 
                 // Database: Create table if not exists
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                                propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                                Statement stmt = con.createStatement();) {
+                                propertiesManager.getDbUsername(), propertiesManager.getDbPassword())) {
 
                         // Create users table
-                        stmt.execute("CREATE TABLE IF NOT EXISTS users"
-                                        + "(user_id int PRIMARY KEY AUTO_INCREMENT, username varchar(30), email varchar(30),"
-                                        + "password varchar(255), isEmailVerified double, enabledNotifications boolean DEFAULT true)");
+                        try (PreparedStatement pstmt = con.prepareStatement(
+                                "CREATE TABLE IF NOT EXISTS users"
+                                + "(user_id int PRIMARY KEY AUTO_INCREMENT, username varchar(30), email varchar(30),"
+                                + "password varchar(255), isEmailVerified double, enabledNotifications boolean DEFAULT true)")) {
+                            pstmt.executeUpdate();
+                        }
 
                         // Create media table
-                        stmt.execute("CREATE TABLE IF NOT EXISTS media"
-                                        + "(media_id int PRIMARY KEY AUTO_INCREMENT, user_id int, mime_type varchar(30),"
-                                        + "media_description varchar(255), media_type varchar(30), media_uri varchar(36) UNIQUE, container_uri varchar(36) UNIQUE,"
-                                        + "media_date datetime, FOREIGN KEY (user_id) REFERENCES users(user_id))");
+                        try (PreparedStatement pstmt = con.prepareStatement(
+                                "CREATE TABLE IF NOT EXISTS media"
+                                + "(media_id int PRIMARY KEY AUTO_INCREMENT, user_id int, mime_type varchar(30),"
+                                + "media_description varchar(255), media_type varchar(30), media_uri varchar(36) UNIQUE, container_uri varchar(36) UNIQUE,"
+                                + "media_date datetime, FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
+                            pstmt.executeUpdate();
+                        }
 
-                        // Create tokens
-                        stmt.execute("CREATE TABLE IF NOT EXISTS tokens"
-                                        + "(token_id int PRIMARY KEY AUTO_INCREMENT, user_id int, token varchar(36),"
-                                        + "type varchar(30), expiry_date datetime, used boolean not null default 0, FOREIGN KEY (user_id) REFERENCES users(user_id))");
+                        // Create tokens table
+                        try (PreparedStatement pstmt = con.prepareStatement(
+                                "CREATE TABLE IF NOT EXISTS tokens"
+                                + "(token_id int PRIMARY KEY AUTO_INCREMENT, user_id int, token varchar(36),"
+                                + "type varchar(30), expiry_date datetime, used boolean not null default 0, FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
+                            pstmt.executeUpdate();
+                        }
 
-                        // Create comments
-                        stmt.execute("CREATE TABLE IF NOT EXISTS comments"
-                                        + "(comment_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
-                                        + "comment_title varchar(30), comment_body varchar(255),"
-                                        + "comment_date datetime, FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))");
+                        // Create comments table
+                        try (PreparedStatement pstmt = con.prepareStatement(
+                                "CREATE TABLE IF NOT EXISTS comments"
+                                + "(comment_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
+                                + "comment_title varchar(30), comment_body varchar(255),"
+                                + "comment_date datetime, FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
+                            pstmt.executeUpdate();
+                        }
 
-                        // Create likes
-                        stmt.execute("CREATE TABLE IF NOT EXISTS likes"
-                                        + "(like_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
-                                        + "reaction varchar(30),"
-                                        + " FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))");
+                        // Create likes table
+                        try (PreparedStatement pstmt = con.prepareStatement(
+                                "CREATE TABLE IF NOT EXISTS likes"
+                                + "(like_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
+                                + "reaction varchar(30),"
+                                + " FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
+                            pstmt.executeUpdate();
+                        }
 
                 } catch (SQLException e) {
                         System.err.println("Error connecting to database in CamguruHttpServer");
@@ -79,8 +93,7 @@ public class CamguruHttpServer {
                 HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", 8000), 0);
 
                 // Setting up a fixed thread pool
-                ExecutorService executor = Executors.newFixedThreadPool(1); // Adjust thread
-                // count as needed
+                ExecutorService executor = Executors.newFixedThreadPool(1); // Adjust thread count as needed
                 server.setExecutor(executor);
 
                 server.createContext("/api/register", new RegisterRequestHandler());

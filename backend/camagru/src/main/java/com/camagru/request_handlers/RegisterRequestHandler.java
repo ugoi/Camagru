@@ -3,8 +3,8 @@ package com.camagru.request_handlers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,35 +79,45 @@ public class RegisterRequestHandler implements HttpHandler {
                 String hashedPassword = PasswordUtil.hashPassword(password);
 
                 // Add user to database
+                String checkUserQuery = "SELECT username, email FROM users WHERE username = ? OR email = ?";
+                String insertUserQuery = "INSERT INTO users(username, email, password, isEmailVerified) VALUES(?, ?, ?, false)";
+
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                        Statement stmt = con.createStatement()) {
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword())) {
 
                     List<String> existingFields = new ArrayList<>();
 
                     // Check if username, email already exists
-                    ResultSet rs = stmt
-                            .executeQuery(
-                                    "select * from users where username='" + username + "' OR email='" + email + "'");
-                    while (rs.next()) {
-                        if (rs.getString("username").equals(username)) {
-                            existingFields.add("username");
+                    try (PreparedStatement checkStmt = con.prepareStatement(checkUserQuery)) {
+                        checkStmt.setString(1, username);
+                        checkStmt.setString(2, email);
+                        ResultSet rs = checkStmt.executeQuery();
+
+                        while (rs.next()) {
+                            if (rs.getString("username").equals(username)) {
+                                existingFields.add("username");
+                            }
+                            if (rs.getString("email").equals(email)) {
+                                existingFields.add("email");
+                            }
                         }
-                        if (rs.getString("email").equals(email)) {
-                            existingFields.add("email");
+
+                        if (!existingFields.isEmpty()) {
+                            String errorMessage = "The following fields already exist: "
+                                    + String.join(", ", existingFields);
+                            System.err.println(errorMessage);
+                            res.sendJsonResponse(409, createErrorResponse(errorMessage));
+                            return;
                         }
                     }
 
-                    if (!existingFields.isEmpty()) {
-                        String errorMessage = "The following fields already exist: "
-                                + String.join(", ", existingFields);
-                        System.err.println(errorMessage);
-                        res.sendJsonResponse(409, createErrorResponse(errorMessage));
-                        return;
+                    // Insert new user
+                    try (PreparedStatement insertStmt = con.prepareStatement(insertUserQuery)) {
+                        insertStmt.setString(1, username);
+                        insertStmt.setString(2, email);
+                        insertStmt.setString(3, hashedPassword);
+                        insertStmt.executeUpdate();
                     }
-
-                    stmt.executeUpdate("INSERT INTO users(username, email, password, isEmailVerified)"
-                            + " VALUES('" + username + "', '" + email + "', '" + hashedPassword + "', false)");
                 }
 
                 // Send verification email

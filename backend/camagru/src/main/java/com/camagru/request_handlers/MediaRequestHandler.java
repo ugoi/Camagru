@@ -283,7 +283,6 @@ public class MediaRequestHandler implements HttpHandler {
                     return;
                 }
 
-                String overlayExtension;
                 String overlayMimeType;
                 try (ByteArrayInputStream input = new ByteArrayInputStream(overlayMedia)) {
                     overlayMimeType = tika.detect(input);

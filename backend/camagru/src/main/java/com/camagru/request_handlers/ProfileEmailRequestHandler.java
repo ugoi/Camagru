@@ -3,8 +3,8 @@ package com.camagru.request_handlers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -73,25 +73,28 @@ public class ProfileEmailRequestHandler implements HttpHandler {
                 JwtManager jwtManager = new JwtManager(propertiesManager.getJwtSecret());
                 jwtManager.verifySignature(jwt);
                 String sub = jwtManager.decodeToken(jwt).getJSONObject("payload").getString("sub");
-                String query = "update users set email='" + requestEmail + "' where user_id='" + sub + "'";
+
+                // Update email query using prepared statements
+                String updateQuery = "UPDATE users SET email = ? WHERE user_id = ?";
+                String checkQuery = "SELECT email, user_id FROM users WHERE email = ?";
 
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                        Statement stmt = con.createStatement()) {
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword())) {
 
-                    // Check if username already exists
-                    {
-                        String email = "";
-                        String userId = "";
-                        ResultSet rs = stmt
-                                .executeQuery("select * from users where email='" + requestEmail + "'");
+                    // Check if the email already exists
+                    try (PreparedStatement checkStmt = con.prepareStatement(checkQuery)) {
+                        checkStmt.setString(1, requestEmail);
+                        ResultSet rs = checkStmt.executeQuery();
+                        String existingEmail = "";
+                        String existingUserId = "";
+
                         while (rs.next()) {
-                            if (rs.getString("email").equals(requestEmail)) {
-                                email = rs.getString("email");
-                                userId = rs.getString("user_id");
-                            }
+                            existingEmail = rs.getString("email");
+                            existingUserId = rs.getString("user_id");
                         }
-                        if (!userId.equals(sub) && !email.isEmpty()) {
+
+                        // If the email already exists and belongs to another user, return error
+                        if (!existingUserId.equals(sub) && !existingEmail.isEmpty()) {
                             String errorMessage = "Email already exists";
                             System.err.println(errorMessage);
                             res.sendJsonResponse(409, createErrorResponse(errorMessage));
@@ -99,17 +102,23 @@ public class ProfileEmailRequestHandler implements HttpHandler {
                         }
                     }
 
-                    int rs = stmt.executeUpdate(query);
-                    if (rs != 0) {
-                        res.sendJsonResponse(200,
-                                new JSONObject().put("message", "Email updated successfully").toString());
-                    } else {
-                        String errorMessage = "User not found";
-                        System.err.println(errorMessage);
-                        res.sendJsonResponse(404, createErrorResponse(errorMessage));
-                    }
+                    // Update the email if it's not already taken by another user
+                    try (PreparedStatement updateStmt = con.prepareStatement(updateQuery)) {
+                        updateStmt.setString(1, requestEmail);
+                        updateStmt.setString(2, sub);
+                        int rowsAffected = updateStmt.executeUpdate();
 
+                        if (rowsAffected > 0) {
+                            res.sendJsonResponse(200,
+                                    new JSONObject().put("message", "Email updated successfully").toString());
+                        } else {
+                            String errorMessage = "User not found";
+                            System.err.println(errorMessage);
+                            res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                        }
+                    }
                 }
+
             } catch (Exception e) {
                 String errorMessage = "Internal server error: " + e.getMessage();
                 System.err.println(errorMessage);
