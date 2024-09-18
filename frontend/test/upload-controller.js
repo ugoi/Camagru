@@ -45,6 +45,16 @@ const closeSnapshotImageBtn = document.getElementById("close-snapshot-image");
  * */
 const closeSnapshotVideoBtn = document.getElementById("close-snapshot-video");
 
+/**
+ * @type {HTMLDivElement}
+ * */
+const customFileUpload = document.querySelector("#custom-file-upload");
+
+/**
+ * @type {HTMLInputElement}
+ */
+const mediaUpload = document.getElementById("media-upload");
+
 // State management
 /**
  * @type {Boolean}
@@ -306,12 +316,12 @@ if (navigator.mediaDevices.getUserMedia) {
 // });
 
 // //Event listeners
-// document.getElementById("fileInput").addEventListener("change", (event) => {
-//   if (event?.target?.files && event.target.files[0]) {
-//     var blob = event.target.files[0]; // See step 1 above
-//     setMedia(blob);
-//   }
-// });
+mediaUpload.addEventListener("change", (event) => {
+  if (event?.target?.files && event.target.files[0]) {
+    var blob = event.target.files[0]; // See step 1 above
+    setMedia(blob);
+  }
+});
 
 // document
 //   .getElementById("overlayFileInput")
@@ -369,7 +379,7 @@ closeSnapshotImageBtn.addEventListener("click", (event) => {
 
 closeSnapshotVideoBtn.addEventListener("click", (event) => {
   console.log("closeSnapshotVideoBtn");
-  
+
   event.preventDefault();
   // setContainerId(null);
   setMedia(null);
@@ -430,13 +440,20 @@ document.getElementById("image-select").addEventListener("change", function () {
     captureVideoBtn.disabled = false;
     captureVideoBtn.style.cursor = "pointer";
     captureVideoBtn.style.backgroundColor = "#4caf50";
+
+    customFileUpload.style.backgroundColor = "#4caf50";
+    customFileUpload.style.pointerEvents = "auto";
+    mediaUpload.disabled = false;
   } else {
     captureImageBtn.disabled = true;
     captureImageBtn.style.cursor = "not-allowed";
-    captureImageBtn.style.backgroundColor = "#000000";
+    // captureImageBtn.style.backgroundColor = "#000000";
 
     captureVideoBtn.disabled = true;
     captureVideoBtn.style.cursor = "not-allowed";
-    captureVideoBtn.style.backgroundColor = "#000000";
+    // captureVideoBtn.style.backgroundColor = "#000000";
+
+    customFileUpload.style.backgroundColor = "#d3d3d3";
+    mediaUpload.disabled = true;
   }
 });

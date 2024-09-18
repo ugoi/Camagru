@@ -168,7 +168,7 @@ camagru-header {
 }
 
 /* Hides the default input file button */
-#image-upload {
+#media-upload {
   display: none;
 }
 
@@ -176,7 +176,7 @@ camagru-header {
 .custom-file-upload {
   display: inline-block;
   padding: 10px 15px;
-  background-color: #4caf50; /* Green background */
+  background-color: #d3d3d3; /* Green background */
   color: white;
   border-radius: 8px;
   cursor: pointer;
@@ -185,16 +185,15 @@ camagru-header {
   border: 2px solid transparent;
   transition: all 0.3s ease;
   text-align: center;
+  pointer-events: none;
 }
 
-/* Hover effect */
 .custom-file-upload:hover {
-  background-color: #45a049; /* Slightly darker green on hover */
+  background-color: #45a049; /* Darker green */
 }
 
-/* Active effect when clicked */
 .custom-file-upload:active {
-  background-color: #3e8e41;
+  background-color: #45a049; /* Darker green */
   transform: scale(0.98); /* Slight shrink effect */
 }
 

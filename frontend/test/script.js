@@ -26,7 +26,7 @@ navigator.mediaDevices.getUserMedia({ video: true })
     });
 
 // Allow image uploads
-const imageUpload = document.getElementById('image-upload');
+const imageUpload = document.getElementById('media-upload');
 imageUpload.addEventListener('change', function () {
     const file = this.files[0];
     if (file) {
