@@ -1,14 +1,14 @@
 import { checkUserAuthentication } from "../services/auth-service.js";
 import {
-  checkIsVideo,
   postMedia,
   getServeMedia,
   mediaService,
   publishMedia,
   getUserMedia,
-  checkFileType,
   deleteMedia,
 } from "./upload-model.js";
+
+import { checkFileType } from "../utils/utils.js";
 
 // Commonly used HTML elements
 const captureImageBtn = document.getElementById("capture-image-btn");

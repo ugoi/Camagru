@@ -7,6 +7,7 @@ import {
   postLike,
 } from "./feed-model.js";
 import { checkUserAuthentication } from "../services/auth-service.js";
+import { checkIsMimeTypeVideo } from "../utils/utils.js";
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
@@ -84,7 +85,8 @@ async function loadNextFeed() {
       const commentsResJson = commentsResJsonDict[mediaId];
       const totalLikes = totalLikesDict[mediaId];
       let hasReallyLiked = hasLikedDict[mediaId];
-      const isVideo = mediaElement.mime_type.includes("video") ? true : false;
+      // const isVideo = mediaElement.mime_type.includes("video") ? true : false;
+      const isVideo = checkIsMimeTypeVideo(mediaElement.mime_type);
       const objectURL = mediaElement.downloadUrl;
 
       // Create the media element
