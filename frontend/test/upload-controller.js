@@ -59,6 +59,10 @@ const imageSelect = document.getElementById("image-select");
 
 const myMedia = document.getElementById("media-div");
 
+const submitButton = document.getElementById("submit-btn");
+
+const publishButton = document.getElementById("publish-btn");
+
 // State management
 /**
  * @type {Boolean}
@@ -111,8 +115,10 @@ function renderMedia(value) {
     outputVideo.src = "";
     snapshotImageWrapper.style.display = "none";
     snapshotVideoWrapper.style.display = "none";
+    submitButton.disabled = true;
   } else {
     videoPreview.style.display = "none";
+    submitButton.disabled = false;
     var isVideo = checkIsVideo(value);
     if (isVideo) {
       outputPhoto.style.display = "none";
@@ -174,11 +180,10 @@ function setContainerId(value) {
  * @returns {void}
  */
 function renderContainerId(value) {
-  const publishButton = document.getElementById("publish-btn");
   if (value == null) {
-    publishButton.style.display = "none";
+    publishButton.disabled = true;
   } else {
-    publishButton.style.display = "block";
+    publishButton.disabled = false;
   }
 }
 
@@ -385,58 +390,54 @@ mediaUpload.addEventListener("change", (event) => {
 //     }
 //   });
 
-document
-  .getElementById("publish-btn")
-  .addEventListener("click", async (event) => {
-    event.preventDefault();
-    if (containerId != null) {
-      var response = await publishMedia(containerId);
-      if (response.status === 200) {
-        setContainerId(null);
-        reloadUserMedia();
-      } else {
-        console.log("Failed to publish media");
-      }
+publishButton.addEventListener("click", async (event) => {
+  event.preventDefault();
+  if (containerId != null) {
+    var response = await publishMedia(containerId);
+    if (response.status === 200) {
+      setContainerId(null);
+      reloadUserMedia();
+    } else {
+      console.log("Failed to publish media");
     }
-  });
+  }
+});
 
-document
-  .getElementById("submit-btn")
-  .addEventListener("click", async (event) => {
-    event.preventDefault();
-    let formData = new FormData();
-    if (media === null || overlayMedia === null) {
-      console.log("Please select both media and overlay.");
-      alert("Please select both media and overlay.");
+submitButton.addEventListener("click", async (event) => {
+  event.preventDefault();
+  let formData = new FormData();
+  if (media === null || overlayMedia === null) {
+    console.log("Please select both media and overlay.");
+    alert("Please select both media and overlay.");
+    return;
+  }
+  formData.append("media", media);
+  formData.append("overlayMedia", overlayMedia);
+  try {
+    var postResponse = await postMedia(formData);
+  } catch (error) {
+    const errorMessage = error.message;
+    if (errorMessage === "Failed to fetch") {
+      console.log(
+        "Failed to fetch, check the backend url and that backend is running."
+      );
       return;
     }
-    formData.append("media", media);
-    formData.append("overlayMedia", overlayMedia);
-    try {
-      var postResponse = await postMedia(formData);
-    } catch (error) {
-      const errorMessage = error.message;
-      if (errorMessage === "Failed to fetch") {
-        console.log(
-          "Failed to fetch, check the backend url and that backend is running."
-        );
-        return;
-      }
-      console.log(errorMessage);
-      return;
-    }
-    var postJson = await postResponse.json();
-    var id = postJson.containerId;
-    setContainerId(id);
-    try {
-      var response = await getServeMedia(id);
-    } catch (error) {
-      console.error("Failed to get media", error);
-      return;
-    }
-    var myBlob = await response.blob();
-    setPreviewMedia(myBlob);
-  });
+    console.log(errorMessage);
+    return;
+  }
+  var postJson = await postResponse.json();
+  var id = postJson.containerId;
+  setContainerId(id);
+  try {
+    var response = await getServeMedia(id);
+  } catch (error) {
+    console.error("Failed to get media", error);
+    return;
+  }
+  var myBlob = await response.blob();
+  setPreviewMedia(myBlob);
+});
 
 // document.getElementById("cancelButton").addEventListener("click", (event) => {
 //   event.preventDefault();
@@ -447,7 +448,7 @@ document
 
 closeSnapshotImageBtn.addEventListener("click", (event) => {
   event.preventDefault();
-  // setContainerId(null);
+  setContainerId(null);
   setMedia(null);
   setPreviewMedia(null);
 });

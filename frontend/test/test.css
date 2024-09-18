@@ -235,12 +235,19 @@ camagru-header {
   transform: scale(0.98);
 }
 
+.submit-btn:disabled {
+  display: none;
+}
+
 .publish-btn {
   border-radius: 200px;
   padding: 10px 20px;
   background-color: #45a049;
   color: white;
   border: none;
+}
+
+.publish-btn:disabled {
   display: none;
 }
 
