@@ -55,6 +55,10 @@ const customFileUpload = document.querySelector("#custom-file-upload");
  */
 const mediaUpload = document.getElementById("media-upload");
 
+const imageSelect = document.getElementById("image-select");
+
+const myMedia = document.getElementById("media-div");
+
 // State management
 /**
  * @type {Boolean}
@@ -170,7 +174,7 @@ function setContainerId(value) {
  * @returns {void}
  */
 function renderContainerId(value) {
-  const publishButton = document.getElementById("publishButton");
+  const publishButton = document.getElementById("publish-btn");
   if (value == null) {
     publishButton.style.display = "none";
   } else {
@@ -193,7 +197,6 @@ var after = null;
 
 async function reloadUserMedia() {
   after = null;
-  const myMedia = document.getElementById("myMedia");
   myMedia.innerHTML = "";
   await loadNextUserMedia();
 }
@@ -203,16 +206,32 @@ async function reloadUserMedia() {
  * @returns {Promise<void>}
  */
 async function loadNextUserMedia() {
-  const myMedia = document.getElementById("myMedia");
-  const result = await getUserMedia(after, 3);
+  const laodButton = document.getElementById("load-btn");
+  let result;
+  try {
+    result = await getUserMedia(after, 3);
+  } catch (error) {
+    const errorMessage = error.message;
+    if (errorMessage === "Failed to fetch") {
+      console.log(
+        "Failed to fetch. Verify the backend URL and ensure the backend is running."
+      );
+      alert(
+        "Failed to fetch. Verify the backend URL and ensure the backend is running."
+      );
+      return;
+    }
+    return;
+  }
   const json = await result.json();
   const data = json.data;
   after = json.paging.after;
   userMedia = data;
+
   if (after == null) {
-    document.getElementById("loadMoreButton").style.display = "none";
+    laodButton.style.display = "none";
   } else {
-    document.getElementById("loadMoreButton").style.display = "block";
+    laodButton.style.display = "block";
   }
 
   if (data && data.length > 0) {
@@ -230,7 +249,11 @@ async function loadNextUserMedia() {
       }
       const divWrapper = document.createElement("div");
       const deleteButton = document.createElement("button");
+      deleteButton.className = "delete-media-btn";
       divWrapper.style.paddingBottom = "10px";
+      divWrapper.style.display = "flex";
+      divWrapper.style.flexDirection = "column";
+      divWrapper.style.alignItems = "center";
       divWrapper.id = mediaElement.id;
       outputMedia.src = objectURL;
       outputMedia.controls = true;
@@ -252,34 +275,63 @@ async function loadNextUserMedia() {
   }
 }
 
-// // On page load
-// // Load overlay assets
-// (async () => {
-//   var overlayAssetPaths = [
-//     "../assets/overlay/clownfish.png",
-//     "../assets/overlay/goat.png",
-//     "../assets/overlay/police-armor.png",
-//     "../assets/overlay/red-rocket.png",
-//   ];
-//   // Add overlay assets to the carousel
-//   if (overlayAssetPaths && overlayAssetPaths.length > 0) {
-//     for (let index = 0; index < overlayAssetPaths.length; index++) {
-//       let path = overlayAssetPaths[index];
-//       let element = document.createElement("img");
-//       element.src = path;
-//       element.className = "carousel-img";
-//       document.getElementById("logos-slide").appendChild(element);
+// On page load
+// Load overlay assets
+(async () => {
+  var overlayAssetPaths = [
+    "../assets/overlay/clownfish.png",
+    "../assets/overlay/goat.png",
+    "../assets/overlay/police-armor.png",
+    "../assets/overlay/red-rocket.png",
+  ];
+  // Add overlay assets to the carousel
+  if (overlayAssetPaths && overlayAssetPaths.length > 0) {
+    for (let index = 0; index < overlayAssetPaths.length; index++) {
+      let path = overlayAssetPaths[index];
+      const title = path.split("/").pop();
+      let element = document.createElement("option");
+      element.value = path;
+      element.innerHTML = title;
+      imageSelect.appendChild(element);
 
-//       element.addEventListener("click", async (event) => {
-//         const result = await fetch(path);
-//         const blob = await result.blob();
-//         setOverlayMedia(blob);
-//       });
-//     }
-//   } else {
-//     console.log("No overlay assets found");
-//   }
-// })();
+      imageSelect.addEventListener("change", async (event) => {
+        const value = event?.target?.value;
+        if (value !== "") {
+          captureImageBtn.disabled = false;
+          captureImageBtn.style.cursor = "pointer";
+          captureImageBtn.style.backgroundColor = "#4caf50";
+
+          captureVideoBtn.disabled = false;
+          captureVideoBtn.style.cursor = "pointer";
+          captureVideoBtn.style.backgroundColor = "#4caf50";
+
+          customFileUpload.style.backgroundColor = "#4caf50";
+          customFileUpload.style.pointerEvents = "auto";
+          mediaUpload.disabled = false;
+
+          // Set the overlay image
+          if (value === element.value) {
+            console.log("Selected overlay asset", path);
+            const result = await fetch(path);
+            const blob = await result.blob();
+            setOverlayMedia(blob);
+          }
+        } else {
+          captureImageBtn.disabled = true;
+          captureImageBtn.style.cursor = "not-allowed";
+
+          captureVideoBtn.disabled = true;
+          captureVideoBtn.style.cursor = "not-allowed";
+
+          customFileUpload.style.backgroundColor = "#d3d3d3";
+          mediaUpload.disabled = true;
+        }
+      });
+    }
+  } else {
+    console.log("No overlay assets found");
+  }
+})();
 
 //Start camera preview
 if (navigator.mediaDevices.getUserMedia) {
@@ -298,24 +350,25 @@ if (navigator.mediaDevices.getUserMedia) {
     });
 }
 
-// // Load user media
-// window.addEventListener("DOMContentLoaded", async (event) => {
-//   try {
-//     const isLoggedIn = checkUserAuthentication();
-//     if (!isLoggedIn) {
-//       window.location.href = "/login";
-//     }
-//     await reloadUserMedia();
-//   } catch (error) {
-//     console.log("Failed to load user media", error);
-//   }
-// });
+// Load user media
+window.addEventListener("DOMContentLoaded", async (event) => {
+  try {
+    const isLoggedIn = checkUserAuthentication();
+    if (!isLoggedIn) {
+      window.location.href = "/login";
+    }
+    await reloadUserMedia();
+  } catch (error) {
+    console.log("Failed to load user media", error);
+  }
+});
 
-// document.getElementById("loadMoreButton").addEventListener("click", (event) => {
-//   loadNextUserMedia();
-// });
+document.getElementById("load-btn").addEventListener("click", (event) => {
+  loadNextUserMedia();
+});
 
-// //Event listeners
+//Event listeners
+
 mediaUpload.addEventListener("change", (event) => {
   if (event?.target?.files && event.target.files[0]) {
     var blob = event.target.files[0]; // See step 1 above
@@ -332,36 +385,58 @@ mediaUpload.addEventListener("change", (event) => {
 //     }
 //   });
 
-// document
-//   .getElementById("publishButton")
-//   .addEventListener("click", async (event) => {
-//     event.preventDefault();
-//     if (containerId != null) {
-//       var response = await publishMedia(containerId);
-//       if (response.status === 200) {
-//         setContainerId(null);
-//         reloadUserMedia();
-//       } else {
-//         console.log("Failed to publish media");
-//       }
-//     }
-//   });
+document
+  .getElementById("publish-btn")
+  .addEventListener("click", async (event) => {
+    event.preventDefault();
+    if (containerId != null) {
+      var response = await publishMedia(containerId);
+      if (response.status === 200) {
+        setContainerId(null);
+        reloadUserMedia();
+      } else {
+        console.log("Failed to publish media");
+      }
+    }
+  });
 
-// document
-//   .getElementById("submitButton")
-//   .addEventListener("click", async (event) => {
-//     event.preventDefault();
-//     let formData = new FormData();
-//     formData.append("media", media);
-//     formData.append("overlayMedia", overlayMedia);
-//     var postResponse = await postMedia(formData);
-//     var postJson = await postResponse.json();
-//     var id = postJson.containerId;
-//     setContainerId(id);
-//     var response = await getServeMedia(id);
-//     var myBlob = await response.blob();
-//     setPreviewMedia(myBlob);
-//   });
+document
+  .getElementById("submit-btn")
+  .addEventListener("click", async (event) => {
+    event.preventDefault();
+    let formData = new FormData();
+    if (media === null || overlayMedia === null) {
+      console.log("Please select both media and overlay.");
+      alert("Please select both media and overlay.");
+      return;
+    }
+    formData.append("media", media);
+    formData.append("overlayMedia", overlayMedia);
+    try {
+      var postResponse = await postMedia(formData);
+    } catch (error) {
+      const errorMessage = error.message;
+      if (errorMessage === "Failed to fetch") {
+        console.log(
+          "Failed to fetch, check the backend url and that backend is running."
+        );
+        return;
+      }
+      console.log(errorMessage);
+      return;
+    }
+    var postJson = await postResponse.json();
+    var id = postJson.containerId;
+    setContainerId(id);
+    try {
+      var response = await getServeMedia(id);
+    } catch (error) {
+      console.error("Failed to get media", error);
+      return;
+    }
+    var myBlob = await response.blob();
+    setPreviewMedia(myBlob);
+  });
 
 // document.getElementById("cancelButton").addEventListener("click", (event) => {
 //   event.preventDefault();
@@ -422,38 +497,9 @@ document.querySelector("#capture-video-btn").addEventListener(
 document.querySelector("#capture-image-btn").addEventListener(
   "click",
   async (ev) => {
-    console.log("Capturing image...");
-
     const blob = await mediaService.takepicture(videoPreview.srcObject);
     setMedia(blob);
     ev.preventDefault();
   },
   false
 );
-
-document.getElementById("image-select").addEventListener("change", function () {
-  if (this.value !== "") {
-    captureImageBtn.disabled = false;
-    captureImageBtn.style.cursor = "pointer";
-    captureImageBtn.style.backgroundColor = "#4caf50";
-
-    captureVideoBtn.disabled = false;
-    captureVideoBtn.style.cursor = "pointer";
-    captureVideoBtn.style.backgroundColor = "#4caf50";
-
-    customFileUpload.style.backgroundColor = "#4caf50";
-    customFileUpload.style.pointerEvents = "auto";
-    mediaUpload.disabled = false;
-  } else {
-    captureImageBtn.disabled = true;
-    captureImageBtn.style.cursor = "not-allowed";
-    // captureImageBtn.style.backgroundColor = "#000000";
-
-    captureVideoBtn.disabled = true;
-    captureVideoBtn.style.cursor = "not-allowed";
-    // captureVideoBtn.style.backgroundColor = "#000000";
-
-    customFileUpload.style.backgroundColor = "#d3d3d3";
-    mediaUpload.disabled = true;
-  }
-});

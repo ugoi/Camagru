@@ -142,7 +142,7 @@ export async function postMedia(formData) {
   if (response.status === 200) {
     return response;
   } else {
-    throw new Error(response.error);
+    throw new Error((await response.json()).error);
   }
 }
 
@@ -301,7 +301,7 @@ export function checkIsVideo(blob) {
   var isVideo = false;
   var mimeType = blob.type;
 
-  if (mimeType.startsWith("video")) {
+  if (checkIsMimeTypeVideo(mimeType)) {
     isVideo = true;
   } else {
     isVideo = false;
@@ -327,7 +327,11 @@ export async function checkFileType(url) {
 
     if (response.status === 200) {
       const contentType = response.headers.get("Content-Type");
-      if (contentType.includes("video")) {
+      console.log("Content Type: ");
+
+      console.log(contentType);
+
+      if (checkIsMimeTypeVideo(contentType)) {
         return "video";
       } else {
         return "image";
@@ -339,5 +343,9 @@ export async function checkFileType(url) {
     console.error("Error fetching resource:", error);
     return "unknown";
   }
+}
+
+export function checkIsMimeTypeVideo(mimeType) {
+  return mimeType.includes("video") || mimeType.includes("x-matroska");
 }
 //#endregion

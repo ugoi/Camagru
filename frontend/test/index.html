@@ -61,8 +61,8 @@
               >
               <select id="image-select" class="custom-select">
                 <option value="" disabled selected>Select Image</option>
-                <option value="image1">Image 1</option>
-                <option value="image2">Image 2</option>
+                <!-- This is an example. -->
+                <!-- <option value="image1">Image 1</option> -->
               </select>
             </div>
             <div class="controls">
@@ -72,6 +72,12 @@
               <button id="capture-video-btn" class="capture-btn" disabled>
                 <i class="fa-solid fa-video"></i>
               </button>
+              <button id="submit-btn" class="submit-btn">
+                Submit
+              </button>
+              <button id="publish-btn" class="publish-btn">
+                Publish
+              </button>
             </div>
           </section>
         </main>
@@ -80,7 +86,7 @@
           <h2>Previous Captures</h2>
           <div class="thumbnail-gallery" id="thumbnail-gallery">
             <!-- Thumbnails of previous pictures will be inserted here -->
-            <img src="https://picsum.photos/200/200" alt="Placeholder" />
+            <!-- <img src="https://picsum.photos/200/200" alt="Placeholder" />
             <img src="https://picsum.photos/200/200" alt="Placeholder" />
             <img src="https://picsum.photos/200/200" alt="Placeholder" />
             <img src="https://picsum.photos/200/200" alt="Placeholder" />
@@ -91,8 +97,9 @@
             <img src="https://picsum.photos/200/200" alt="Placeholder" />
             <img src="https://picsum.photos/200/200" alt="Placeholder" />
             <img src="https://picsum.photos/200/200" alt="Placeholder" />
-            <img src="https://picsum.photos/200/200" alt="Placeholder" />
-            <button id="loadMoreButton" class="load-btn">Load more</button>
+            <img src="https://picsum.photos/200/200" alt="Placeholder" /> -->
+            <div id="media-div"></div>
+            <button id="load-btn" class="load-btn">Load more</button>
           </div>
         </aside>
       </div>

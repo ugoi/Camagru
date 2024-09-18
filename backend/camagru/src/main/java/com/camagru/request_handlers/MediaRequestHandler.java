@@ -257,12 +257,27 @@ public class MediaRequestHandler implements HttpHandler {
                     return;
                 }
 
-                String extension;
-                String mimeType;
+                String mediaExtension;
+                String mediaMimeType;
                 Tika tika = new Tika();
                 try (ByteArrayInputStream input = new ByteArrayInputStream(media)) {
-                    mimeType = tika.detect(input);
-                    extension = HttpUtil.getMimeTypeExtension(mimeType);
+                    mediaMimeType = tika.detect(input);
+                    mediaExtension = HttpUtil.getMimeTypeExtension(mediaMimeType);
+                } catch (Exception e) {
+                    String errorMessage = "Media file is not a valid file";
+                    res.sendJsonResponse(415, createErrorResponse(errorMessage));
+                    return;
+                }
+
+                String overlayExtension;
+                String overlayMimeType;
+                try (ByteArrayInputStream input = new ByteArrayInputStream(overlayMedia)) {
+                    overlayMimeType = tika.detect(input);
+                    overlayMimeType = HttpUtil.getMimeTypeExtension(overlayMimeType);
+                } catch (Exception e) {
+                    String errorMessage = "Overlay file is not a valid file";
+                    res.sendJsonResponse(415, createErrorResponse(errorMessage));
+                    return;
                 }
 
                 String mediaFileName;
@@ -276,7 +291,8 @@ public class MediaRequestHandler implements HttpHandler {
 
                     int affectedColumns = stmt.executeUpdate(
                             "INSERT INTO media(user_id, mime_type, media_description, media_type, media_uri, container_uri, media_date)"
-                                    + " VALUES('" + sub + "', '" + mimeType + "', '" + containerDescription + "', '"
+                                    + " VALUES('" + sub + "', '" + mediaMimeType + "', '" + containerDescription
+                                    + "', '"
                                     + "container" + "', '" + mediaUri + "', '" + containerUri + "', '"
                                     + java.time.LocalDateTime.now() + "')",
                             Statement.RETURN_GENERATED_KEYS);
@@ -286,7 +302,7 @@ public class MediaRequestHandler implements HttpHandler {
                         return;
                     }
 
-                    mediaFileName = sub + "_" + containerUri + "_container" + extension;
+                    mediaFileName = sub + "_" + containerUri + "_container" + mediaExtension;
 
                 }
 
@@ -348,22 +364,38 @@ public class MediaRequestHandler implements HttpHandler {
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
 
-                    String preparedStmt = "DELETE FROM media WHERE (media_uri=? OR container_uri=?) AND user_id=?";
+                    // Delete comment
+                    {
+                        String preparedStmt = "DELETE FROM comments WHERE media_uri=? AND user_id=?";
 
-                    PreparedStatement myStmt;
-                    myStmt = con.prepareStatement(preparedStmt);
-                    myStmt.setString(1, id);
-                    myStmt.setString(2, id);
-                    myStmt.setString(3, sub);
+                        PreparedStatement myStmt;
+                        myStmt = con.prepareStatement(preparedStmt);
+                        myStmt.setString(1, id);
+                        myStmt.setString(2, sub);
 
-                    int affectedColumns = myStmt.executeUpdate();
+                        myStmt.executeUpdate();
+                    }
 
-                    // int affectedColumns = stmt.executeUpdate(
-                    // "DELETE FROM media WHERE (media_uri='" + id + "' AND user_id='" + sub + "'");
-                    if (affectedColumns == 0) {
-                        String errorMessage = "Failed to delete media from database";
-                        res.sendJsonResponse(500, createErrorResponse(errorMessage));
-                        return;
+                    // Delete media from database
+                    {
+
+                        String preparedStmt = "DELETE FROM media WHERE (media_uri=? OR container_uri=?) AND user_id=?";
+
+                        PreparedStatement myStmt;
+                        myStmt = con.prepareStatement(preparedStmt);
+                        myStmt.setString(1, id);
+                        myStmt.setString(2, id);
+                        myStmt.setString(3, sub);
+
+                        int affectedColumns = myStmt.executeUpdate();
+
+                        // int affectedColumns = stmt.executeUpdate(
+                        // "DELETE FROM media WHERE (media_uri='" + id + "' AND user_id='" + sub + "'");
+                        if (affectedColumns == 0) {
+                            String errorMessage = "Failed to delete media from database";
+                            res.sendJsonResponse(500, createErrorResponse(errorMessage));
+                            return;
+                        }
                     }
 
                 }

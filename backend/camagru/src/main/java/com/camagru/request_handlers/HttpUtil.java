@@ -94,6 +94,8 @@ public class HttpUtil {
             extension = ".mp4";
         } else if (mimeType.equals("video/quicktime")) {
             extension = ".mov";
+        } else if (mimeType.equals("application/x-matroska")) {
+            extension = ".mkv";
         } else if (mimeType.equals("image/png")) {
             extension = ".png";
         } else if (mimeType.equals("image/jpeg")) {

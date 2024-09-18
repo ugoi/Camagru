@@ -206,6 +206,13 @@ camagru-header {
   margin: 10px 0;
 }
 
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
 .capture-btn {
   border-radius: 200px;
   padding: 10px 20px;
@@ -215,13 +222,35 @@ camagru-header {
   cursor: not-allowed;
 }
 
-.load-btn {
-  border-radius: 5px;
+.submit-btn {
+  border-radius: 200px;
   padding: 10px 20px;
   background-color: #45a049;
   color: white;
   border: none;
-  cursor: not-allowed;
+}
+
+.submit-btn:active {
+  background-color: #45a049;
+  transform: scale(0.98);
+}
+
+.publish-btn {
+  border-radius: 200px;
+  padding: 10px 20px;
+  background-color: #45a049;
+  color: white;
+  border: none;
+  display: none;
+}
+
+.load-btn {
+  max-width: 100px;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background-color: #45a049;
+  color: white;
+  border: none;
 }
 
 .capture-btn:disabled {
@@ -238,6 +267,14 @@ camagru-header {
   border: 1px solid #a9a9a9; /* Medium gray border */
   cursor: not-allowed; /* Change cursor to indicate it's disabled */
   opacity: 0.6; /* Optionally lower the opacity for a 'faded' look */
+}
+
+.delete-media-btn {
+  border-radius: 200px;
+  padding: 5px 10px;
+  background-color: #ff0000;
+  color: white;
+  border: none;
 }
 
 .side {
@@ -258,12 +295,21 @@ camagru-header {
   overflow-y: auto;
   min-height: 0px;
   justify-content: center;
+  align-items: center;
 }
 
-.thumbnail-gallery img {
+/* .thumbnail-gallery img {
   width: 100%;
   height: auto;
   min-width: 100px;
   object-fit: cover;
   margin: 5px;
+} */
+
+.captured-media {
+  width: 100%;
+  height: auto;
+  min-width: 100px;
+  object-fit: cover;
+  margin-bottom: 5px;
 }
