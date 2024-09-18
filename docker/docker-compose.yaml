@@ -1,0 +1,20 @@
+version: "latest"
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ../frontend:/usr/share/nginx/html
+
+  app:
+    image: eclipse-temurin:17
+    ports:
+      - "8000:8000"
+    working_dir: /app
+    volumes:
+      - ../backend/camagru:/app
+    command: java -jar target/camagru-1.0-SNAPSHOT.jar
+    # Use the init flag to ensure packages like ffmpeg are installed when container starts
+    entrypoint: |
+      sh -c "apt-get update && apt-get install -y ffmpeg && java -jar target/camagru-1.0-SNAPSHOT.jar"

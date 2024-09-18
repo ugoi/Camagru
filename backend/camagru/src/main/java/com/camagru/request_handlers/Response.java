@@ -39,7 +39,7 @@ public class Response {
             System.out.println("Sending JSON response");
             // Set default headers for JSON
             exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://camagru.com:5500");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://camagru.com");
             exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
 
             byte[] responseBytes = responseBody.getBytes(StandardCharsets.UTF_8);
@@ -96,7 +96,7 @@ public class Response {
             if (contentType != null) {
                 exchange.getResponseHeaders().set("Content-Type", contentType);
             }
-            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://camagru.com:5500");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://camagru.com");
             exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
 
             if (responseBytes == null) {

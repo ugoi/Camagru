@@ -101,7 +101,7 @@ public class SendVerificationEmailService {
         """;
 
     // Send email with reset password link
-    String resetLink = "http://camagru.com:5500/email-validation/?token=" + token;
+    String resetLink = "http://camagru.com/email-validation/?token=" + token;
     String formattedEmail = String.format(emailTemplate, resetLink);
     service.send(username2, email, "Verify Email", formattedEmail);
   }

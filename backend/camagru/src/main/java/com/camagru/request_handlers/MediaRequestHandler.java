@@ -10,6 +10,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -116,31 +117,44 @@ public class MediaRequestHandler implements HttpHandler {
                 List<String> mediaDates = new ArrayList<>();
                 // Add media to database
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
-                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
-                        Statement stmt = con.createStatement()) {
+                        propertiesManager.getDbUsername(), propertiesManager.getDbPassword())) {
 
-                    String query;
+                    String query = "";
+                    PreparedStatement stmt;
+
                     if (lastPictureId != null && !lastPictureId.isEmpty() && !lastPictureId.equals("null")
                             && !lastPictureId.equals("undefined")) {
-                        query = String.format(
-                                "SELECT * FROM media " +
-                                        "WHERE user_id='%s' " +
-                                        "AND media_date < (SELECT media_date FROM media WHERE media_uri='%s') " +
-                                        "AND media_type='media' " +
-                                        "ORDER BY media_date DESC " +
-                                        "LIMIT %s",
-                                sub, lastPictureId, limit);
+                        query = """
+                                SELECT * FROM media
+                                WHERE user_id=?
+                                AND media_date < (SELECT media_date FROM media WHERE media_uri=?)
+                                AND media_type='media'
+                                ORDER BY media_date DESC
+                                LIMIT ?
+                                """;
+                        stmt = con.prepareStatement(query);
+
+                        // Set parameters
+                        stmt.setString(1, sub); // sub is user_id
+                        stmt.setString(2, lastPictureId); // lastPictureId is the media_uri
+                        stmt.setInt(3, Integer.parseInt(limit)); // limit is the number of records to retrieve
                     } else {
-                        query = String.format(
-                                "SELECT * FROM media " +
-                                        "WHERE user_id='%s' " +
-                                        "AND media_type='media' " +
-                                        "ORDER BY media_date DESC " +
-                                        "LIMIT %s",
-                                sub, limit);
+                        query = """
+                                SELECT * FROM media
+                                WHERE user_id=?
+                                AND media_type='media'
+                                ORDER BY media_date DESC
+                                LIMIT ?
+                                """;
+                        stmt = con.prepareStatement(query);
+
+                        // Set parameters
+                        stmt.setString(1, sub); // sub is user_id
+                        stmt.setInt(2, Integer.parseInt(limit)); // limit is the number of records to retrieve
                     }
 
-                    ResultSet rs = stmt.executeQuery(query);
+                    // Execute the query
+                    ResultSet rs = stmt.executeQuery();
 
                     while (rs.next()) {
                         String id = rs.getString("media_uri");
@@ -289,13 +303,25 @@ public class MediaRequestHandler implements HttpHandler {
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
 
-                    int affectedColumns = stmt.executeUpdate(
-                            "INSERT INTO media(user_id, mime_type, media_description, media_type, media_uri, container_uri, media_date)"
-                                    + " VALUES('" + sub + "', '" + mediaMimeType + "', '" + containerDescription
-                                    + "', '"
-                                    + "container" + "', '" + mediaUri + "', '" + containerUri + "', '"
-                                    + java.time.LocalDateTime.now() + "')",
-                            Statement.RETURN_GENERATED_KEYS);
+                    String sql = """
+                            INSERT INTO media(user_id, mime_type, media_description, media_type, media_uri, container_uri, media_date)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                            """;
+
+                    PreparedStatement myStmt;
+                    myStmt = con.prepareStatement(sql);
+
+                    myStmt.setString(1, sub);
+                    myStmt.setString(2, mediaMimeType);
+                    myStmt.setString(3, containerDescription);
+                    myStmt.setString(4, "container");
+                    myStmt.setString(5, mediaUri);
+                    myStmt.setString(6, containerUri);
+                    myStmt.setTimestamp(7, Timestamp.valueOf(java.time.LocalDateTime.now()));
+
+                    // Execute the update
+                    int affectedColumns = myStmt.executeUpdate();
+
                     if (affectedColumns == 0) {
                         String errorMessage = "Failed to add media to database";
                         res.sendJsonResponse(500, createErrorResponse(errorMessage));

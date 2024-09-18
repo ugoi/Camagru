@@ -163,7 +163,7 @@ public class ForgotPasswordRequestHandler implements HttpHandler {
             """;
 
         // Send email with reset password link
-        String resetLink = "http://camagru.com:5500/password-reset/?token=" + token;
+        String resetLink = "http://camagru.com/password-reset/?token=" + token;
         String formattedEmail = String.format(emailTemplate, resetLink);
         service.send(username, email, "Reset Password", formattedEmail);
       } catch (Exception e) {
