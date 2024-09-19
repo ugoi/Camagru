@@ -14,6 +14,6 @@ services:
     volumes:
       - ../backend/camagru:/app
     command: java -jar target/camagru-1.0-SNAPSHOT.jar
-    # Use the init flag to ensure packages like ffmpeg are installed when container starts
+    # Install Maven and any other required packages, build the project, then run the application
     entrypoint: |
-      sh -c "apt-get update && apt-get install -y ffmpeg && java -jar target/camagru-1.0-SNAPSHOT.jar"
+      sh -c "apt-get update && apt-get install -y ffmpeg maven && mvn clean package && java -jar target/camagru-1.0-SNAPSHOT.jar"

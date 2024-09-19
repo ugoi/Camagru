@@ -1,64 +1,63 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="JwtManagerTest" time="0.085" tests="3" errors="0" skipped="0" failures="0">
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite tests="3" failures="0" name="JwtManagerTest" time="0.041" errors="0" skipped="0">
   <properties>
-    <property name="java.specification.version" value="22"/>
-    <property name="sun.jnu.encoding" value="UTF-8"/>
-    <property name="java.class.path" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/test-classes:/Users/stefan/GitHub/Camagru/backend/camagru/target/classes:/Users/stefan/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.11.0-RC1/junit-jupiter-api-5.11.0-RC1.jar:/Users/stefan/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/stefan/.m2/repository/org/junit/platform/junit-platform-commons/1.11.0-RC1/junit-platform-commons-1.11.0-RC1.jar:/Users/stefan/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/stefan/.m2/repository/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar:/Users/stefan/.m2/repository/com/google/protobuf/protobuf-java/3.21.9/protobuf-java-3.21.9.jar:/Users/stefan/.m2/repository/org/json/json/20220320/json-20220320.jar:/Users/stefan/.m2/repository/org/apache/tika/tika-core/1.22/tika-core-1.22.jar:/Users/stefan/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/9.0.24/tomcat-embed-core-9.0.24.jar:/Users/stefan/.m2/repository/org/apache/tomcat/tomcat-annotations-api/9.0.24/tomcat-annotations-api-9.0.24.jar:"/>
-    <property name="java.vm.vendor" value="Homebrew"/>
-    <property name="sun.arch.data.model" value="64"/>
-    <property name="java.vendor.url" value="https://github.com/Homebrew/homebrew-core/issues"/>
-    <property name="os.name" value="Mac OS X"/>
-    <property name="java.vm.specification.version" value="22"/>
+    <property name="jansi.mode" value="force"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="java.vm.version" value="17.0.12+7"/>
+    <property name="sun.boot.library.path" value="/opt/java/openjdk/lib"/>
+    <property name="maven.multiModuleProjectDirectory" value="/app"/>
+    <property name="java.vm.vendor" value="Eclipse Adoptium"/>
+    <property name="java.vendor.url" value="https://adoptium.net/"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="path.separator" value=":"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="user.country" value="US"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
-    <property name="user.country" value="CH"/>
-    <property name="sun.boot.library.path" value="/opt/homebrew/Cellar/openjdk/22.0.2/libexec/openjdk.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/surefire/surefirebooter-20240919022400746_3.jar /Users/stefan/GitHub/Camagru/backend/camagru/target/surefire 2024-09-19T02-24-00_674-jvmRun1 surefire-20240919022400746_1tmp surefire_0-20240919022400746_2tmp"/>
-    <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="/app"/>
+    <property name="java.vm.compressedOopsMode" value="32-bit"/>
+    <property name="java.runtime.version" value="17.0.12+7"/>
+    <property name="os.arch" value="aarch64"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="os.name" value="Linux"/>
+    <property name="classworlds.conf" value="/usr/share/maven/bin/m2.conf"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib"/>
+    <property name="maven.conf" value="/usr/share/maven/conf"/>
     <property name="jdk.debug" value="release"/>
-    <property name="surefire.test.class.path" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/test-classes:/Users/stefan/GitHub/Camagru/backend/camagru/target/classes:/Users/stefan/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.11.0-RC1/junit-jupiter-api-5.11.0-RC1.jar:/Users/stefan/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/stefan/.m2/repository/org/junit/platform/junit-platform-commons/1.11.0-RC1/junit-platform-commons-1.11.0-RC1.jar:/Users/stefan/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/stefan/.m2/repository/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar:/Users/stefan/.m2/repository/com/google/protobuf/protobuf-java/3.21.9/protobuf-java-3.21.9.jar:/Users/stefan/.m2/repository/org/json/json/20220320/json-20220320.jar:/Users/stefan/.m2/repository/org/apache/tika/tika-core/1.22/tika-core-1.22.jar:/Users/stefan/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/9.0.24/tomcat-embed-core-9.0.24.jar:/Users/stefan/.m2/repository/org/apache/tomcat/tomcat-annotations-api/9.0.24/tomcat-annotations-api-9.0.24.jar:"/>
-    <property name="sun.cpu.endian" value="little"/>
-    <property name="user.home" value="/Users/stefan"/>
+    <property name="java.class.version" value="61.0"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="6.10.4-linuxkit"/>
+    <property name="library.jansi.path" value="/usr/share/maven/lib/jansi-native"/>
+    <property name="user.home" value="/root"/>
+    <property name="user.timezone" value="Etc/UTC"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.specification.version" value="17"/>
+    <property name="user.name" value="root"/>
+    <property name="java.class.path" value="/usr/share/maven/boot/plexus-classworlds-2.x.jar"/>
+    <property name="java.vm.specification.version" value="17"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher clean package"/>
+    <property name="java.home" value="/opt/java/openjdk"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
-    <property name="java.version.date" value="2024-07-16"/>
-    <property name="java.home" value="/opt/homebrew/Cellar/openjdk/22.0.2/libexec/openjdk.jdk/Contents/Home"/>
-    <property name="file.separator" value="/"/>
-    <property name="basedir" value="/Users/stefan/GitHub/Camagru/backend/camagru"/>
-    <property name="java.vm.compressedOopsMode" value="Zero based"/>
-    <property name="line.separator" value="&#10;"/>
-    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
-    <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/stefan/GitHub/Camagru/backend/camagru/target/surefire/surefirebooter-20240919022400746_3.jar"/>
-    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
-    <property name="java.runtime.version" value="22.0.2"/>
-    <property name="user.name" value="stefan"/>
-    <property name="stdout.encoding" value="UTF-8"/>
-    <property name="path.separator" value=":"/>
-    <property name="os.version" value="14.6.1"/>
-    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
-    <property name="file.encoding" value="UTF-8"/>
-    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
-    <property name="java.vendor.version" value="Homebrew"/>
-    <property name="localRepository" value="/Users/stefan/.m2/repository"/>
-    <property name="java.vendor.url.bug" value="https://github.com/Homebrew/homebrew-core/issues"/>
-    <property name="java.io.tmpdir" value="/var/folders/j6/4x_7mvj53914tlztnyq_fh0c0000gn/T/"/>
-    <property name="java.version" value="22.0.2"/>
-    <property name="user.dir" value="/Users/stefan/GitHub/Camagru/backend/camagru"/>
-    <property name="os.arch" value="aarch64"/>
-    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
-    <property name="native.encoding" value="UTF-8"/>
-    <property name="java.library.path" value="/Users/stefan/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
-    <property name="stderr.encoding" value="UTF-8"/>
-    <property name="java.vendor" value="Homebrew"/>
-    <property name="java.vm.version" value="22.0.2"/>
-    <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
-    <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
-    <property name="java.class.version" value="66.0"/>
+    <property name="java.version" value="17.0.12"/>
+    <property name="native.encoding" value="UTF-8"/>
+    <property name="java.vendor" value="Eclipse Adoptium"/>
+    <property name="maven.home" value="/usr/share/maven"/>
+    <property name="file.separator" value="/"/>
+    <property name="java.version.date" value="2024-07-16"/>
+    <property name="java.vendor.url.bug" value="https://github.com/adoptium/adoptium-support/issues"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="java.vendor.version" value="Temurin-17.0.12+7"/>
   </properties>
-  <testcase name="testCreateToken" classname="JwtManagerTest" time="0.07"/>
-  <testcase name="testVerifyExternalSignature" classname="JwtManagerTest" time="0.001"/>
-  <testcase name="testVerifyOwnSignature" classname="JwtManagerTest" time="0.001"/>
+  <testcase classname="JwtManagerTest" name="JwtManagerTest.testCreateToken" time="0.041"/>
+  <testcase classname="JwtManagerTest" name="JwtManagerTest.testVerifyOwnSignature" time="0"/>
+  <testcase classname="JwtManagerTest" name="JwtManagerTest.testVerifyExternalSignature" time="0"/>
 </testsuite>
