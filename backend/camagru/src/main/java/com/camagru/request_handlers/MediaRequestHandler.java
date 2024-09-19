@@ -76,7 +76,6 @@ public class MediaRequestHandler implements HttpHandler {
         CompletableFuture.runAsync(() -> {
 
             try {
-                System.out.println("GET /api/media");
                 // Validate input
                 List<PropertyField> propertyFields = Arrays.asList(
                         new PropertyField("after", false),
@@ -88,7 +87,7 @@ public class MediaRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -228,7 +227,7 @@ public class MediaRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -266,7 +265,7 @@ public class MediaRequestHandler implements HttpHandler {
 
                 if (media == null || overlayMedia == null) {
                     String errorMessage = "Media and overlayMedia must be provided";
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -361,7 +360,7 @@ public class MediaRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }

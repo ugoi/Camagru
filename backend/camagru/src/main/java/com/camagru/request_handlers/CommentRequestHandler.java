@@ -52,7 +52,6 @@ public class CommentRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
-        System.out.println("Getting options response");
         res.sendOptionsResponse(res);
     }
 
@@ -64,7 +63,6 @@ public class CommentRequestHandler implements HttpHandler {
     private void handleGetRequest(Request req, Response res) {
         CompletableFuture.runAsync(() -> {
             try {
-                System.out.println("Getting comments");
                 // Validate input
                 List<PropertyField> propertyFields = Arrays.asList(
                         new PropertyField("media_id", true));
@@ -75,7 +73,6 @@ public class CommentRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -153,7 +150,6 @@ public class CommentRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }

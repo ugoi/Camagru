@@ -47,7 +47,6 @@ public class ProfileRequestHandler implements HttpHandler {
         CompletableFuture.runAsync(() -> {
 
             try {
-                System.out.println("Getting profile");
                 // Properties
                 PropertiesManager propertiesManager = new PropertiesManager();
                 String cookieHeader = req.getHeader("Cookie");
@@ -70,7 +69,6 @@ public class ProfileRequestHandler implements HttpHandler {
 
                 String userName = null;
                 String userEmail = null;
-                System.out.println("Before database connection");
 
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
@@ -89,7 +87,6 @@ public class ProfileRequestHandler implements HttpHandler {
                         return;
                     }
                 }
-                System.out.println("After database connection");
 
                 JSONObject jsonResponse = new JSONObject()
                         .put("username", userName)

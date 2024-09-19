@@ -48,7 +48,6 @@ public class SettingsRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
-        System.out.println("Getting options response");
         res.sendOptionsResponse(res);
     }
 
@@ -122,7 +121,7 @@ public class SettingsRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }

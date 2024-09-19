@@ -37,14 +37,12 @@ public class ServeMediaRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
-        System.out.println("Getting options response");
         res.sendOptionsResponse(res);
 
     }
 
     private void handleGetRequest(Request req, Response res) {
         try {
-            System.out.println("Serving media");
             // No authorization needed
 
             // Validate input

@@ -51,7 +51,6 @@ public class LikesRequestHandler implements HttpHandler {
     }
 
     private void handleOptionsRequest(Request req, Response res) {
-        System.out.println("Getting options response");
         res.sendOptionsResponse(res);
 
     }
@@ -65,8 +64,6 @@ public class LikesRequestHandler implements HttpHandler {
     private void handleGetRequest(Request req, Response res) {
         CompletableFuture.runAsync(() -> {
             try {
-                System.out.println("Getting likes");
-
                 PropertiesManager propertiesManager = new PropertiesManager();
                 String sub = null;
                 try {
@@ -89,7 +86,6 @@ public class LikesRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -102,7 +98,6 @@ public class LikesRequestHandler implements HttpHandler {
                 boolean hasLiked = false;
 
                 // Add media to database
-                System.out.println("Before database connection");
                 try (Connection con = DriverManager.getConnection(propertiesManager.getDbUrl(),
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
@@ -126,8 +121,6 @@ public class LikesRequestHandler implements HttpHandler {
                         hasLiked = hasUserLikedMedia(mediaUri, sub, con);
                     }
                 }
-
-                System.out.println("After database connection");
 
                 JSONObject responseBody = new JSONObject();
 
@@ -156,7 +149,6 @@ public class LikesRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -245,7 +237,7 @@ public class LikesRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }

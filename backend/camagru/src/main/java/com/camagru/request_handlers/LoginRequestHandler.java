@@ -67,10 +67,9 @@ public class LoginRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
 
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
-                    return;  // Add return to avoid further execution
+                    return; // Add return to avoid further execution
                 }
 
                 // Extract fields
@@ -97,19 +96,17 @@ public class LoginRequestHandler implements HttpHandler {
                         userPassword = rs.getString("password");
                     } else {
                         String errorMessage = "User not found";
-                        System.err.println(errorMessage);
                         res.sendJsonResponse(404, createErrorResponse(errorMessage));
-                        return;  // Exit if the user is not found
+                        return; // Exit if the user is not found
                     }
 
                     try {
                         PasswordUtil.verifyPassword(jsonBody.getString("password"), userPassword);
                     } catch (Exception e) {
                         String errorMessage = "Invalid password";
-                        System.err.println(errorMessage);
 
                         res.sendJsonResponse(401, createErrorResponse(errorMessage));
-                        return;  // Exit if the password is invalid
+                        return; // Exit if the password is invalid
                     }
                 }
 
@@ -126,7 +123,7 @@ public class LoginRequestHandler implements HttpHandler {
 
             } catch (Exception e) {
                 String errorMessage = "Internal server error: " + e.getMessage();
-                System.err.println(errorMessage);
+
                 e.printStackTrace();
                 res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }

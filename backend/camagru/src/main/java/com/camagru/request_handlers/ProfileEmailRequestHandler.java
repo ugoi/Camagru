@@ -62,7 +62,7 @@ public class ProfileEmailRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -96,7 +96,7 @@ public class ProfileEmailRequestHandler implements HttpHandler {
                         // If the email already exists and belongs to another user, return error
                         if (!existingUserId.equals(sub) && !existingEmail.isEmpty()) {
                             String errorMessage = "Email already exists";
-                            System.err.println(errorMessage);
+
                             res.sendJsonResponse(409, createErrorResponse(errorMessage));
                             return;
                         }
@@ -113,7 +113,7 @@ public class ProfileEmailRequestHandler implements HttpHandler {
                                     new JSONObject().put("message", "Email updated successfully").toString());
                         } else {
                             String errorMessage = "User not found";
-                            System.err.println(errorMessage);
+
                             res.sendJsonResponse(404, createErrorResponse(errorMessage));
                         }
                     }
@@ -121,7 +121,7 @@ public class ProfileEmailRequestHandler implements HttpHandler {
 
             } catch (Exception e) {
                 String errorMessage = "Internal server error: " + e.getMessage();
-                System.err.println(errorMessage);
+
                 e.printStackTrace();
                 res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }

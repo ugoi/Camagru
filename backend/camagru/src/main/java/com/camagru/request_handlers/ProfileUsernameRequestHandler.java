@@ -62,7 +62,7 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -98,7 +98,7 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
                         // If the username exists and belongs to a different user, return error
                         if (!existingUserId.equals(sub) && !existingUsername.isEmpty()) {
                             String errorMessage = "Username already exists";
-                            System.err.println(errorMessage);
+
                             res.sendJsonResponse(409, createErrorResponse(errorMessage));
                             return;
                         }
@@ -115,7 +115,7 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
                                     new JSONObject().put("message", "Username updated successfully").toString());
                         } else {
                             String errorMessage = "User not found";
-                            System.err.println(errorMessage);
+
                             res.sendJsonResponse(404, createErrorResponse(errorMessage));
                         }
                     }
@@ -123,7 +123,7 @@ public class ProfileUsernameRequestHandler implements HttpHandler {
 
             } catch (Exception e) {
                 String errorMessage = "Internal server error: " + e.getMessage();
-                System.err.println(errorMessage);
+
                 e.printStackTrace();
                 res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }

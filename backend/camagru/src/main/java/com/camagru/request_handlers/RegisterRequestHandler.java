@@ -65,7 +65,7 @@ public class RegisterRequestHandler implements HttpHandler {
 
                 if (!wrongFields.isEmpty()) {
                     String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-                    System.err.println(errorMessage);
+
                     res.sendJsonResponse(400, createErrorResponse(errorMessage));
                     return;
                 }
@@ -105,7 +105,7 @@ public class RegisterRequestHandler implements HttpHandler {
                         if (!existingFields.isEmpty()) {
                             String errorMessage = "The following fields already exist: "
                                     + String.join(", ", existingFields);
-                            System.err.println(errorMessage);
+
                             res.sendJsonResponse(409, createErrorResponse(errorMessage));
                             return;
                         }
@@ -138,7 +138,7 @@ public class RegisterRequestHandler implements HttpHandler {
                 res.sendJsonResponse(201, jsonResponse.toString());
             } catch (Exception e) {
                 String errorMessage = "Internal server error: " + e.getMessage();
-                System.err.println(errorMessage);
+
                 e.printStackTrace();
                 res.sendJsonResponse(500, createErrorResponse(errorMessage));
             }

@@ -60,7 +60,7 @@ public class VerifyEmailRequestHandler implements HttpHandler {
 
         if (!wrongFields.isEmpty()) {
           String errorMessage = "The following fields are invalid: " + String.join(", ", wrongFields);
-          System.err.println(errorMessage);
+
           res.sendJsonResponse(400, createErrorResponse(errorMessage));
           return;
         }
@@ -98,21 +98,21 @@ public class VerifyEmailRequestHandler implements HttpHandler {
 
             if (used) {
               String errorMessage = "{error: Token already used}";
-              System.err.println(errorMessage);
+
               res.sendJsonResponse(400, createErrorResponse(errorMessage));
               return;
             }
 
             if (isExpired) {
               String errorMessage = "{error: Token expired}";
-              System.err.println(errorMessage);
+
               res.sendJsonResponse(400, createErrorResponse(errorMessage));
               return;
             }
 
             if (!type.equals("email_validation")) {
               String errorMessage = "{error: Invalid token type}";
-              System.err.println(errorMessage);
+
               res.sendJsonResponse(400, createErrorResponse(errorMessage));
               return;
             }
@@ -123,7 +123,7 @@ public class VerifyEmailRequestHandler implements HttpHandler {
             if (rs2 != 0) {
             } else {
               String errorMessage = "Token not found";
-              System.err.println(errorMessage);
+
               res.sendJsonResponse(404, createErrorResponse(errorMessage));
               return;
             }
@@ -155,14 +155,14 @@ public class VerifyEmailRequestHandler implements HttpHandler {
                 new JSONObject().put("message", "Email verified successfully").toString());
           } else {
             String errorMessage = "User not found";
-            System.err.println(errorMessage);
+
             res.sendJsonResponse(404, createErrorResponse(errorMessage));
           }
 
         }
       } catch (Exception e) {
         String errorMessage = "Internal server error: " + e.getMessage();
-        System.err.println(errorMessage);
+
         e.printStackTrace();
         res.sendJsonResponse(500, createErrorResponse(errorMessage));
       }

@@ -36,7 +36,6 @@ public class Response {
 
     public void sendJsonResponse(int statusCode, String responseBody) {
         try {
-            System.out.println("Sending JSON response");
             // Set default headers for JSON
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "http://camagru.com");
@@ -64,7 +63,6 @@ public class Response {
 
     public void sendResponse(int statusCode, Object responseBody) {
         try {
-            System.out.println("Sending response");
             byte[] responseBytes = null;
             String contentType = null;
 
