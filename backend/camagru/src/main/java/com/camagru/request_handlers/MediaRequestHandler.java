@@ -412,6 +412,18 @@ public class MediaRequestHandler implements HttpHandler {
                         myStmt.executeUpdate();
                     }
 
+                    // Delete likes
+                    {
+                        String preparedStmt = "DELETE FROM likes WHERE media_uri=? AND user_id=?";
+
+                        PreparedStatement myStmt;
+                        myStmt = con.prepareStatement(preparedStmt);
+                        myStmt.setString(1, id);
+                        myStmt.setString(2, sub);
+
+                        myStmt.executeUpdate();
+                    }
+
                     // Delete media from database
                     {
 
