@@ -1,5 +1,6 @@
 package com.camagru;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.Connection;
@@ -33,7 +34,14 @@ import com.camagru.request_handlers.VideoUploadPartRequestHandler;
 import com.sun.net.httpserver.HttpServer;
 
 public class CamguruHttpServer {
+        // Directory paths for media and temp uploads
+        private static final String MEDIA_UPLOAD_PATH = "uploads/media";
+        private static final String TEMP_UPLOAD_PATH = "uploads/temp";
+
         public static void main(String[] args) throws IOException, InvalidProperiesException {
+                // Ensure required directories exist
+                createDirectories();
+
                 // Properties
                 PropertiesManager propertiesManager = new PropertiesManager();
 
@@ -43,45 +51,45 @@ public class CamguruHttpServer {
 
                         // Create users table
                         try (PreparedStatement pstmt = con.prepareStatement(
-                                "CREATE TABLE IF NOT EXISTS users"
-                                + "(user_id int PRIMARY KEY AUTO_INCREMENT, username varchar(30), email varchar(30),"
-                                + "password varchar(255), isEmailVerified double, enabledNotifications boolean DEFAULT true)")) {
-                            pstmt.executeUpdate();
+                                        "CREATE TABLE IF NOT EXISTS users"
+                                                        + "(user_id int PRIMARY KEY AUTO_INCREMENT, username varchar(30), email varchar(30),"
+                                                        + "password varchar(255), isEmailVerified double, enabledNotifications boolean DEFAULT true)")) {
+                                pstmt.executeUpdate();
                         }
 
                         // Create media table
                         try (PreparedStatement pstmt = con.prepareStatement(
-                                "CREATE TABLE IF NOT EXISTS media"
-                                + "(media_id int PRIMARY KEY AUTO_INCREMENT, user_id int, mime_type varchar(30),"
-                                + "media_description varchar(255), media_type varchar(30), media_uri varchar(36) UNIQUE, container_uri varchar(36) UNIQUE,"
-                                + "media_date datetime, FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
-                            pstmt.executeUpdate();
+                                        "CREATE TABLE IF NOT EXISTS media"
+                                                        + "(media_id int PRIMARY KEY AUTO_INCREMENT, user_id int, mime_type varchar(30),"
+                                                        + "media_description varchar(255), media_type varchar(30), media_uri varchar(36) UNIQUE, container_uri varchar(36) UNIQUE,"
+                                                        + "media_date datetime, FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
+                                pstmt.executeUpdate();
                         }
 
                         // Create tokens table
                         try (PreparedStatement pstmt = con.prepareStatement(
-                                "CREATE TABLE IF NOT EXISTS tokens"
-                                + "(token_id int PRIMARY KEY AUTO_INCREMENT, user_id int, token varchar(36),"
-                                + "type varchar(30), expiry_date datetime, used boolean not null default 0, FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
-                            pstmt.executeUpdate();
+                                        "CREATE TABLE IF NOT EXISTS tokens"
+                                                        + "(token_id int PRIMARY KEY AUTO_INCREMENT, user_id int, token varchar(36),"
+                                                        + "type varchar(30), expiry_date datetime, used boolean not null default 0, FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
+                                pstmt.executeUpdate();
                         }
 
                         // Create comments table
                         try (PreparedStatement pstmt = con.prepareStatement(
-                                "CREATE TABLE IF NOT EXISTS comments"
-                                + "(comment_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
-                                + "comment_title varchar(30), comment_body varchar(255),"
-                                + "comment_date datetime, FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
-                            pstmt.executeUpdate();
+                                        "CREATE TABLE IF NOT EXISTS comments"
+                                                        + "(comment_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
+                                                        + "comment_title varchar(30), comment_body varchar(255),"
+                                                        + "comment_date datetime, FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
+                                pstmt.executeUpdate();
                         }
 
                         // Create likes table
                         try (PreparedStatement pstmt = con.prepareStatement(
-                                "CREATE TABLE IF NOT EXISTS likes"
-                                + "(like_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
-                                + "reaction varchar(30),"
-                                + " FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
-                            pstmt.executeUpdate();
+                                        "CREATE TABLE IF NOT EXISTS likes"
+                                                        + "(like_id int PRIMARY KEY AUTO_INCREMENT, media_uri varchar(36), user_id int,"
+                                                        + "reaction varchar(30),"
+                                                        + " FOREIGN KEY (media_uri) REFERENCES media(media_uri), FOREIGN KEY (user_id) REFERENCES users(user_id))")) {
+                                pstmt.executeUpdate();
                         }
 
                 } catch (SQLException e) {
@@ -120,5 +128,27 @@ public class CamguruHttpServer {
                 // server.setExecutor(null); // creates a default executor
                 server.start();
                 System.out.println("Server started on port 8000");
+        }
+
+        // Method to create the required directories if they do not exist
+        private static void createDirectories() {
+                File mediaDir = new File(MEDIA_UPLOAD_PATH);
+                File tempDir = new File(TEMP_UPLOAD_PATH);
+
+                if (!mediaDir.exists()) {
+                        if (mediaDir.mkdirs()) {
+                                System.out.println("Media directory created: " + MEDIA_UPLOAD_PATH);
+                        } else {
+                                System.err.println("Failed to create media directory: " + MEDIA_UPLOAD_PATH);
+                        }
+                }
+
+                if (!tempDir.exists()) {
+                        if (tempDir.mkdirs()) {
+                                System.out.println("Temp directory created: " + TEMP_UPLOAD_PATH);
+                        } else {
+                                System.err.println("Failed to create temp directory: " + TEMP_UPLOAD_PATH);
+                        }
+                }
         }
 }
