@@ -280,86 +280,85 @@ async function loadNextUserMedia() {
   }
 }
 
-// On page load
-// Load overlay assets
-(async () => {
-  var overlayAssetPaths = [
-    "../assets/overlay/clownfish.png",
-    "../assets/overlay/goat.png",
-    "../assets/overlay/police-armor.png",
-    "../assets/overlay/red-rocket.png",
-  ];
-  // Add overlay assets to the carousel
-  if (overlayAssetPaths && overlayAssetPaths.length > 0) {
-    for (let index = 0; index < overlayAssetPaths.length; index++) {
-      let path = overlayAssetPaths[index];
-      const title = path.split("/").pop();
-      let element = document.createElement("option");
-      element.value = path;
-      element.innerHTML = title;
-      imageSelect.appendChild(element);
-
-      imageSelect.addEventListener("change", async (event) => {
-        const value = event?.target?.value;
-        if (value !== "") {
-          captureImageBtn.disabled = false;
-          captureImageBtn.style.cursor = "pointer";
-          captureImageBtn.style.backgroundColor = "#4caf50";
-
-          captureVideoBtn.disabled = false;
-          captureVideoBtn.style.cursor = "pointer";
-          captureVideoBtn.style.backgroundColor = "#4caf50";
-
-          customFileUpload.style.backgroundColor = "#4caf50";
-          customFileUpload.style.pointerEvents = "auto";
-          mediaUpload.disabled = false;
-
-          // Set the overlay image
-          if (value === element.value) {
-            const result = await fetch(path);
-            const blob = await result.blob();
-            setOverlayMedia(blob);
-          }
-        } else {
-          captureImageBtn.disabled = true;
-          captureImageBtn.style.cursor = "not-allowed";
-
-          captureVideoBtn.disabled = true;
-          captureVideoBtn.style.cursor = "not-allowed";
-
-          customFileUpload.style.backgroundColor = "#d3d3d3";
-          mediaUpload.disabled = true;
-        }
-      });
-    }
-  } else {
-    console.log("No overlay assets found");
-  }
-})();
-
-//Start camera preview
-if (navigator.mediaDevices.getUserMedia) {
-  navigator.mediaDevices
-    .getUserMedia({ video: true })
-    .then(function (stream) {
-      videoPreview.srcObject = stream;
-      videoPreview.play();
-    })
-    .catch(function (error) {
-      console.log(
-        "Something went wrong with the camera... Try restarting the fronternd server" +
-          error
-      );
-      console.log(error);
-    });
-}
-
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
   try {
     const isLoggedIn = checkUserAuthentication();
     if (!isLoggedIn) {
       window.location.href = "/login";
+    } else {
+      //Start camera preview
+      if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then(function (stream) {
+            videoPreview.srcObject = stream;
+            videoPreview.play();
+          })
+          .catch(function (error) {
+            console.log(
+              "Something went wrong with the camera... Try restarting the fronternd server" +
+                error
+            );
+            console.log(error);
+          });
+      }
+      // On page load
+      // Load overlay assets
+      (async () => {
+        var overlayAssetPaths = [
+          "../assets/overlay/clownfish.png",
+          "../assets/overlay/goat.png",
+          "../assets/overlay/police-armor.png",
+          "../assets/overlay/red-rocket.png",
+        ];
+        // Add overlay assets to the carousel
+        if (overlayAssetPaths && overlayAssetPaths.length > 0) {
+          for (let index = 0; index < overlayAssetPaths.length; index++) {
+            let path = overlayAssetPaths[index];
+            const title = path.split("/").pop();
+            let element = document.createElement("option");
+            element.value = path;
+            element.innerHTML = title;
+            imageSelect.appendChild(element);
+
+            imageSelect.addEventListener("change", async (event) => {
+              const value = event?.target?.value;
+              if (value !== "") {
+                captureImageBtn.disabled = false;
+                captureImageBtn.style.cursor = "pointer";
+                captureImageBtn.style.backgroundColor = "#4caf50";
+
+                captureVideoBtn.disabled = false;
+                captureVideoBtn.style.cursor = "pointer";
+                captureVideoBtn.style.backgroundColor = "#4caf50";
+
+                customFileUpload.style.backgroundColor = "#4caf50";
+                customFileUpload.style.pointerEvents = "auto";
+                mediaUpload.disabled = false;
+
+                // Set the overlay image
+                if (value === element.value) {
+                  const result = await fetch(path);
+                  const blob = await result.blob();
+                  setOverlayMedia(blob);
+                }
+              } else {
+                captureImageBtn.disabled = true;
+                captureImageBtn.style.cursor = "not-allowed";
+
+                captureVideoBtn.disabled = true;
+                captureVideoBtn.style.cursor = "not-allowed";
+
+                customFileUpload.style.backgroundColor = "#d3d3d3";
+                mediaUpload.disabled = true;
+              }
+            });
+          }
+        } else {
+          console.log("No overlay assets found");
+        }
+      })();
     }
     await reloadUserMedia();
   } catch (error) {

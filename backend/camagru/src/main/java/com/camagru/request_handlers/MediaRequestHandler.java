@@ -272,10 +272,16 @@ public class MediaRequestHandler implements HttpHandler {
 
                 String mediaExtension;
                 String mediaMimeType;
+                String actualmMdiaExtension;
                 Tika tika = new Tika();
                 try (ByteArrayInputStream input = new ByteArrayInputStream(media)) {
                     mediaMimeType = tika.detect(input);
-                    mediaExtension = HttpUtil.getMimeTypeExtension(mediaMimeType);
+                    actualmMdiaExtension = HttpUtil.getMimeTypeExtension(mediaMimeType);
+                    if (actualmMdiaExtension.equals(".mkv")) {
+                        mediaExtension = ".mp4";
+                    } else {
+                        mediaExtension = actualmMdiaExtension;
+                    }
                 } catch (Exception e) {
                     String errorMessage = "Media file is not a valid file";
                     res.sendJsonResponse(415, createErrorResponse(errorMessage));
@@ -309,8 +315,14 @@ public class MediaRequestHandler implements HttpHandler {
                     PreparedStatement myStmt;
                     myStmt = con.prepareStatement(sql);
 
+                    String dbMimeType = "";
+                    if (actualmMdiaExtension.equals(".mkv")) {
+                        dbMimeType = "video/mp4";
+                    } else {
+                        dbMimeType = mediaMimeType;
+                    }
                     myStmt.setString(1, sub);
-                    myStmt.setString(2, mediaMimeType);
+                    myStmt.setString(2, dbMimeType);
                     myStmt.setString(3, containerDescription);
                     myStmt.setString(4, "container");
                     myStmt.setString(5, mediaUri);

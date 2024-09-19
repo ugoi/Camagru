@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="4" failures="0" name="HttpUtilTest" time="0.004" errors="0" skipped="0">
+<testsuite tests="4" failures="0" name="HttpUtilTest" time="0.006" errors="0" skipped="0">
   <properties>
     <property name="jansi.mode" value="force"/>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
@@ -58,7 +58,7 @@
     <property name="java.vendor.version" value="Temurin-17.0.12+7"/>
   </properties>
   <testcase classname="HttpUtilTest" name="HttpUtilTest.testGetHeader" time="0.001"/>
-  <testcase classname="HttpUtilTest" name="HttpUtilTest.testFiles" time="0.003"/>
-  <testcase classname="HttpUtilTest" name="HttpUtilTest.testFilesWithMultipart" time="0"/>
+  <testcase classname="HttpUtilTest" name="HttpUtilTest.testFiles" time="0.004"/>
+  <testcase classname="HttpUtilTest" name="HttpUtilTest.testFilesWithMultipart" time="0.001"/>
   <testcase classname="HttpUtilTest" name="HttpUtilTest.testFilesWithMultipart2" time="0"/>
 </testsuite>
