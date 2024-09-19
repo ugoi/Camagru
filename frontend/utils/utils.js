@@ -96,10 +96,6 @@ export async function checkFileType(url) {
 
     if (response.status === 200) {
       const contentType = response.headers.get("Content-Type");
-      console.log("Content Type: ");
-
-      console.log(contentType);
-
       if (checkIsMimeTypeVideo(contentType)) {
         return "video";
       } else {

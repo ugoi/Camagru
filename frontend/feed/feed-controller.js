@@ -30,7 +30,6 @@ async function reloadFeed() {
   mediaCollection.innerHTML = "";
   try {
     await loadNextFeed();
-    console.log("Loaded feed");
   } catch (error) {
     console.log("Failed to load feed", error);
   }
@@ -40,8 +39,6 @@ async function reloadFeed() {
  * @returns {Promise<void>}
  */
 async function loadNextFeed() {
-  console.log("Loading feed");
-
   const mediaCollection = document.getElementById("myMedia");
   const result = await getUserFeed(after, 5);
   const json = await result.json();
@@ -158,8 +155,6 @@ async function loadNextFeed() {
         let isLiked = hasReallyLiked;
         let locked = false;
         likeButton.addEventListener("click", async (event) => {
-          console.log("Like button clicked");
-
           if (isLiked) {
             likeCount -= 1;
             likeCountElement.innerHTML = `${likeCount}`;
@@ -176,7 +171,6 @@ async function loadNextFeed() {
               locked = false;
               await (async () => {
                 if (hasReallyLiked && isLiked === false) {
-                  console.log("Deleting like");
                   try {
                     await deleteLike(mediaId);
                     hasReallyLiked = false;
@@ -186,7 +180,6 @@ async function loadNextFeed() {
                     console.error("Failed to delete like", error);
                   }
                 } else if (!hasReallyLiked && isLiked === true) {
-                  console.log("Adding like");
                   try {
                     await postLike(mediaId);
                     hasReallyLiked = true;

@@ -316,7 +316,6 @@ async function loadNextUserMedia() {
 
           // Set the overlay image
           if (value === element.value) {
-            console.log("Selected overlay asset", path);
             const result = await fetch(path);
             const blob = await result.blob();
             setOverlayMedia(blob);
@@ -407,7 +406,6 @@ submitButton.addEventListener("click", async (event) => {
   event.preventDefault();
   let formData = new FormData();
   if (media === null || overlayMedia === null) {
-    console.log("Please select both media and overlay.");
     alert("Please select both media and overlay.");
     return;
   }
@@ -454,8 +452,6 @@ closeSnapshotImageBtn.addEventListener("click", (event) => {
 });
 
 closeSnapshotVideoBtn.addEventListener("click", (event) => {
-  console.log("closeSnapshotVideoBtn");
-
   event.preventDefault();
   // setContainerId(null);
   setMedia(null);
