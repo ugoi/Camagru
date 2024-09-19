@@ -319,7 +319,7 @@ window.addEventListener("DOMContentLoaded", async (event) => {
             const title = path.split("/").pop();
             let element = document.createElement("option");
             element.value = path;
-            element.innerHTML = title;
+            element.innerText = title;
             imageSelect.appendChild(element);
 
             imageSelect.addEventListener("change", async (event) => {
@@ -379,14 +379,6 @@ mediaUpload.addEventListener("change", (event) => {
   }
 });
 
-// document
-//   .getElementById("overlayFileInput")
-//   .addEventListener("change", (event) => {
-//     if (event?.target?.files && event.target.files[0]) {
-//       var blob = event.target.files[0];
-//       setOverlayMedia(blob);
-//     }
-//   });
 
 publishButton.addEventListener("click", async (event) => {
   event.preventDefault();
@@ -435,13 +427,6 @@ submitButton.addEventListener("click", async (event) => {
   var myBlob = await response.blob();
   setPreviewMedia(myBlob);
 });
-
-// document.getElementById("cancelButton").addEventListener("click", (event) => {
-//   event.preventDefault();
-//   setContainerId(null);
-//   setMedia(null);
-//   setPreviewMedia(null);
-// });
 
 closeSnapshotImageBtn.addEventListener("click", (event) => {
   event.preventDefault();

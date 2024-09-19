@@ -1,6 +1,13 @@
 import { getProfile } from "../profile/profile.js";
 
+/**
+ * @type {HTMLElement}
+ */
 const registerSuccess = document.getElementById("registerSuccess");
+
+/**
+ * @type {HTMLElement}
+ */
 const registerError = document.getElementById("registerError");
 
 /**
@@ -26,7 +33,7 @@ export async function handleEditProfile() {
   } catch (error) {
     registerSuccess.style.display = "none";
     registerError.style.display = "block";
-    registerError.innerHTML = error.message;
+    registerError.innerText = error.message;
   }
 }
 

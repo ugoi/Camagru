@@ -8,6 +8,7 @@ import {
 } from "./feed-model.js";
 import { checkUserAuthentication } from "../services/auth-service.js";
 import { checkIsMimeTypeVideo } from "../utils/utils.js";
+import { escapeHtml } from "../services/security.js";
 
 // Load user media
 window.addEventListener("DOMContentLoaded", async (event) => {
@@ -131,7 +132,7 @@ async function loadNextFeed() {
               <div class="content-inner" id=${`comments-${mediaId}`}>
                 ${commentsResJson.data
                   .map((comment) => {
-                    return `<div class="comment"> <p><strong>${comment.username}:</strong> ${comment.comment_body}</p> </div>`;
+                    return `<div class="comment"> <p><strong>${escapeHtml(comment.username)}:</strong> ${escapeHtml(comment.comment_body)}</p> </div>`;
                   })
                   .join("")}
               </div>
@@ -230,7 +231,7 @@ async function loadNextFeed() {
 
           const commentsDiv = document.getElementById(`comments-${mediaId}`);
           commentsDiv.innerHTML =
-            `<div class="comment"> <p><strong>${comment.username}:</strong> ${comment.comment_body}</p> </div>` +
+            `<div class="comment"> <p><strong>${escapeHtml(comment.username)}:</strong> ${escapeHtml(comment.comment_body)}</p> </div>` +
             commentsDiv.innerHTML;
         });
       }
