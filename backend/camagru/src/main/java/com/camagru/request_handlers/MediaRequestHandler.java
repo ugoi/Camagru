@@ -400,26 +400,42 @@ public class MediaRequestHandler implements HttpHandler {
                         propertiesManager.getDbUsername(), propertiesManager.getDbPassword());
                         Statement stmt = con.createStatement()) {
 
-                    // Delete comment
+                    // Check if user is authorized to delete media
                     {
-                        String preparedStmt = "DELETE FROM comments WHERE media_uri=? AND user_id=?";
+                        String preparedStmt = "SELECT * FROM media WHERE media_uri=? AND user_id=?";
 
                         PreparedStatement myStmt;
                         myStmt = con.prepareStatement(preparedStmt);
                         myStmt.setString(1, id);
                         myStmt.setString(2, sub);
+
+                        ResultSet rs = myStmt.executeQuery();
+                        if (!rs.next()) {
+                            String errorMessage = "Media not found or user is not authorized to delete media";
+                            res.sendJsonResponse(404, createErrorResponse(errorMessage));
+                            return;
+                        }
+                    }
+                    
+
+                    // Delete comment
+                    {
+                        String preparedStmt = "DELETE FROM comments WHERE media_uri=?";
+
+                        PreparedStatement myStmt;
+                        myStmt = con.prepareStatement(preparedStmt);
+                        myStmt.setString(1, id);
 
                         myStmt.executeUpdate();
                     }
 
                     // Delete likes
                     {
-                        String preparedStmt = "DELETE FROM likes WHERE media_uri=? AND user_id=?";
+                        String preparedStmt = "DELETE FROM likes WHERE media_uri=?";
 
                         PreparedStatement myStmt;
                         myStmt = con.prepareStatement(preparedStmt);
                         myStmt.setString(1, id);
-                        myStmt.setString(2, sub);
 
                         myStmt.executeUpdate();
                     }
