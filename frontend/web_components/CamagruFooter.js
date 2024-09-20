@@ -4,7 +4,7 @@ const template = document.createElement("template");
 template.innerHTML = `    <footer
       style="
 
-        background-color: #333;
+        background: linear-gradient(to right, slateblue, lightblue); 
         color: white;
         text-align: center;
         padding: 1px 0;

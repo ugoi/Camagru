@@ -234,9 +234,9 @@ async function loadNextUserMedia() {
   userMedia = data;
 
   if (after == null) {
-    laodButton.style.display = "none";
+    laodButton.disabled = true;
   } else {
-    laodButton.style.display = "block";
+    laodButton.disabled = false;
   }
 
   if (data && data.length > 0) {
@@ -284,6 +284,9 @@ async function loadNextUserMedia() {
 window.addEventListener("DOMContentLoaded", async (event) => {
   try {
     const isLoggedIn = checkUserAuthentication();
+
+    const camagruHeader = document.getElementsByTagName("camagru-header")[0];
+    camagruHeader.setAttribute("is-logged-in", isLoggedIn);
     if (!isLoggedIn) {
       window.location.href = "/login";
     } else {
@@ -378,7 +381,6 @@ mediaUpload.addEventListener("change", (event) => {
     setMedia(blob);
   }
 });
-
 
 publishButton.addEventListener("click", async (event) => {
   event.preventDefault();

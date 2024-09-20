@@ -4,10 +4,10 @@
   box-sizing: border-box;
 }
 
-
 html,
 body {
   height: 100%;
+  background: linear-gradient(to right, slateblue, lightblue);
 }
 
 body {
@@ -52,4 +52,3 @@ camagru-header {
   display: block;
   margin: 10px auto;
 }
-

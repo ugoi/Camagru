@@ -1,7 +1,7 @@
 import { logout } from "../login/login.js";
 
 const template = document.createElement("template");
-template.innerHTML = `    <header style="background-color: #333; color: white; padding: 15px 0; grid-area: header">
+template.innerHTML = `    <header style="  background: linear-gradient(to right, slateblue, lightblue); color: white; padding: 15px 0; grid-area: header">
       <nav
         style="
           max-width: 1000px;
@@ -46,7 +46,7 @@ template.innerHTML = `    <header style="background-color: #333; color: white; p
             id="login-btn"
             onclick="window.location.href='/login'"
             style="
-              background-color: #4caf50;
+              background-color: transparent;
               color: white;
               border: none;
               padding: 5px 5px;
@@ -59,7 +59,7 @@ template.innerHTML = `    <header style="background-color: #333; color: white; p
             id="logout-btn"
             onclick="this.getRootNode().host.handleLogout()"
             style="
-              background-color: #f44336;
+              background-color: transparent;
               color: white;
               border: none;
               padding: 5px 5px;

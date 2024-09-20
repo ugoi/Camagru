@@ -63,9 +63,19 @@ camagru-header {
 #webcam {
   height: auto;
   max-height: 300px;
-  border: 10px solid #000000;
+  border-width: 10px;
+  border-style: solid;
   border-radius: 20px;
   margin-bottom: 10px;
+
+  /* Border gradient */
+
+  border: double 1em transparent;
+  border-radius: 30px;
+  background-image: linear-gradient(white, white),
+    linear-gradient(to right, slateblue, lightblue);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
 }
 
 .close-snapshot-btn {
@@ -131,7 +141,7 @@ camagru-header {
   padding: 12px 15px;
   font-size: 16px;
   color: #333;
-  border: 2px solid #4caf50; /* Green border */
+  border: 2px solid;
   border-radius: 8px;
   background-color: white;
   cursor: pointer;
@@ -142,6 +152,7 @@ camagru-header {
   background-size: 12px;
   outline: none;
   transition: all 0.3s ease;
+  border-image: linear-gradient(to right, slateblue, lightblue) 1;
 }
 
 /* Focused state */
@@ -176,24 +187,23 @@ camagru-header {
 .custom-file-upload {
   display: inline-block;
   padding: 10px 15px;
-  background-color: #d3d3d3; /* Green background */
+  background: linear-gradient(to right, slateblue, lightblue);
   color: white;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 600;
-  border: 2px solid transparent;
   transition: all 0.3s ease;
   text-align: center;
   pointer-events: none;
 }
 
 .custom-file-upload:hover {
-  background-color: #45a049; /* Darker green */
+  background: linear-gradient(to right, slateblue, lightblue);
 }
 
 .custom-file-upload:active {
-  background-color: #45a049; /* Darker green */
+  background: linear-gradient(to right, slateblue, lightblue);
   transform: scale(0.98); /* Slight shrink effect */
 }
 
@@ -216,7 +226,7 @@ camagru-header {
 .capture-btn {
   border-radius: 200px;
   padding: 10px 20px;
-  background-color: #45a049;
+  background: linear-gradient(to right, slateblue, lightblue);
   color: white;
   border: none;
   cursor: not-allowed;
@@ -225,13 +235,13 @@ camagru-header {
 .submit-btn {
   border-radius: 200px;
   padding: 10px 20px;
-  background-color: #45a049;
+  background: linear-gradient(to right, slateblue, lightblue);
   color: white;
   border: none;
 }
 
 .submit-btn:active {
-  background-color: #45a049;
+  background: linear-gradient(to right, slateblue, lightblue);
   transform: scale(0.98);
 }
 
@@ -242,7 +252,7 @@ camagru-header {
 .publish-btn {
   border-radius: 200px;
   padding: 10px 20px;
-  background-color: #45a049;
+  background: linear-gradient(to right, slateblue, lightblue);
   color: white;
   border: none;
 }
@@ -255,7 +265,7 @@ camagru-header {
   max-width: 100px;
   border-radius: 5px;
   padding: 5px 10px;
-  background-color: #45a049;
+  background: linear-gradient(to right, slateblue, lightblue);
   color: white;
   border: none;
 }
@@ -269,11 +279,7 @@ camagru-header {
 }
 
 .load-btn:disabled {
-  background-color: #d3d3d3; /* Light gray background */
-  color: #6c757d; /* Slightly darker text */
-  border: 1px solid #a9a9a9; /* Medium gray border */
-  cursor: not-allowed; /* Change cursor to indicate it's disabled */
-  opacity: 0.6; /* Optionally lower the opacity for a 'faded' look */
+  display: none;
 }
 
 .delete-media-btn {
@@ -304,14 +310,6 @@ camagru-header {
   justify-content: center;
   align-items: center;
 }
-
-/* .thumbnail-gallery img {
-  width: 100%;
-  height: auto;
-  min-width: 100px;
-  object-fit: cover;
-  margin: 5px;
-} */
 
 .captured-media {
   width: 100%;
