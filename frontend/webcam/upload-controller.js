@@ -216,12 +216,6 @@ async function loadNextUserMedia() {
   } catch (error) {
     const errorMessage = error.message;
     if (errorMessage === "Failed to fetch") {
-      console.log(
-        "Failed to fetch. Verify the backend URL and ensure the backend is running."
-      );
-      alert(
-        "Failed to fetch. Verify the backend URL and ensure the backend is running."
-      );
       return;
     }
     return;
