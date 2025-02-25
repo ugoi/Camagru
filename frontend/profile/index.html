@@ -59,12 +59,12 @@
         <div class="profile-container">
           <h1>Profile</h1>
 
-          <section>
+          <section class="copyable" onclick="copyContent(this, 'username')">
             <h2>Username</h2>
             <p id="username"></p>
           </section>
 
-          <section>
+          <section class="copyable" onclick="copyContent(this, 'email')">
             <h2>Email</h2>
             <p id="email"></p>
           </section>
@@ -87,6 +87,21 @@
     <script type="module" src="../web_components/CamagruFooter.js"></script>
 
     <script type="module" src="profile.js"></script>
+
+    <script>
+      async function copyContent(section, id) {
+        const content = document.getElementById(id).textContent;
+        try {
+          await navigator.clipboard.writeText(content);
+          section.classList.add("copied");
+          setTimeout(() => {
+            section.classList.remove("copied");
+          }, 2000);
+        } catch (err) {
+          console.error("Failed to copy text: ", err);
+        }
+      }
+    </script>
 
     <script type="module">
       import { handleLoadProfile } from "./profile.js";

@@ -56,11 +56,38 @@ section {
   padding: 1.5em;
   margin-bottom: 1.5em;
   transition: all 0.2s ease;
-  border: 1px solid white;
+  border: 1px solid #e2e8f0;
+  position: relative;
+}
+
+section.copyable {
+  cursor: pointer;
+}
+
+section.copyable::after {
+  content: "Click to copy";
+  position: absolute;
+  top: 1.5em;
+  right: 1.5em;
+  font-size: 0.8em;
+  color: #a0aec0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+section.copyable:hover::after {
+  opacity: 1;
+}
+
+section.copied::after {
+  content: "Copied!";
+  color: #48bb78;
 }
 
 section:hover {
-  border-color: #e2e8f0;
+  border-color: #4299e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(66, 153, 225, 0.1);
 }
 
 section h2 {

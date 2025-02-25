@@ -1,16 +1,17 @@
-<!doctype html>
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]> <html class="no-js"> <!--<![endif]-->
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Register</title>
-    <meta name="description" content="User registration page" />
+    <title>Sign Up - CamGuru</title>
+    <meta name="description" content="Create your CamGuru account" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="register.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!--[if lt IE 7]>
@@ -23,143 +24,81 @@
         your experience.
       </p>
     <![endif]-->
-    <main
-      style="
-        max-width: 600px;
-        margin: 50px auto;
-        padding: 30px;
-        background-color: white;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      "
-    >
+    <main class="register-container">
       <form id="register-form">
-        <div class="container">
-          <h1 style="text-align: center; color: #333">Register</h1>
-          <p style="text-align: center; color: #555">
-            Please fill in this form to create an account.
-          </p>
+        <h1 class="register-title">Create Account</h1>
+        <p class="register-subtitle">Join our community today</p>
 
-          <div
-            id="registerSuccess"
-            style="
-              display: none;
-              color: green;
-              text-align: center;
-              margin-bottom: 10px;
-            "
-          >
-            <p>Registration successful</p>
-          </div>
-          <div
-            id="registerError"
-            style="
-              display: none;
-              color: red;
-              text-align: center;
-              margin-bottom: 10px;
-            "
-          >
-            <p>Registration failed</p>
-          </div>
+        <div
+          id="registerSuccess"
+          class="message success-message"
+          style="display: none"
+        >
+          <p>Registration successful</p>
+        </div>
+        <div
+          id="registerError"
+          class="message error-message"
+          style="display: none"
+        >
+          <p>Registration failed</p>
+        </div>
 
-          <label
-            for="username"
-            style="display: block; margin-bottom: 5px; color: #333"
-            >Username</label
-          >
+        <div class="form-group">
+          <label for="username" class="form-label">Username</label>
           <input
             type="text"
             name="username"
             id="username"
-            style="
-              width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
-              margin-bottom: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-            "
+            class="form-input"
+            placeholder="Choose a username"
+            required
           />
+        </div>
 
-          <label
-            for="email"
-            style="display: block; margin-bottom: 5px; color: #333"
-            >Email</label
-          >
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
           <input
             type="email"
             name="email"
             id="email"
-            style="
-              width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
-              margin-bottom: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-            "
+            class="form-input"
+            placeholder="Enter your email"
+            required
           />
+        </div>
 
-          <label
-            for="password"
-            style="display: block; margin-bottom: 5px; color: #333"
-            >Password</label
-          >
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
           <input
             type="password"
             name="password"
             id="password"
-            style="
-              width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
-              margin-bottom: 20px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-            "
+            class="form-input"
+            placeholder="Create a password"
+            required
           />
-
-          <p style="text-align: center; color: #555">
-            By creating an account you agree to our
-            <a href="#" style="color: #007bff; text-decoration: none"
-              >Terms & Privacy</a
-            >.
-          </p>
-          <button
-            type="submit"
-            style="
-              background-color: #007bff;
-              color: white;
-              border: none;
-              padding: 10px 20px;
-              cursor: pointer;
-              width: 100%;
-              border-radius: 5px;
-            "
-          >
-            Register
-          </button>
         </div>
-        <div
-          class="container signin"
-          style="text-align: center; margin-top: 20px"
-        >
-          <p style="color: #555">
-            Already have an account?
-            <a href="/login" style="color: #007bff; text-decoration: none"
-              >Sign in</a
-            >.
-          </p>
+
+        <p class="terms-text">
+          By creating an account you agree to our
+          <a href="#" class="terms-link">Terms of Service</a> and
+          <a href="#" class="terms-link">Privacy Policy</a>
+        </p>
+
+        <button type="submit" class="register-button">Create Account</button>
+
+        <div class="signin-prompt">
+          Already have an account?
+          <a href="/login" class="signin-link">Sign in</a>
         </div>
       </form>
     </main>
+
     <script type="module">
       import { handleRegister } from "./register.js";
-
-      const loginForm = document.querySelector("#register-form");
-
-      // listening to click events
-      loginForm.addEventListener("submit", (event) => {
+      const registerForm = document.querySelector("#register-form");
+      registerForm.addEventListener("submit", (event) => {
         handleRegister(event);
       });
     </script>

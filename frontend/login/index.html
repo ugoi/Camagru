@@ -1,16 +1,17 @@
-<!doctype html>
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]> <html class="no-js"> <!--<![endif]-->
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Login</title>
-    <meta name="description" content="User login page" />
+    <title>Login - CamGuru</title>
+    <meta name="description" content="Login to your CamGuru account" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="login.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!--[if lt IE 7]>
@@ -23,124 +24,65 @@
         your experience.
       </p>
     <![endif]-->
-    <main
-      style="
-        max-width: 600px;
-        margin: 50px auto;
-        padding: 20px;
-        background-color: white;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      "
-    >
+    <main class="login-container">
       <form id="login-form">
-        <div class="container">
-          <h1 style="text-align: center; color: #333">Login</h1>
+        <h1 class="login-title">Welcome Back</h1>
 
-          <div
-            id="loginSuccess"
-            style="
-              display: none;
-              color: green;
-              text-align: center;
-              margin-bottom: 10px;
-            "
-          >
-            <p>Login successful</p>
-          </div>
-          <div
-            id="loginError"
-            style="
-              display: none;
-              color: red;
-              text-align: center;
-              margin-bottom: 10px;
-            "
-          >
-            <p>Login failed</p>
-          </div>
+        <div
+          id="loginSuccess"
+          class="message success-message"
+          style="display: none"
+        >
+          <p>Login successful</p>
+        </div>
+        <div
+          id="loginError"
+          class="message error-message"
+          style="display: none"
+        >
+          <p>Login failed</p>
+        </div>
 
-          <label
-            for="username"
-            style="display: block; margin-bottom: 5px; color: #333"
-            >Username or Email</label
-          >
+        <div class="form-group">
+          <label for="username" class="form-label">Username or Email</label>
           <input
             type="text"
             name="username"
             id="username"
-            style="
-              width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
-              margin-bottom: 10px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-            "
+            class="form-input"
+            placeholder="Enter your username or email"
+            required
           />
+        </div>
 
-          <label
-            for="password"
-            style="display: block; margin-bottom: 5px; color: #333"
-            >Password</label
-          >
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
           <input
             type="password"
             name="password"
             id="password"
-            style="
-              width: 100%;
-              padding-top: 10px;
-              padding-bottom: 10px;
-              margin-bottom: 20px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-            "
+            class="form-input"
+            placeholder="Enter your password"
+            required
           />
-
-          <a
-            href="/forgot-password"
-            style="color: #007bff; text-decoration: none"
-            >Forgot password?</a
-          >
-
-          <br />
-          <br />
-
-          <button
-            type="submit"
-            style="
-              background-color: #007bff;
-              color: white;
-              border: none;
-              padding: 10px 20px;
-              cursor: pointer;
-              width: 100%;
-              border-radius: 5px;
-            "
-          >
-            Login
-          </button>
         </div>
-        <div
-          class="container signin"
-          style="text-align: center; margin-top: 20px"
-        >
-          <p style="color: #555">
-            Don't have an account?
-            <a href="/register" style="color: #007bff; text-decoration: none"
-              >Sign up</a
-            >.
-          </p>
+
+        <a href="/forgot-password" class="forgot-password">
+          Forgot password?
+        </a>
+
+        <button type="submit" class="login-button">Login</button>
+
+        <div class="signup-prompt">
+          Don't have an account?
+          <a href="/register" class="signup-link">Sign up</a>
         </div>
       </form>
     </main>
 
     <script type="module">
       import { handleLogin } from "./login.js";
-
       const loginForm = document.querySelector("#login-form");
-
-      // listening to click events
       loginForm.addEventListener("submit", (event) => {
         handleLogin(event);
       });
