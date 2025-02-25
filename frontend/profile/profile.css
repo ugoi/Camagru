@@ -21,6 +21,7 @@ h1 {
   align-items: center;
   gap: 0.5em;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.3s ease;
 }
 
@@ -37,6 +38,7 @@ h1 {
 
 .message-banner.show {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .message-banner.error {

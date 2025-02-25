@@ -143,6 +143,7 @@ input:checked + .slider:before {
   gap: 0.5em;
   z-index: 2000;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.3s ease;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -162,6 +163,7 @@ input:checked + .slider:before {
 
 .message-banner.show {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .message-banner svg {
