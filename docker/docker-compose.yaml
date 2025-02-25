@@ -13,7 +13,18 @@ services:
     working_dir: /app
     volumes:
       - ../backend/camagru:/app
+      - maven_cache:/root/.m2
     command: java -jar target/camagru-1.0-SNAPSHOT.jar
     # Install Maven and any other required packages, build the project, then run the application
     entrypoint: |
-      sh -c "apt-get update && apt-get install -y ffmpeg maven && mvn clean package && java -jar target/camagru-1.0-SNAPSHOT.jar"
+      sh -c "
+        apt-get update && \
+        apt-get install -y ffmpeg maven && \
+        mkdir -p target && \
+        chmod -R 777 /app && \
+        mvn clean package && \
+        java -jar target/camagru-1.0-SNAPSHOT.jar
+      "
+
+volumes:
+  maven_cache:

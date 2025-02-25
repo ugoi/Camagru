@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="4" failures="0" name="HttpUtilTest" time="0.005" errors="0" skipped="0">
+<testsuite tests="4" failures="0" name="HttpUtilTest" time="0.003" errors="0" skipped="0">
   <properties>
     <property name="jansi.mode" value="force"/>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
-    <property name="java.vm.version" value="17.0.12+7"/>
+    <property name="java.vm.version" value="17.0.14+7"/>
     <property name="sun.boot.library.path" value="/opt/java/openjdk/lib"/>
     <property name="maven.multiModuleProjectDirectory" value="/app"/>
     <property name="java.vm.vendor" value="Eclipse Adoptium"/>
@@ -16,7 +16,7 @@
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="user.dir" value="/app"/>
     <property name="java.vm.compressedOopsMode" value="32-bit"/>
-    <property name="java.runtime.version" value="17.0.12+7"/>
+    <property name="java.runtime.version" value="17.0.14+7"/>
     <property name="os.arch" value="aarch64"/>
     <property name="java.io.tmpdir" value="/tmp"/>
     <property name="line.separator" value="
@@ -31,7 +31,7 @@
     <property name="java.class.version" value="61.0"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="os.version" value="6.10.4-linuxkit"/>
+    <property name="os.version" value="6.12.5-linuxkit"/>
     <property name="library.jansi.path" value="/usr/share/maven/lib/jansi-native"/>
     <property name="user.home" value="/root"/>
     <property name="user.timezone" value="Etc/UTC"/>
@@ -46,19 +46,20 @@
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
-    <property name="java.version" value="17.0.12"/>
+    <property name="java.version" value="17.0.14"/>
     <property name="native.encoding" value="UTF-8"/>
     <property name="java.vendor" value="Eclipse Adoptium"/>
+    <property name="java.specification.maintenance.version" value="1"/>
     <property name="maven.home" value="/usr/share/maven"/>
     <property name="file.separator" value="/"/>
-    <property name="java.version.date" value="2024-07-16"/>
+    <property name="java.version.date" value="2025-01-21"/>
     <property name="java.vendor.url.bug" value="https://github.com/adoptium/adoptium-support/issues"/>
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="sun.cpu.endian" value="little"/>
-    <property name="java.vendor.version" value="Temurin-17.0.12+7"/>
+    <property name="java.vendor.version" value="Temurin-17.0.14+7"/>
   </properties>
-  <testcase classname="HttpUtilTest" name="HttpUtilTest.testGetHeader" time="0.001"/>
+  <testcase classname="HttpUtilTest" name="HttpUtilTest.testGetHeader" time="0"/>
   <testcase classname="HttpUtilTest" name="HttpUtilTest.testFiles" time="0.003"/>
-  <testcase classname="HttpUtilTest" name="HttpUtilTest.testFilesWithMultipart" time="0.001"/>
+  <testcase classname="HttpUtilTest" name="HttpUtilTest.testFilesWithMultipart" time="0"/>
   <testcase classname="HttpUtilTest" name="HttpUtilTest.testFilesWithMultipart2" time="0"/>
 </testsuite>
