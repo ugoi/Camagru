@@ -16,7 +16,7 @@ h1 {
   transform: translateX(-50%);
   padding: 1em 2em;
   border-radius: 12px;
-  z-index: 1000;
+  z-index: 2000;
   display: flex;
   align-items: center;
   gap: 0.5em;
@@ -37,6 +37,12 @@ h1 {
 
 .message-banner.show {
   opacity: 1;
+}
+
+.message-banner.error {
+  background: #fed7d7;
+  color: #c53030;
+  border: 1px solid #feb2b2;
 }
 
 main {
