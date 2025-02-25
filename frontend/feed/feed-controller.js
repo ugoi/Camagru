@@ -132,7 +132,12 @@ async function loadNextFeed() {
               <div class="content-inner" id=${`comments-${mediaId}`}>
                 ${commentsResJson.data
                   .map((comment) => {
-                    return `<div class="comment"> <p><strong>${escapeHtml(comment.username)}:</strong> ${escapeHtml(comment.comment_body)}</p> </div>`;
+                    return `<div class="comment">
+                      <strong class="comment-user">${escapeHtml(
+                        comment.username
+                      )}</strong>
+                      <p>${escapeHtml(comment.comment_body)}</p>
+                    </div>`;
                   })
                   .join("")}
               </div>
@@ -231,8 +236,18 @@ async function loadNextFeed() {
 
           const commentsDiv = document.getElementById(`comments-${mediaId}`);
           commentsDiv.innerHTML =
-            `<div class="comment"> <p><strong>${escapeHtml(comment.username)}:</strong> ${escapeHtml(comment.comment_body)}</p> </div>` +
-            commentsDiv.innerHTML;
+            `<div class="comment">
+              <strong class="comment-user">${escapeHtml(
+                comment.username
+              )}</strong>
+              <p>${escapeHtml(comment.comment_body)}</p>
+            </div>` + commentsDiv.innerHTML;
+
+          // Clear the input field
+          commentForm.querySelector('input[name="comment"]').value = "";
+
+          // Show comments by checking the toggle
+          document.getElementById(`collapsible-${mediaId}`).checked = true;
         });
       }
     });

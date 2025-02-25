@@ -1,8 +1,4 @@
-<!doctype html>
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]> <html class="no-js"> <!--<![endif]-->
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -11,6 +7,11 @@
     <meta name="description" content="Edit user profile" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="edit-profile.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!--[if lt IE 7]>
@@ -24,121 +25,85 @@
       </p>
     <![endif]-->
 
-    <div class="root">
+    <div id="successMessage" class="message-banner success">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span>Profile updated successfully!</span>
+    </div>
+
+    <div id="errorMessage" class="message-banner error">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span></span>
+    </div>
+
+    <div
+      class="root"
+      style="
+        background: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      "
+    >
       <camagru-header></camagru-header>
 
-      <main style="height: 100%; width: 100%; overflow-y: scroll">
-        <main
-          style="
-            max-width: 600px;
-            padding: 30px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            margin: 20px auto;
-          "
-        >
+      <main style="flex: 1">
+        <div class="edit-profile-container">
+          <h1>Edit Profile</h1>
+          <p class="subtitle">
+            Please fill in this form to edit account details.
+          </p>
+
           <form id="edit-form">
-            <div class="container">
-              <h1 style="text-align: center; color: #333">Edit Profile</h1>
-              <p style="text-align: center; color: #555">
-                Please fill in this form to edit account details.
-              </p>
-
-              <div
-                id="registerSuccess"
-                style="
-                  display: none;
-                  color: green;
-                  text-align: center;
-                  margin-bottom: 10px;
-                "
-              >
-                <p>Success</p>
-              </div>
-              <div
-                id="registerError"
-                style="
-                  display: none;
-                  color: red;
-                  text-align: center;
-                  margin-bottom: 10px;
-                "
-              >
-                <p>Fail</p>
-              </div>
-
-              <label
-                for="username"
-                style="display: block; margin-bottom: 5px; color: #333"
-                >Username</label
-              >
+            <section>
+              <h2>Username</h2>
               <input
                 type="text"
                 name="username"
                 id="username"
-                style="
-                  width: 100%;
-                  padding: 10px 0;
-                  margin-bottom: 10px;
-                  border: 1px solid #ccc;
-                  border-radius: 5px;
-                "
+                class="form-input"
               />
+            </section>
 
-              <label
-                for="email"
-                style="display: block; margin-bottom: 5px; color: #333"
-                >Email</label
-              >
-              <input
-                type="email"
-                name="email"
-                id="email"
-                style="
-                  width: 100%;
-                  padding: 10px 0;
-                  margin-bottom: 10px;
-                  border: 1px solid #ccc;
-                  border-radius: 5px;
-                "
-              />
+            <section>
+              <h2>Email</h2>
+              <input type="email" name="email" id="email" class="form-input" />
+            </section>
 
-              <label
-                for="password"
-                style="display: block; margin-bottom: 5px; color: #333"
-                >Password</label
-              >
+            <section>
+              <h2>Password</h2>
               <input
                 type="password"
                 name="password"
                 id="password"
-                style="
-                  width: 100%;
-                  padding: 10px 0;
-                  margin-bottom: 20px;
-                  border: 1px solid #ccc;
-                  border-radius: 5px;
-                "
+                class="form-input"
               />
+            </section>
 
-              <button
-                type="submit"
-                style="
-                  background-color: #007bff;
-                  color: white;
-                  border: none;
-                  padding: 10px 20px;
-                  cursor: pointer;
-                  width: 100%;
-                  border-radius: 5px;
-                "
-              >
-                Save
-              </button>
+            <div class="button-container">
+              <button type="submit" class="save-button">Save Changes</button>
             </div>
           </form>
-        </main>
+        </div>
       </main>
 
       <camagru-footer></camagru-footer>
@@ -161,8 +126,6 @@
       );
 
       const loginForm = document.querySelector("#edit-form");
-
-      // listening to click events
       loginForm.addEventListener("submit", (event) => {
         handleEditProfile(event);
       });

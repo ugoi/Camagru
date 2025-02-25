@@ -14,7 +14,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f4f4f4;
+  background-color: white;
   overflow: hidden;
 }
 
@@ -32,6 +32,7 @@ camagru-header {
   align-items: center;
   width: 100%;
   height: 100%;
+  background: white;
 }
 
 .container {
@@ -43,15 +44,18 @@ camagru-header {
   height: 100%;
   min-height: 0px;
   max-width: 1200px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: transparent;
+  box-shadow: none;
   min-height: 0px;
   overflow-y: auto;
+  border-radius: 24px;
+  margin: 20px;
 }
 
 .main {
   grid-area: main;
   padding: 20px;
+  background-color: transparent;
 }
 
 .webcam-preview {
@@ -60,22 +64,98 @@ camagru-header {
   align-items: center;
 }
 
-#webcam {
-  height: auto;
+/* Webcam loading animation */
+.webcam-container {
+  position: relative;
+  width: fit-content;
+  min-width: 400px;
   max-height: 300px;
-  border-width: 10px;
-  border-style: solid;
   border-radius: 20px;
-  margin-bottom: 10px;
+  overflow: hidden;
+  margin: 0 auto 10px;
+  background: transparent;
+}
 
-  /* Border gradient */
+.webcam-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
 
-  border: double 1em transparent;
-  border-radius: 30px;
-  background-image: linear-gradient(white, white),
-    linear-gradient(to right, slateblue, lightblue);
-  background-origin: border-box;
-  background-clip: content-box, border-box;
+.camera-loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  position: relative;
+  animation: rotate 1s linear infinite;
+}
+
+.camera-loader::before {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0px;
+  border-radius: 50%;
+  border: 5px solid #4299e1;
+  animation: prixClipFix 2s linear infinite;
+}
+
+.camera-loader::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #667eea;
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes prixClipFix {
+  0% {
+    clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
+  }
+  25% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
+  }
+  50% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
+  }
+  75% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+  }
+  100% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
+  }
+}
+
+#webcam {
+  width: 400px;
+  height: 300px;
+  max-height: 300px;
+  max-width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Hide the loading animation when video is playing */
+.webcam-container.loaded .webcam-loading {
+  display: none;
 }
 
 .close-snapshot-btn {
@@ -90,34 +170,23 @@ camagru-header {
   z-index: 100;
 }
 
-#snapshot-image-wrapper {
-  position: relative;
-  display: none;
-}
-
+#snapshot-image-wrapper,
 #snapshot-video-wrapper {
   position: relative;
   display: none;
+  width: fit-content;
+  margin: 0 auto;
 }
 
-#snapshot-image {
-  height: auto;
-  max-height: 300px;
-  border: 10px solid #000000;
-  border-radius: 20px;
-  margin-bottom: 10px;
-  display: none;
-}
-
+#snapshot-image,
 #snapshot-video {
   height: auto;
   max-height: 300px;
-  border: 10px solid #000000;
+  max-width: 100%;
   border-radius: 20px;
   margin-bottom: 10px;
   display: none;
-  outline: 0px;
-  display: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 /* General styling for the container */
@@ -230,6 +299,24 @@ camagru-header {
   color: white;
   border: none;
   cursor: not-allowed;
+  transition: all 0.3s ease;
+}
+
+.capture-btn.recording {
+  background: linear-gradient(to right, #ff0000, #ff4444);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+  }
 }
 
 .submit-btn {
@@ -283,11 +370,7 @@ camagru-header {
 }
 
 .delete-media-btn {
-  border-radius: 200px;
-  padding: 5px 10px;
-  background-color: #ff0000;
-  color: white;
-  border: none;
+  display: none;
 }
 
 .side {
@@ -295,8 +378,8 @@ camagru-header {
   flex-direction: column;
   grid-area: side;
   padding: 20px;
-  background-color: #f7f7f7;
-  border-left: 2px solid #ccc;
+  background-color: transparent;
+  border-left: 1px solid rgba(226, 232, 240, 0.8);
   flex: 1 1 auto;
   min-height: 0px;
 }
@@ -309,6 +392,37 @@ camagru-header {
   min-height: 0px;
   justify-content: center;
   align-items: center;
+  padding-right: 10px; /* Add padding for scrollbar */
+}
+
+/* Custom scrollbar styling */
+.thumbnail-gallery::-webkit-scrollbar {
+  width: 8px;
+}
+
+.thumbnail-gallery::-webkit-scrollbar-track {
+  background: rgba(247, 247, 247, 0.5);
+  border-radius: 10px;
+}
+
+.thumbnail-gallery::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #4299e1, #667eea);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.thumbnail-gallery::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #3182ce, #5a67d8);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* For Firefox */
+.thumbnail-gallery {
+  scrollbar-width: thin;
+  scrollbar-color: #4299e1 rgba(247, 247, 247, 0.5);
 }
 
 .captured-media {
@@ -316,5 +430,242 @@ camagru-header {
   height: auto;
   min-width: 100px;
   object-fit: cover;
-  margin-bottom: 5px;
+  display: block;
+}
+
+.webcam-preview h2,
+.side h2 {
+  background: linear-gradient(120deg, #4299e1, #667eea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.8em;
+  font-weight: 700;
+  margin-bottom: 30px;
+  font-family: "Inter", sans-serif;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+/* Remove the underline styles and wrapper */
+.title-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.media-item-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.media-options {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.media-item-container:hover .media-options {
+  opacity: 1;
+}
+
+.media-options-dots {
+  width: 4px;
+  height: 4px;
+  background: #4a5568;
+  border-radius: 50%;
+  margin: 0 1px;
+}
+
+.media-options-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  display: none;
+  z-index: 100;
+}
+
+.media-options.active .media-options-menu {
+  display: block;
+}
+
+.media-option-item {
+  padding: 8px 16px;
+  color: #4a5568;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.media-option-item:hover {
+  background: #f7fafc;
+  color: #e53e3e;
+}
+
+.media-option-item i {
+  font-size: 14px;
+}
+
+/* Mobile tab navigation */
+.mobile-tabs {
+  display: none;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.tab-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: #667eea;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tab-button.active {
+  border-bottom: 2px solid #667eea;
+  color: #4299e1;
+}
+
+/* Mobile navigation */
+.mobile-nav-button {
+  display: none;
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 1000;
+  background: linear-gradient(to right, slateblue, lightblue);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 140px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.mobile-menu-item {
+  padding: 15px 25px;
+  color: #4a5568;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.mobile-menu-item:hover,
+.mobile-menu-item.active {
+  background: #f7fafc;
+  color: #667eea;
+}
+
+.mobile-menu.show {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-areas: "main";
+    grid-template-columns: 1fr;
+    margin: 10px;
+    height: auto;
+    min-height: calc(100% - 20px);
+  }
+
+  .mobile-nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .main,
+  .side {
+    display: none;
+    padding: 10px;
+  }
+
+  .main.active,
+  .side.active {
+    display: block;
+  }
+
+  .side {
+    border-left: none;
+    padding-top: 0;
+  }
+
+  .webcam-container {
+    min-width: unset;
+    width: 100%;
+  }
+
+  #webcam {
+    width: 100%;
+    height: auto;
+  }
+
+  .thumbnail-gallery {
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .media-item-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 15px;
+  }
+
+  /* Hide the old mobile tabs */
+  .mobile-tabs {
+    display: none;
+  }
 }

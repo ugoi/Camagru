@@ -1,177 +1,340 @@
 /* General Styles */
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Inter", Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5;
+  background-color: white;
 }
 
 h1 {
   text-align: center;
-  margin-top: 20px;
-  color: #333;
+  margin: 30px 0;
+  color: #2d3748;
+  font-size: 2.2em;
+  font-weight: 700;
+  background: linear-gradient(120deg, #4299e1, #667eea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .media-wrapper {
   overflow-y: auto;
-  background-color: #e0f7fa;
+  background-color: white;
   text-align: center;
-  height: 600px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 24px;
+  box-shadow: none;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background-color: white;
 }
 
 .div-wrapper {
-  padding-bottom: 10px;
+  padding-bottom: 20px;
+  width: 100%;
 }
 
 .media-container {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .captured-media {
   width: 100%;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.captured-media:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .media-img {
   width: 100%;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  max-height: 600px;
+  object-fit: cover;
+  border-radius: 16px 16px 0 0;
+  margin-bottom: 0;
 }
 
 .media-actions {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
 }
 
-.comment-form {
+.interaction-bar {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  width: 100%;
-}
-
-.comment-input {
-  flex: 1;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.btn {
-  padding: 10px 20px;
-  background-color: #00796b;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn:hover {
-  background-color: #004d40;
-}
-
-.load-more {
-  margin-top: 20px;
-}
-
-/* Collapsible Section */
-input[type="checkbox"] {
-  display: none;
-}
-
-.wrap-collabsible {
-  margin-top: 20px;
-  width: 100%;
-}
-
-.lbl-toggle {
-  display: block;
-  font-weight: bold;
-  font-family: monospace;
-  font-size: 1rem;
-  text-align: center;
-  padding: 10px;
-  color: #ff6f00;
-  background-color: #ffe082;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.lbl-toggle:hover {
-  background-color: #ffcc80;
-}
-
-.toggle:checked + .lbl-toggle::before {
-  transform: rotate(90deg);
-}
-
-.collapsible-content {
-  max-height: 0;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  transition: max-height 0.3s ease-in-out;
-}
-
-.toggle:checked + .lbl-toggle + .collapsible-content {
-  max-height: 50vh;
-}
-
-.collapsible-content .content-inner {
-  background-color: rgba(255, 224, 130, 0.2);
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 10px;
-}
-
-.comment {
-  margin-bottom: 10px;
-  overflow-wrap: anywhere;
+  align-items: center;
+  gap: 20px;
+  padding: 4px 0;
 }
 
 .like-section {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  width: 100%;
-  justify-content: flex-end;
+  margin: 0;
+  padding: 8px 12px;
+  background: #f7fafc;
+  margin-left: auto;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.like-section:hover {
+  background: white;
 }
 
 .like-btn {
   background: none;
   border: none;
-  font-size: 24px;
+  color: #4a5568;
   cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  margin: 0;
+  order: 1;
+}
+
+.like-btn:hover {
+  color: #4299e1;
+  transform: scale(1.1);
+}
+
+.like-btn.active {
+  color: #4299e1;
 }
 
 .like-count {
-  font-size: 18px;
-  color: #555;
+  color: #4a5568;
+  font-weight: 500;
+  font-size: 16px;
+  order: 2;
+  margin-left: 6px;
 }
 
-/* Hide Scrollbars */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
+.comment-section {
+  border-top: 1px solid white;
+  padding-top: 12px;
 }
 
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.comment-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 0;
+  padding: 0;
+  background: none;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: #4299e1;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
+}
+
+.comment-input::placeholder {
+  color: #a0aec0;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 16px;
+  background: #4299e1;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: #3182ce;
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Comments collapsible */
+.wrap-collabsible {
+  margin: 8px 0 0 0;
+}
+
+.lbl-toggle {
+  display: block;
+  padding: 8px;
+  color: #718096;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.lbl-toggle:hover {
+  color: #4299e1;
+  background: #f7fafc;
+}
+
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.toggle:checked + .lbl-toggle + .collapsible-content {
+  max-height: 300px;
+}
+
+.collapsible-content .content-inner {
+  padding: 8px 0;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #4299e1 #f7fafc;
+}
+
+/* Custom scrollbar for webkit browsers */
+.collapsible-content .content-inner::-webkit-scrollbar {
+  width: 6px;
+}
+
+.collapsible-content .content-inner::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 10px;
+}
+
+.collapsible-content .content-inner::-webkit-scrollbar-thumb {
+  background: #4299e1;
+  border-radius: 10px;
+}
+
+.collapsible-content .content-inner::-webkit-scrollbar-thumb:hover {
+  background: #3182ce;
+}
+
+.comment {
+  padding: 8px;
+  margin: 4px 0;
+  font-size: 14px;
+  color: #4a5568;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.comment p {
+  margin: 0;
+}
+
+.comment-user {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 2px;
 }
 
 .load-btn {
-  max-width: 100px;
-  border-radius: 5px;
-  padding: 5px 10px;
-  background-color: #45a049;
-  color: white;
-  border: none;
+  margin: 32px auto;
+  padding: 12px 24px;
+  background: white;
+  color: #4299e1;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.load-btn:hover {
+  background: #f8fafc;
+  border-color: #4299e1;
+  transform: translateY(-1px);
+}
+
+.load-btn:active {
+  transform: translateY(0);
+}
+
+/* Hide Scrollbars but keep functionality */
+.hide-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hide-scrollbar::-webkit-scrollbar-track {
+  background: rgba(247, 247, 247, 0.5);
+}
+
+.hide-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(160, 174, 192, 0.5);
+  border-radius: 4px;
+}
+
+.hide-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160, 174, 192, 0.5) rgba(247, 247, 247, 0.5);
+}
+
+@media (max-width: 640px) {
+  .media-container {
+    gap: 16px;
+  }
+
+  .captured-media {
+    border-radius: 12px;
+  }
+
+  .media-img {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .media-actions {
+    padding: 10px 12px;
+  }
+
+  .comment-input {
+    padding: 8px 12px;
+  }
+
+  .btn {
+    padding: 8px 12px;
+  }
+}
+
+/* Add this rule to hide the checkbox */
+.toggle {
+  position: absolute;
+  opacity: 0;
+  display: none;
 }

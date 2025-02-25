@@ -1,4 +1,117 @@
+/* Profile Typography */
+h1 {
+  font-family: "Inter", sans-serif;
+  font-size: 2.4em;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 1.5em;
+  text-align: center;
+}
+
+/* Message Banner */
+.message-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1em 2em;
+  border-radius: 12px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.message-banner svg {
+  width: 20px;
+  height: 20px;
+}
+
+.message-banner.success {
+  background: #c6f6d5;
+  color: #2f855a;
+  border: 1px solid #9ae6b4;
+}
+
+.message-banner.show {
+  opacity: 1;
+}
+
+main {
+  max-width: 800px;
+  margin: 2em auto;
+  padding: 0 2em;
+  width: 100%;
+}
+
+.profile-container {
+  width: 100%;
+}
+
+section {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5em;
+  margin-bottom: 1.5em;
+  transition: all 0.2s ease;
+  border: 1px solid white;
+}
+
+section:hover {
+  border-color: #e2e8f0;
+}
+
 section h2 {
-  font-size: 1.5em;
-  margin-bottom: 0.5em;
+  font-family: "Inter", sans-serif;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.75em;
+  letter-spacing: -0.01em;
+}
+
+section p {
+  font-family: "Inter", sans-serif;
+  font-size: 1.1em;
+  color: #2d3748;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.edit-profile-link {
+  display: inline-block;
+  margin-top: 1em;
+  padding: 0.75em 1.5em;
+  font-family: "Inter", sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #4299e1;
+  text-decoration: none;
+  border: 2px solid #4299e1;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.edit-profile-link:hover {
+  background: #4299e1;
+  color: white;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  main {
+    padding: 0 1em;
+  }
+
+  h1 {
+    font-size: 2em;
+    margin-bottom: 1em;
+  }
+
+  section {
+    padding: 1.25em;
+  }
 }

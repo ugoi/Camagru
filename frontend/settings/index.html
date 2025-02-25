@@ -1,67 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Settings - Simple Website</title>
+    <title>Settings - CamGuru</title>
     <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="settings.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
-    <div class="root">
+    <div id="successMessage" class="message-banner success">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span>Settings saved successfully!</span>
+    </div>
+
+    <div id="errorMessage" class="message-banner error">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span></span>
+    </div>
+
+    <div
+      class="root"
+      style="
+        background: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      "
+    >
       <camagru-header></camagru-header>
 
-      <main style="height: 100%; width: 100%; overflow-y: scroll">
-        <main
-          style="
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 100%;
-          "
-        >
-          <h1 style="color: #333">Settings</h1>
+      <main style="flex: 1">
+        <div class="settings-container">
+          <h1>Settings</h1>
 
-          <div
-            style="
-              margin-top: 20px;
-              padding: 10px;
-              background-color: #f9f9f9;
-              border-radius: 10px;
-              max-width: 400px;
-              margin: 20px auto;
-              text-align: left;
-            "
-          >
-            <h2 style="color: #333">Notifications</h2>
-            <br>
-            <label for="emailNotifications" style="color: #555">
-              Email Notifications
-            </label>
-            <label class="switch" style="float: right">
-              <input type="checkbox" id="emailNotifications" checked />
-              <span class="slider round"></span>
-            </label>
+          <section>
+            <h2>Notifications</h2>
+            <div class="settings-row">
+              <label for="emailNotifications">Email Notifications</label>
+              <label class="switch">
+                <input type="checkbox" id="emailNotifications" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </section>
+
+          <div style="text-align: center">
+            <button class="save-button" id="saveSettingsButton">
+              Save Settings
+            </button>
           </div>
-
-          <button
-            style="
-              background-color: #007bff;
-              color: white;
-              border: none;
-              padding: 10px 20px;
-              cursor: pointer;
-              border-radius: 5px;
-              margin-top: 20px;
-            "
-            id="saveSettingsButton"
-          >
-            Save Settings
-          </button>
-        </main>
+        </div>
       </main>
 
       <camagru-footer></camagru-footer>
@@ -69,63 +82,6 @@
 
     <script type="module" src="../web_components/CamagruHeader.js"></script>
     <script type="module" src="../web_components/CamagruFooter.js"></script>
-
-    <style>
-      /* Toggle Switch Style */
-      .switch {
-        position: relative;
-        display: inline-block;
-        width: 50px;
-        height: 24px;
-      }
-
-      .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-
-      .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: 0.4s;
-        border-radius: 34px;
-      }
-
-      .slider:before {
-        position: absolute;
-        content: "";
-        height: 18px;
-        width: 18px;
-        left: 4px;
-        bottom: 3px;
-        background-color: white;
-        transition: 0.4s;
-        border-radius: 50%;
-      }
-
-      input:checked + .slider {
-        background-color: #007bff;
-      }
-
-      input:checked + .slider:before {
-        transform: translateX(26px);
-      }
-
-      .slider.round {
-        border-radius: 34px;
-      }
-
-      .slider.round:before {
-        border-radius: 50%;
-      }
-    </style>
-
     <script type="module" src="controller.js"></script>
   </body>
 </html>

@@ -82,11 +82,9 @@ function setIsRecording(value) {
  */
 function renderIsRecording(value) {
   if (value) {
-    // Set the button to red
-    captureVideoBtn.style.backgroundColor = "#f44336";
+    captureVideoBtn.classList.add("recording");
   } else {
-    // Set the button to green
-    captureVideoBtn.style.backgroundColor = "#4caf50";
+    captureVideoBtn.classList.remove("recording");
   }
 }
 
@@ -247,35 +245,72 @@ async function loadNextUserMedia() {
       const fileType = await checkFileType(downloadUrl);
       const isVideo = fileType === "video";
       const objectURL = downloadUrl;
+
+      // Create container for media item
+      const mediaContainer = document.createElement("div");
+      mediaContainer.className = "media-item-container";
+
+      // Create media element (image or video)
       if (isVideo) {
-        var outputMedia = document.createElement("video");
+        const video = document.createElement("video");
+        video.src = objectURL;
+        video.className = "captured-media";
+        video.controls = true;
+        mediaContainer.appendChild(video);
       } else {
-        var outputMedia = document.createElement("img");
+        const img = document.createElement("img");
+        img.src = objectURL;
+        img.className = "captured-media";
+        mediaContainer.appendChild(img);
       }
-      const divWrapper = document.createElement("div");
-      const deleteButton = document.createElement("button");
-      deleteButton.className = "delete-media-btn";
-      divWrapper.style.paddingBottom = "10px";
-      divWrapper.style.display = "flex";
-      divWrapper.style.flexDirection = "column";
-      divWrapper.style.alignItems = "center";
-      divWrapper.id = mediaElement.id;
-      outputMedia.src = objectURL;
-      outputMedia.controls = true;
-      outputMedia.className = "captured-media";
-      deleteButton.innerText = "Delete";
-      deleteButton.id = "deleteButton";
-      deleteButton.addEventListener("click", async (event) => {
+
+      // Create options menu
+      const optionsDiv = document.createElement("div");
+      optionsDiv.className = "media-options";
+
+      // Add three dots
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement("div");
+        dot.className = "media-options-dots";
+        optionsDiv.appendChild(dot);
+      }
+
+      // Create options menu
+      const menuDiv = document.createElement("div");
+      menuDiv.className = "media-options-menu";
+
+      // Create delete option
+      const deleteOption = document.createElement("div");
+      deleteOption.className = "media-option-item";
+      deleteOption.innerHTML = '<i class="fas fa-trash-alt"></i> Delete';
+      deleteOption.onclick = async (e) => {
+        e.stopPropagation(); // Prevent menu from closing
         try {
           await deleteMedia(mediaElement.id);
-          myMedia.removeChild(divWrapper);
+          await reloadUserMedia();
         } catch (error) {
-          console.error("Failed to delete media", error);
+          console.error("Failed to delete media:", error);
+        }
+      };
+
+      menuDiv.appendChild(deleteOption);
+      optionsDiv.appendChild(menuDiv);
+      mediaContainer.appendChild(optionsDiv);
+
+      // Toggle menu on click
+      optionsDiv.onclick = (e) => {
+        e.stopPropagation();
+        optionsDiv.classList.toggle("active");
+      };
+
+      // Close menu when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!optionsDiv.contains(e.target)) {
+          optionsDiv.classList.remove("active");
         }
       });
-      divWrapper.appendChild(outputMedia);
-      divWrapper.appendChild(deleteButton);
-      myMedia.appendChild(divWrapper);
+
+      myMedia.appendChild(mediaContainer);
     }
   }
 }
@@ -297,6 +332,10 @@ window.addEventListener("DOMContentLoaded", async (event) => {
           .then(function (stream) {
             videoPreview.srcObject = stream;
             videoPreview.play();
+            // Add loaded class when video starts playing
+            videoPreview.addEventListener("playing", () => {
+              videoPreview.parentElement.classList.add("loaded");
+            });
           })
           .catch(function (error) {
             console.log(

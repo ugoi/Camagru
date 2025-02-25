@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
@@ -11,7 +11,11 @@
     <meta name="description" content="User profile page" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../styles.css" />
-    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="profile.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!--[if lt IE 7]>
@@ -25,47 +29,55 @@
       </p>
     <![endif]-->
 
-    <div class="root">
+    <div id="successMessage" class="message-banner success">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span>Profile updated successfully!</span>
+    </div>
+
+    <div
+      class="root"
+      style="
+        background: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      "
+    >
       <camagru-header></camagru-header>
 
-      <main style="height: 100%; width: 100%; overflow-y: scroll;">
-        <main
-          style="
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-          "
-        >
-          <h1 style="text-align: center; color: #333">Profile</h1>
+      <main style="flex: 1">
+        <div class="profile-container">
+          <h1>Profile</h1>
 
-          <section style="margin-bottom: 20px">
-            <h2 >Username</h2>
-            <p id="username" style="font-size: 1.2em; color: #555"></p>
+          <section>
+            <h2>Username</h2>
+            <p id="username"></p>
           </section>
 
-          <section style="margin-bottom: 20px">
+          <section>
             <h2>Email</h2>
-            <p id="email" style="font-size: 1.2em; color: #555"></p>
+            <p id="email"></p>
           </section>
 
-          <section style="margin-bottom: 20px">
+          <section>
             <h2>Password</h2>
-            <p id="password" style="font-size: 1.2em; color: #555">******</p>
+            <p id="password">******</p>
           </section>
 
           <div style="text-align: center">
-            <p>
-              <a
-                href="/edit-profile"
-                style="color: #007bff; text-decoration: none"
-                >Edit Profile</a
-              >
-            </p>
+            <a href="/edit-profile" class="edit-profile-link">Edit Profile</a>
           </div>
-        </main>
+        </div>
       </main>
 
       <camagru-footer></camagru-footer>
@@ -75,5 +87,27 @@
     <script type="module" src="../web_components/CamagruFooter.js"></script>
 
     <script type="module" src="profile.js"></script>
+
+    <script type="module">
+      import { handleLoadProfile } from "./profile.js";
+
+      window.addEventListener("DOMContentLoaded", () => {
+        handleLoadProfile();
+
+        // Check for success parameter and show message
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("showSuccess") === "true") {
+          const successMessage = document.getElementById("successMessage");
+          successMessage.classList.add("show");
+
+          // Hide the message after 3 seconds
+          setTimeout(() => {
+            successMessage.classList.remove("show");
+            // Remove the parameter from URL
+            window.history.replaceState({}, "", "/profile");
+          }, 3000);
+        }
+      });
+    </script>
   </body>
 </html>

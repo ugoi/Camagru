@@ -3,11 +3,6 @@ import { getProfile } from "../profile/profile.js";
 /**
  * @type {HTMLElement}
  */
-const registerSuccess = document.getElementById("registerSuccess");
-
-/**
- * @type {HTMLElement}
- */
 const registerError = document.getElementById("registerError");
 
 /**
@@ -15,9 +10,10 @@ const registerError = document.getElementById("registerError");
  * Handles the edit profile form submission
  * @returns {void}
  */
-export async function handleEditProfile() {
+export async function handleEditProfile(event) {
+  event.preventDefault();
+
   try {
-    event.preventDefault();
     var username = document.getElementById("username").value;
     var email = document.getElementById("email").value;
     var password = document.getElementById("password").value;
@@ -28,12 +24,9 @@ export async function handleEditProfile() {
     if (password) await updatePassword(password);
 
     await handleLoadEditProfile();
-    registerSuccess.style.display = "block";
-    registerError.style.display = "none";
+    window.location.href = "/profile?showSuccess=true";
   } catch (error) {
-    registerSuccess.style.display = "none";
-    registerError.style.display = "block";
-    registerError.innerText = error.message;
+    showErrorMessage(error.message);
   }
 }
 
@@ -56,34 +49,37 @@ export async function handleLoadEditProfile() {
  * @returns {void}
  */
 async function updateUsername(username) {
-  //Make request to server
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
+  try {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-  const raw = JSON.stringify({
-    username: username,
-  });
+    const raw = JSON.stringify({
+      username: username,
+    });
 
-  const requestOptions = {
-    credentials: "include",
-    mode: "cors",
-    method: "PUT",
-    headers: myHeaders,
-    body: raw,
-    redirect: "follow",
-  };
+    const requestOptions = {
+      credentials: "include",
+      mode: "cors",
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
 
-  const response = await fetch(
-    "http://camagru.com:8000/api/user/profile/username",
-    requestOptions
-  );
+    const response = await fetch(
+      "http://camagru.com:8000/api/user/profile/username",
+      requestOptions
+    );
 
-  const json = await response.json();
+    const json = await response.json();
 
-  if (response.status === 200) {
-    return json;
-  } else {
-    throw new Error(json.error);
+    if (response.status === 200) {
+      return json;
+    } else {
+      throw new Error(json.error);
+    }
+  } catch (error) {
+    throw new Error("Network error. Please check your internet connection.");
   }
 }
 
@@ -94,34 +90,37 @@ async function updateUsername(username) {
  * @returns {void}
  */
 async function updateEmail(email) {
-  //Make request to server
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
+  try {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-  const raw = JSON.stringify({
-    email: email,
-  });
+    const raw = JSON.stringify({
+      email: email,
+    });
 
-  const requestOptions = {
-    credentials: "include",
-    mode: "cors",
-    method: "PUT",
-    headers: myHeaders,
-    body: raw,
-    redirect: "follow",
-  };
+    const requestOptions = {
+      credentials: "include",
+      mode: "cors",
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
 
-  const response = await fetch(
-    "http://camagru.com:8000/api/user/profile/email",
-    requestOptions
-  );
+    const response = await fetch(
+      "http://camagru.com:8000/api/user/profile/email",
+      requestOptions
+    );
 
-  const json = await response.json();
+    const json = await response.json();
 
-  if (response.status === 200) {
-    return json;
-  } else {
-    throw new Error(json.error);
+    if (response.status === 200) {
+      return json;
+    } else {
+      throw new Error(json.error);
+    }
+  } catch (error) {
+    throw new Error("Network error. Please check your internet connection.");
   }
 }
 
@@ -132,33 +131,57 @@ async function updateEmail(email) {
  * @returns {void}
  */
 async function updatePassword(password) {
-  //Make request to server
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
+  try {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-  const raw = JSON.stringify({
-    password: password,
-  });
+    const raw = JSON.stringify({
+      password: password,
+    });
 
-  const requestOptions = {
-    credentials: "include",
-    mode: "cors",
-    method: "PUT",
-    headers: myHeaders,
-    body: raw,
-    redirect: "follow",
-  };
+    const requestOptions = {
+      credentials: "include",
+      mode: "cors",
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
 
-  const response = await fetch(
-    "http://camagru.com:8000/api/user/profile/password",
-    requestOptions
-  );
+    const response = await fetch(
+      "http://camagru.com:8000/api/user/profile/password",
+      requestOptions
+    );
 
-  const json = await response.json();
+    const json = await response.json();
 
-  if (response.status === 200) {
-    return json;
-  } else {
-    throw new Error(json.error);
+    if (response.status === 200) {
+      return json;
+    } else {
+      throw new Error(json.error);
+    }
+  } catch (error) {
+    throw new Error("Network error. Please check your internet connection.");
   }
+}
+
+function showSuccessMessage() {
+  const successMessage = document.getElementById("successMessage");
+  successMessage.classList.add("show");
+
+  // Hide the message after 3 seconds
+  setTimeout(() => {
+    successMessage.classList.remove("show");
+  }, 3000);
+}
+
+function showErrorMessage(message) {
+  const errorMessage = document.getElementById("errorMessage");
+  errorMessage.querySelector("span").textContent = message;
+  errorMessage.classList.add("show");
+
+  // Hide the message after 3 seconds
+  setTimeout(() => {
+    errorMessage.classList.remove("show");
+  }, 3000);
 }

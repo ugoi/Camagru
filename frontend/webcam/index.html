@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -22,11 +22,29 @@
   <body>
     <div class="root">
       <camagru-header></camagru-header>
+      <button class="mobile-nav-button" id="mobile-nav-button">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="mobile-menu" id="mobile-menu">
+        <button class="mobile-menu-item active" data-tab="main">
+          Webcam Preview
+        </button>
+        <button class="mobile-menu-item" data-tab="side">
+          Previous Captures
+        </button>
+      </div>
       <div class="container">
-        <main class="main">
+        <main class="main active">
           <section class="webcam-preview">
-            <h2>Webcam Preview</h2>
-            <video id="webcam" autoplay></video>
+            <div class="title-wrapper">
+              <h2>Webcam Preview</h2>
+            </div>
+            <div class="webcam-container">
+              <div class="webcam-loading">
+                <div class="camera-loader"></div>
+              </div>
+              <video id="webcam" autoplay></video>
+            </div>
 
             <div id="snapshot-image-wrapper">
               <button id="close-snapshot-image" class="close-snapshot-btn">
@@ -57,7 +75,7 @@
             </div>
             <div class="superposable-images">
               <label for="image-select" class="custom-label"
-                >Select a Superposable Image:</label
+                >Choose Your Sticker Overlay:</label
               >
               <select id="image-select" class="custom-select">
                 <option value="" disabled selected>Select Image</option>
@@ -83,7 +101,9 @@
         </main>
 
         <aside class="side">
-          <h2>Previous Captures</h2>
+          <div class="title-wrapper">
+            <h2>Previous Captures</h2>
+          </div>
           <div class="thumbnail-gallery" id="thumbnail-gallery">
             <!-- Thumbnails of previous pictures will be inserted here -->
             <!-- <img src="https://picsum.photos/200/200" alt="Placeholder" />
@@ -110,5 +130,46 @@
     <script type="module" src="upload-controller.js"></script>
     <script type="module" src="../web_components/CamagruHeader.js"></script>
     <script type="module" src="../web_components/CamagruFooter.js"></script>
+    <script>
+      // Mobile navigation
+      document.addEventListener("DOMContentLoaded", () => {
+        const mobileNavButton = document.getElementById("mobile-nav-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const menuItems = document.querySelectorAll(".mobile-menu-item");
+
+        // Toggle menu
+        mobileNavButton.addEventListener("click", () => {
+          mobileMenu.classList.toggle("show");
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener("click", (e) => {
+          if (
+            !mobileMenu.contains(e.target) &&
+            !mobileNavButton.contains(e.target)
+          ) {
+            mobileMenu.classList.remove("show");
+          }
+        });
+
+        // Handle menu item clicks
+        menuItems.forEach((item) => {
+          item.addEventListener("click", () => {
+            // Remove active class from all items and sections
+            menuItems.forEach((i) => i.classList.remove("active"));
+            document.querySelector(".main").classList.remove("active");
+            document.querySelector(".side").classList.remove("active");
+
+            // Add active class to clicked item and corresponding section
+            item.classList.add("active");
+            const tabName = item.getAttribute("data-tab");
+            document.querySelector("." + tabName).classList.add("active");
+
+            // Hide menu after selection
+            mobileMenu.classList.remove("show");
+          });
+        });
+      });
+    </script>
   </body>
 </html>

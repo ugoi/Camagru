@@ -17,9 +17,30 @@ document.addEventListener("DOMContentLoaded", () => {
       loadSettings();
     }
   } catch (error) {
-    console.log("Failed to load user media", error);
+    showErrorMessage("Failed to load user data. Please try again.");
   }
 });
+
+function showSuccessMessage() {
+  const successMessage = document.getElementById("successMessage");
+  successMessage.classList.add("show");
+
+  // Hide the message after 3 seconds
+  setTimeout(() => {
+    successMessage.classList.remove("show");
+  }, 3000);
+}
+
+function showErrorMessage(message) {
+  const errorMessage = document.getElementById("errorMessage");
+  errorMessage.querySelector("span").textContent = message;
+  errorMessage.classList.add("show");
+
+  // Hide the message after 3 seconds
+  setTimeout(() => {
+    errorMessage.classList.remove("show");
+  }, 3000);
+}
 
 export async function saveSettings() {
   const emailNotifications =
@@ -27,12 +48,9 @@ export async function saveSettings() {
 
   try {
     await patchSettings(emailNotifications);
-    alert(
-      "Settings saved! Email Notifications: " +
-        (emailNotifications ? "On" : "Off")
-    );
+    showSuccessMessage();
   } catch (error) {
-    alert("Failed to save settings: " + error.message);
+    showErrorMessage(error.message);
   }
 }
 
@@ -42,6 +60,6 @@ export async function loadSettings() {
     document.getElementById("emailNotifications").checked =
       settings.enable_email_notifications;
   } catch (error) {
-    alert("Failed to load settings: " + error.message);
+    showErrorMessage(error.message);
   }
 }
