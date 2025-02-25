@@ -1,4 +1,7 @@
-import { createCompletableTimeout, getVideoDimensions } from "../utils/utils.js";
+import {
+  createCompletableTimeout,
+  getVideoDimensions,
+} from "../utils/utils.js";
 
 class MediaService {
   /**
@@ -137,7 +140,7 @@ export async function postMedia(formData) {
   };
 
   const response = await fetch(
-    "http://camagru.com:8000/api/media?scale_factor=0.1&x_position_factor=0&y_position_factor=0",
+    `http://camagru.com:8000/api/media?scale_factor=0.4&x_position_factor=0.8&y_position_factor=0.8&t=${Date.now()}`,
     requestOptions
   );
 

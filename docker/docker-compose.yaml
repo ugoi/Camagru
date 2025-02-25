@@ -5,6 +5,7 @@ services:
       - "80:80"
     volumes:
       - ../frontend:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
 
   app:
     image: eclipse-temurin:17
@@ -15,7 +16,6 @@ services:
       - ../backend/camagru:/app
       - maven_cache:/root/.m2
     command: java -jar target/camagru-1.0-SNAPSHOT.jar
-    # Install Maven and any other required packages, build the project, then run the application
     entrypoint: |
       sh -c "
         apt-get update && \
