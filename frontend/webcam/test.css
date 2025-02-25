@@ -349,12 +349,16 @@ camagru-header {
 }
 
 .load-btn {
-  max-width: 100px;
-  border-radius: 5px;
-  padding: 5px 10px;
+  width: 100%;
+  max-width: 200px;
+  border-radius: 12px;
+  padding: 10px 20px;
   background: linear-gradient(to right, slateblue, lightblue);
   color: white;
   border: none;
+  margin: 20px auto;
+  cursor: pointer;
+  font-weight: 500;
 }
 
 .capture-btn:disabled {
@@ -363,10 +367,6 @@ camagru-header {
   border: 1px solid #a9a9a9; /* Medium gray border */
   cursor: not-allowed; /* Change cursor to indicate it's disabled */
   opacity: 0.6; /* Optionally lower the opacity for a 'faded' look */
-}
-
-.load-btn:disabled {
-  display: none;
 }
 
 .delete-media-btn {
@@ -386,13 +386,12 @@ camagru-header {
 
 .thumbnail-gallery {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   flex: 1 1 auto;
   overflow-y: auto;
   min-height: 0px;
-  justify-content: center;
   align-items: center;
-  padding-right: 10px; /* Add padding for scrollbar */
+  padding-right: 10px;
 }
 
 /* Custom scrollbar styling */
@@ -456,6 +455,7 @@ camagru-header {
 .media-item-container {
   position: relative;
   width: 100%;
+  max-width: 400px;
   margin-bottom: 15px;
   border-radius: 12px;
   overflow: hidden;
@@ -614,11 +614,38 @@ camagru-header {
 
 @media (max-width: 768px) {
   .container {
-    grid-template-areas: "main";
+    grid-template-areas:
+      "main"
+      "side";
     grid-template-columns: 1fr;
-    margin: 10px;
-    height: auto;
-    min-height: calc(100% - 20px);
+  }
+
+  .side {
+    border-left: none;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+  }
+
+  .thumbnail-gallery {
+    padding-right: 0;
+  }
+
+  .webcam-preview h2,
+  .side h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .media-item-container {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .load-btn {
+    margin: 20px auto;
+    width: 100%;
+    max-width: 200px;
   }
 
   .mobile-nav-button {
@@ -638,15 +665,6 @@ camagru-header {
     display: block;
   }
 
-  .side {
-    border-left: none;
-    padding-top: 0;
-  }
-
-  .webcam-container {
-    min-width: unset;
-    width: 100%;
-  }
 
   #webcam {
     width: 100%;
